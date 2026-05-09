@@ -13,7 +13,7 @@ export default [
   ...tseslint.configs.stylistic,
   {
     settings: {
-       'import-x/internal-regex': '^(@firestore|src)(/|$)',
+      'import-x/internal-regex': '^(@firestore|src)(/|$)',
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
           alwaysTryTypes: true,
@@ -38,19 +38,19 @@ export default [
     },
     rules: {
       'no-fallthrough': 'error',
-       'import-x/first': 'warn',
-       'import-x/newline-after-import': 'warn',
-       'import-x/order': [
-         'warn',
-         {
-           alphabetize: {
-             caseInsensitive: true,
-             order: 'asc',
-           },
-           groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
-           'newlines-between': 'always',
-         },
-       ],
+      'import-x/first': 'warn',
+      'import-x/newline-after-import': 'warn',
+      'import-x/order': [
+        'warn',
+        {
+          alphabetize: {
+            caseInsensitive: true,
+            order: 'asc',
+          },
+          groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
+          'newlines-between': 'always',
+        },
+      ],
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/explicit-function-return-type': [
         'warn',

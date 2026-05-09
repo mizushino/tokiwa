@@ -14,7 +14,7 @@ export default [
   {
     settings: {
       'import-x/ignore': ['\\.css$'],
-       'import-x/internal-regex': '^(@app|@assets|@components|@models|@services|@functions|@firestore)(/|$)',
+      'import-x/internal-regex': '^(@app|@assets|@components|@models|@services|@functions|@firestore)(/|$)',
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
           alwaysTryTypes: true,
@@ -27,19 +27,19 @@ export default [
   {
     rules: {
       'no-fallthrough': 'error',
-       'import-x/first': 'warn',
-       'import-x/newline-after-import': 'warn',
-       'import-x/order': [
-         'warn',
-         {
-           alphabetize: {
-             caseInsensitive: true,
-             order: 'asc',
-           },
-           groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
-           'newlines-between': 'always',
-         },
-       ],
+      'import-x/first': 'warn',
+      'import-x/newline-after-import': 'warn',
+      'import-x/order': [
+        'warn',
+        {
+          alphabetize: {
+            caseInsensitive: true,
+            order: 'asc',
+          },
+          groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
+          'newlines-between': 'always',
+        },
+      ],
       '@typescript-eslint/explicit-function-return-type': [
         'warn',
         {
