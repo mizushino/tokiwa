@@ -1,4 +1,5 @@
 import { existsSync } from 'fs';
+
 import { setGlobalOptions } from 'firebase-functions/v2/options';
 
 // Load environment variables from .env file when present.

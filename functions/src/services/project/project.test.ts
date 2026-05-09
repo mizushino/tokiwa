@@ -1,8 +1,9 @@
-import type { ProjectUserData } from '@firestore/types/project-user.js';
-import * as admin from 'firebase-admin';
+import { apps, firestore as adminFirestore, initializeApp } from 'firebase-admin';
 import firebaseFunctionsTest from 'firebase-functions-test';
-import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+
+import type { ProjectUserData } from '@firestore/types/project-user.js';
+import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
 
 const testEnv = firebaseFunctionsTest(getFirebaseTestConfig());
 
@@ -22,7 +23,7 @@ async function waitForCondition(assertion: () => Promise<void> | void, attempts 
   throw lastError;
 }
 
-async function waitForUserDocument(db: admin.firestore.Firestore, uid: string): Promise<void> {
+async function waitForUserDocument(db: adminFirestore.Firestore, uid: string): Promise<void> {
   await waitForCondition(async () => {
     const userSnapshot = await db.collection('users').doc(uid).get();
     expect(userSnapshot.exists).toBe(true);
@@ -30,13 +31,13 @@ async function waitForUserDocument(db: admin.firestore.Firestore, uid: string): 
 }
 
 describe('project service E2E', () => {
-  let db: admin.firestore.Firestore;
+  let db: adminFirestore.Firestore;
 
   beforeAll(() => {
-    if (!admin.apps.length) {
-      admin.initializeApp();
+    if (!apps.length) {
+      initializeApp();
     }
-    db = admin.firestore();
+    db = adminFirestore();
   });
 
   afterEach(async () => {

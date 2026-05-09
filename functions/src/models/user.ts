@@ -1,5 +1,6 @@
-import { userCollectionPath, userDocumentPath, type UserData, type UserKey } from '@firestore/types/user.js';
 import { FirestoreCollection, FirestoreDocument } from '@mzsn/firestore';
+
+import { userCollectionPath, userDocumentPath, type UserData, type UserKey } from '@firestore/types/user.js';
 
 /**
  * Firestore document representing a user.

@@ -15,8 +15,8 @@ import { customElement } from 'lit/decorators.js';
 import { share } from 'lit-share';
 import { URLPattern } from 'urlpattern-polyfill';
 
-import { TokiwaElement } from '@app/element';
 import { initializeAuth, type FirebaseAuthSettings } from '@app/auth';
+import { TokiwaElement } from '@app/element';
 import { getFirebaseConfig } from '@app/firebase-config';
 import { type FunctionsSettings, initializeFunctions } from '@app/functions';
 

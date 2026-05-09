@@ -1,4 +1,3 @@
-import type { UserData } from '@firestore/types/user.js';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
@@ -6,6 +5,7 @@ import { logger } from 'firebase-functions';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { beforeUserCreated } from 'firebase-functions/v2/identity';
 
+import type { UserData } from '@firestore/types/user.js';
 import { UserDocument } from 'src/models/user.js';
 
 /**

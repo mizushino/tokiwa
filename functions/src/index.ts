@@ -1,7 +1,7 @@
-import * as admin from 'firebase-admin';
+import { initializeApp } from 'firebase-admin';
 
 // Initialize Firebase Admin SDK
-admin.initializeApp();
+initializeApp();
 
 // User triggers (Auth sync and custom claims)
 export * as user from './services/user/user.js';

@@ -1,6 +1,7 @@
-import tailwindcss from '@tailwindcss/vite';
 import { mkdirSync } from 'fs';
 import { resolve } from 'path';
+
+import tailwindcss from '@tailwindcss/vite';
 import type { UserConfig } from 'vite';
 import { defineConfig, loadEnv } from 'vite';
 

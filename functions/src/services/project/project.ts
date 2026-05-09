@@ -1,6 +1,6 @@
-import type { ProjectUserData } from '@firestore/types/project-user.js';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 
+import type { ProjectUserData } from '@firestore/types/project-user.js';
 import { UserDocument } from 'src/models/user.js';
 
 // Map project roles to abbreviated forms to shorten permission strings

@@ -1,4 +1,4 @@
-import * as admin from 'firebase-admin';
+import { apps, firestore as adminFirestore, initializeApp } from 'firebase-admin';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const setMetadataMock = vi.fn();
@@ -16,13 +16,13 @@ vi.mock('firebase-admin/storage', () => ({
 }));
 
 describe('storage service', () => {
-  let db: admin.firestore.Firestore;
+  let db: adminFirestore.Firestore;
 
   beforeAll(() => {
-    if (!admin.apps.length) {
-      admin.initializeApp();
+    if (!apps.length) {
+      initializeApp();
     }
-    db = admin.firestore();
+    db = adminFirestore();
   });
 
   beforeEach(() => {

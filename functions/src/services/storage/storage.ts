@@ -3,6 +3,19 @@
  * Monitors file uploads to Cloud Storage, generates multiple size variations for images, and records metadata in Firestore
  */
 
+import { existsSync, unlinkSync, mkdirSync } from 'fs';
+import { writeFile } from 'fs/promises';
+import { tmpdir } from 'os';
+import { basename, dirname, extname, join } from 'path';
+
+import { Transformer } from '@napi-rs/image';
+import { getStorage } from 'firebase-admin/storage';
+import { logger } from 'firebase-functions';
+import { onDocumentWritten } from 'firebase-functions/v2/firestore';
+import type { StorageObjectData } from 'firebase-functions/v2/storage';
+import { onObjectFinalized } from 'firebase-functions/v2/storage';
+import { v4 } from 'uuid';
+
 import type {
   ImageStorageData,
   ImageStorageMetadata,
@@ -10,18 +23,6 @@ import type {
   StorageData,
   StorageMetadata,
 } from '@firestore/types/storage.js';
-import { Transformer } from '@napi-rs/image';
-import { getStorage } from 'firebase-admin/storage';
-import { logger } from 'firebase-functions';
-import { onDocumentWritten } from 'firebase-functions/v2/firestore';
-import type { StorageObjectData } from 'firebase-functions/v2/storage';
-import { onObjectFinalized } from 'firebase-functions/v2/storage';
-import { existsSync, unlinkSync, mkdirSync } from 'fs';
-import { writeFile } from 'fs/promises';
-import { tmpdir } from 'os';
-import { basename, dirname, extname, join } from 'path';
-import { v4 } from 'uuid';
-
 import { DirectoryDocument } from 'src/models/directory.js';
 import { StorageCollection, StorageDocument } from 'src/models/storage.js';
 

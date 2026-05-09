@@ -17,6 +17,7 @@ interface ImportMeta {
 
 declare module '*/page.json' {
   import type { PageMetadata } from '@app/page';
+
   const value: PageMetadata;
   export default value;
 }

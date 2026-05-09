@@ -1,5 +1,6 @@
-import { sampleCollectionPath, sampleDocumentPath, type SampleData, type SampleKey } from '@firestore/types/sample.js';
 import { FirestoreCollection, FirestoreDocument, timeId } from '@mzsn/firestore';
+
+import { sampleCollectionPath, sampleDocumentPath, type SampleData, type SampleKey } from '@firestore/types/sample.js';
 
 /**
  * Firestore document representing a sample.

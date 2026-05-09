@@ -1,10 +1,11 @@
+import { FirestoreCollection, FirestoreDocument, timeId } from '@mzsn/firestore';
+
 import {
   directoryCollectionPath,
   directoryDocumentPath,
   type DirectoryData,
   type DirectoryKey,
 } from '@firestore/types/directory.js';
-import { FirestoreCollection, FirestoreDocument, timeId } from '@mzsn/firestore';
 
 /**
  * Firestore document representing a directory.

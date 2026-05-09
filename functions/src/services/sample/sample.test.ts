@@ -1,15 +1,15 @@
-import * as admin from 'firebase-admin';
+import { apps, firestore as adminFirestore, initializeApp } from 'firebase-admin';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 describe('sample service E2E', () => {
-  let db: admin.firestore.Firestore;
+  let db: adminFirestore.Firestore;
 
   beforeAll(() => {
-    if (!admin.apps.length) {
-      admin.initializeApp();
+    if (!apps.length) {
+      initializeApp();
     }
-    db = admin.firestore();
+    db = adminFirestore();
   });
 
   afterEach(async () => {

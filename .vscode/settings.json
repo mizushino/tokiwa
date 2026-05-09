@@ -7,13 +7,31 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "explorer.compactFolders": false,
   "html.format.wrapAttributes": "force-aligned",
-  "eslint.workingDirectories": ["./hosting", "./functions", "./firestore"],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.workingDirectories": [
+    {
+      "directory": "./hosting",
+      "changeProcessCWD": true
+    },
+    {
+      "directory": "./functions",
+      "changeProcessCWD": true
+    },
+    {
+      "directory": "./firestore",
+      "changeProcessCWD": true
+    }
+  ],
   "editor.codeActionsOnSave": {
     "source.organizeImports": "never",
     "source.addMissingImports": "always",
-    "source.fixAll": "always"
+    "source.fixAll": "never",
+    "source.fixAll.eslint": "always"
   },
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {

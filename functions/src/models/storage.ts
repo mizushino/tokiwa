@@ -1,10 +1,11 @@
+import { FirestoreCollection, FirestoreDocument, timeId } from '@mzsn/firestore';
+
 import {
   storageCollectionPath,
   storageDocumentPath,
   type StorageData,
   type StorageKey,
 } from '@firestore/types/storage.js';
-import { FirestoreCollection, FirestoreDocument, timeId } from '@mzsn/firestore';
 
 /**
  * Firestore document representing a storage object.

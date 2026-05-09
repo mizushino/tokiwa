@@ -1,6 +1,5 @@
 import type { FirebaseApp } from 'firebase/app';
 import type { Auth, AuthProvider, Persistence, PopupRedirectResolver, Unsubscribe, User } from 'firebase/auth';
-export type { User } from 'firebase/auth';
 import {
   AuthErrorCodes,
   browserLocalPersistence,
@@ -18,6 +17,8 @@ import {
 } from 'firebase/auth';
 
 import { seedPreferredLanguageFromUser } from '@app/i18n';
+
+export type { User } from 'firebase/auth';
 
 /**
  * ID token refresh interval in milliseconds.

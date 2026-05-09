@@ -1,8 +1,9 @@
-import type { UserData } from '@firestore/types/user.js';
-import * as admin from 'firebase-admin';
+import { apps, auth as adminAuth, firestore as adminFirestore, initializeApp } from 'firebase-admin';
 import firebaseFunctionsTest from 'firebase-functions-test';
-import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+
+import type { UserData } from '@firestore/types/user.js';
+import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
 
 const testEnv = firebaseFunctionsTest(getFirebaseTestConfig());
 
@@ -23,17 +24,17 @@ async function waitForCondition(assertion: () => Promise<void> | void, attempts 
 }
 
 describe('user service E2E', () => {
-  let db: admin.firestore.Firestore;
-  let auth: admin.auth.Auth;
+  let db: adminFirestore.Firestore;
+  let auth: adminAuth.Auth;
   let createdUserIds: string[] = [];
 
   beforeAll(() => {
     // Initialize Firebase Admin
-    if (!admin.apps.length) {
-      admin.initializeApp();
+    if (!apps.length) {
+      initializeApp();
     }
-    db = admin.firestore();
-    auth = admin.auth();
+    db = adminFirestore();
+    auth = adminAuth();
   });
 
   afterEach(async () => {
@@ -152,8 +153,8 @@ describe('user service E2E', () => {
       await db.doc(`users/${userRecord.uid}`).set({
         email: userRecord.email || '',
         displayName: 'Original Name',
-        createdAt: admin.firestore.Timestamp.now(),
-        updatedAt: admin.firestore.Timestamp.now(),
+        createdAt: adminFirestore.Timestamp.now(),
+        updatedAt: adminFirestore.Timestamp.now(),
       });
 
       const userData: UserData = {
@@ -205,8 +206,8 @@ describe('user service E2E', () => {
       await db.doc(`users/${userRecord.uid}`).set({
         email: 'test-storage@example.com',
         displayName: 'Storage Test',
-        createdAt: admin.firestore.Timestamp.now(),
-        updatedAt: admin.firestore.Timestamp.now(),
+        createdAt: adminFirestore.Timestamp.now(),
+        updatedAt: adminFirestore.Timestamp.now(),
       });
 
       const userData: UserData = {
