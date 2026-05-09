@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "nodenext",
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "rootDir": "..",
+    "outDir": "lib",
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2024",
+    "lib": ["ES2024"],
+    "paths": {
+      "@firestore/*": ["../firestore/src/*"],
+      "src/*": ["./src/*"]
+    }
+  },
+  "compileOnSave": true,
+  "include": [
+    "src",
+    "scripts",
+    "../firestore/src",
+    "*.config.ts"
+  ]
+}

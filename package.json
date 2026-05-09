@@ -1,0 +1,41 @@
+{
+  "name": "tokiwa",
+  "version": "0.1.0",
+  "description": "",
+  "license": "",
+  "author": "",
+  "scripts": {
+    "install": "npm --prefix hosting install && npm --prefix functions install",
+    "dev": "npm --prefix hosting run dev -- --mode dev",
+    "prod": "npm --prefix hosting run dev -- --mode prod",
+    "build": "npm --prefix hosting run build && npm --prefix functions run build",
+    "lint": "npm --prefix hosting run lint && npm --prefix functions run lint",
+    "test": "npm --prefix hosting run test && npm --prefix functions run test",
+    "test:hosting": "npm --prefix hosting run test",
+    "test:functions": "npm --prefix functions run test",
+    "coverage": "npm --prefix hosting run coverage && npm --prefix functions run coverage",
+    "coverage:hosting": "npm --prefix hosting run coverage",
+    "coverage:functions": "npm --prefix functions run coverage",
+    "test:e2e": "npm --prefix hosting run test:e2e",
+    "test:e2e:ui": "npm --prefix hosting run test:e2e:ui",
+    "test:e2e:debug": "npm --prefix hosting run test:e2e:debug",
+    "test:e2e:report": "npm --prefix hosting run test:e2e:report",
+    "emulators": "npm run emulators:kill && mkdir -p .artifacts/firebase && cd .artifacts/firebase && firebase --config ../../firebase.json emulators:start --project \"${FIREBASE_PROJECT_ID:-tokiwa-template}\"",
+    "emulators:kill": "lsof -ti :8080 | xargs -r kill -9 && lsof -ti :9099 | xargs -r kill -9 && lsof -ti :9199 | xargs -r kill -9 && lsof -ti :4000 | xargs -r kill -9",
+    "dev:default": "APP_SITE=default npm run dev",
+    "prod:default": "APP_SITE=default npm run prod",
+    "build:default": "APP_SITE=default npm run build",
+    "lint:default": "APP_SITE=default npm run lint",
+    "lint:hosting:default": "npm run lint:default",
+    "build:hosting:default": "npm run build:default",
+    "dev:admin": "APP_SITE=admin npm run dev",
+    "prod:admin": "APP_SITE=admin npm run prod",
+    "build:admin": "APP_SITE=admin npm run build",
+    "lint:admin": "APP_SITE=admin npm run lint",
+    "lint:hosting:admin": "npm run lint:admin",
+    "build:hosting:admin": "npm run build:admin"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.17.0"
+  }
+}

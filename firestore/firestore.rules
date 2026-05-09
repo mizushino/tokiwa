@@ -1,0 +1,82 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function createVerifyFields(required, optional) {
+      let allowed = required.concat(optional);
+      return request.resource.data.keys().hasAll(required) &&
+        request.resource.data.keys().hasOnly(allowed);
+    }
+
+    function updateVerifyFields(allowed) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowed);
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.a == true;
+    }
+
+    function isSignedInUser(uid) {
+      return isSignedIn() && uid == request.auth.uid;
+    }
+
+    function isOwner(projectId) {
+      let projects = request.auth.token.p.get('projects', []);
+      return projects.hasAny([projectId, projectId + ':o']);
+    }
+
+    function isManager(projectId) {
+      let projects = request.auth.token.p.get('projects', []);
+      return projects.hasAny([projectId, projectId + ':o', projectId + ':m']);
+    }
+
+    function isWriter(projectId) {
+      let projects = request.auth.token.p.get('projects', []);
+      return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w']);
+    }
+
+    function isReader(projectId) {
+      let projects = request.auth.token.p.get('projects', []);
+      return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w', projectId + ':r']);
+    }
+
+    function userFieldsValidTypes(data) {
+       return (data.displayName is string) &&
+             (data.get('email', '') is string) &&
+            (data.get('image', '') is string) &&
+            (data.get('permissions', {}) is map) &&
+            (data.get('admin', false) is bool);
+    }
+
+    match /users/{uid} {
+      allow create: if
+        createVerifyFields(['displayName', 'createdAt', 'updatedAt'], ['email', 'image']) &&
+        userFieldsValidTypes(request.resource.data);
+      allow update: if
+        updateVerifyFields(['displayName', 'email', 'image', 'updatedAt']) &&
+        userFieldsValidTypes(request.resource.data) &&
+        isSignedInUser(uid);
+      allow read: if
+        isSignedInUser(uid);
+    }
+
+    match /projects/{pid} {
+      allow read: if isWriter(pid);
+      allow update: if isManager(pid);
+      allow delete: if isOwner(pid);
+
+      match /users/{uid} {
+        allow read: if isReader(pid);
+        allow write: if isManager(pid);
+      }
+		}
+
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "explorer.compactFolders": false,
+  "html.format.wrapAttributes": "force-aligned",
+  "eslint.workingDirectories": ["./hosting", "./functions", "./firestore"],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never",
+    "source.addMissingImports": "always",
+    "source.fixAll": "always"
+  },
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "file": ".github/docs/commit.md"
+    }
+  ],
+  "tailwindCSS.experimental.classRegex": [
+    "[cC]lass\\s*[=:]\\s*['\"`]([^'\"`]*)"
+  ],
+  "tailwindCSS.experimental.configFile": {
+    "hosting/src/sites/admin/app.css": "hosting/src/sites/admin/**",
+    "hosting/src/sites/default/app.css": ["hosting/src/sites/default/**", "hosting/src/components/**"],
+  },
+  "simpleBrowser.focusLockIndicator.enabled": false
+}

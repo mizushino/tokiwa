@@ -1,0 +1,79 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.a == true;
+    }
+
+    function isSignedInUser(uid) {
+      return isSignedIn() && uid == request.auth.uid;
+    }
+
+    function isOwner(projectId) {
+      let projects = request.auth.token.p.get('projects', []);
+      return projects.hasAny([projectId, projectId + ':o']);
+    }
+    
+    function isManager(projectId) {
+      let projects = request.auth.token.p.get('projects', []);
+      return projects.hasAny([projectId, projectId + ':o', projectId + ':m']);
+    }
+    
+    function isWriter(projectId) {
+      let projects = request.auth.token.p.get('projects', []);
+      return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w']);
+    }
+
+    function isReader(projectId) {
+      let projects = request.auth.token.p.get('projects', []);
+      return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w', projectId + ':r']);
+    }
+
+    function hasProductAccess(productId) {
+      let products = request.auth.token.p.get('products', []);
+      return products.hasAny([productId]);
+    }
+
+    function isActive(meta) {
+      return meta.active == 'true';
+    }
+
+    function isWithinDateRange(meta) {
+      let now = request.time.toMillis() / 1000;
+      let hasBeginDate = 'beginDate' in meta;
+      let hasEndDate = 'endDate' in meta;
+      let beginOk = !hasBeginDate || int(meta.beginDate) <= now;
+      let endOk = !hasEndDate || now <= int(meta.endDate);
+      return beginOk && endOk;
+    }
+
+    function hasAccess(meta) {
+      return isActive(meta) && isWithinDateRange(meta);
+    }
+
+    match /users/{uid}/avatar/{filename} {
+      allow get: if true;
+      allow list: if isSignedInUser(uid);
+      allow write: if isSignedInUser(uid);
+    }
+
+    match /projects/{pid} {
+      allow read: if isWriter(pid);
+      allow update: if isManager(pid);
+      allow delete: if isOwner(pid);
+
+      match /{allPaths=**} {
+        allow read: if isReader(pid) && hasAccess(resource.metadata);
+        allow write: if isManager(pid);
+      }
+		}
+
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
