@@ -1,7 +1,8 @@
 import { html, type TemplateResult } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
+import { createRef, ref } from 'lit/directives/ref.js';
 
-import { LightElement } from '@app/element';
+import { TokiwaElement } from '@app/element';
 import { transition } from '@app/transition';
 
 /**
@@ -24,9 +25,12 @@ export type DropdownSize = 'sm' | 'md' | 'lg';
  *   </ui-dropdown>
  * `
  * ```
+ *
+ * @slot trigger - Element used to toggle the menu.
+ * @slot menu - Menu content rendered inside the dropdown panel.
  */
 @customElement('ui-dropdown')
-export class UiDropdown extends LightElement {
+export class UiDropdown extends TokiwaElement {
   @property({ type: String })
   size: DropdownSize = 'md';
 
@@ -36,11 +40,9 @@ export class UiDropdown extends LightElement {
   @state()
   private isOpen = false;
 
-  @query('[data-dropdown-menu]')
-  private menu?: HTMLElement;
-
-  @query('[data-dropdown-trigger]')
-  private trigger?: HTMLElement;
+  private readonly menuRef = createRef<HTMLElement>();
+  private readonly triggerRef = createRef<HTMLElement>();
+  private readonly triggerSlotRef = createRef<HTMLSlotElement>();
 
   private closeOnClickOutside = (event: MouseEvent): void => {
     if (!this.contains(event.target as Node)) {
@@ -51,7 +53,7 @@ export class UiDropdown extends LightElement {
   private handleKeyDown = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') {
       this.close();
-      this.trigger?.focus();
+      this.focusTrigger();
     } else if (event.key === 'ArrowDown') {
       event.preventDefault();
       this.focusNextItem();
@@ -66,10 +68,6 @@ export class UiDropdown extends LightElement {
       this.focusLastItem();
     }
   };
-
-  public override connectedCallback(): void {
-    super.connectedCallback();
-  }
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
@@ -109,9 +107,25 @@ export class UiDropdown extends LightElement {
   }
 
   private getFocusableItems(): HTMLElement[] {
-    if (!this.menu) return [];
+    if (!this.menuRef.value) return [];
+
+    const slot = this.menuRef.value.querySelector('slot[name="menu"]');
+    if (!(slot instanceof HTMLSlotElement)) {
+      return [];
+    }
+
     const selector = 'a, button, [tabindex]:not([tabindex="-1"])';
-    return Array.from(this.menu.querySelectorAll(selector));
+
+    return slot.assignedElements({ flatten: true }).flatMap((element) => {
+      const matches: HTMLElement[] = [];
+
+      if (element instanceof HTMLElement && element.matches(selector)) {
+        matches.push(element);
+      }
+
+      matches.push(...Array.from(element.querySelectorAll<HTMLElement>(selector)));
+      return matches;
+    });
   }
 
   private focusNextItem(): void {
@@ -142,6 +156,16 @@ export class UiDropdown extends LightElement {
     items[items.length - 1]?.focus();
   }
 
+  private focusTrigger(): void {
+    const assignedTrigger = this.triggerSlotRef.value?.assignedElements({ flatten: true })[0];
+    if (assignedTrigger instanceof HTMLElement) {
+      assignedTrigger.focus();
+      return;
+    }
+
+    this.triggerRef.value?.focus();
+  }
+
   private getMenuClasses(): string {
     const baseClasses =
       'absolute z-10 rounded-md bg-white shadow-sm ring-1 ring-gray-900/5 focus:outline-none dark:bg-gray-900 dark:ring-white/10';
@@ -159,7 +183,7 @@ export class UiDropdown extends LightElement {
       'top-end': 'mb-2 bottom-full right-0',
     };
 
-    // Add hidden class when dropdown is closed
+    // Keep the menu mounted so transitions can manage visibility.
     const visibilityClass = !this.isOpen ? 'hidden' : '';
 
     return [baseClasses, sizeClasses[this.size], placementClasses[this.placement], visibilityClass]
@@ -171,12 +195,13 @@ export class UiDropdown extends LightElement {
     return html`
       <div class="relative inline-block text-left">
         <!-- Trigger button -->
-        <div @click=${this.toggle} data-dropdown-trigger>
-          <slot name="trigger"></slot>
+        <div ${ref(this.triggerRef)} @click=${this.toggle} data-dropdown-trigger>
+          <slot ${ref(this.triggerSlotRef)} name="trigger"></slot>
         </div>
 
         <!-- Dropdown menu with transition -->
         <div
+          ${ref(this.menuRef)}
           ${transition(this.isOpen ? 'enter' : 'leave', {
             enter: 'transition ease-out duration-100',
             enterFrom: 'transform opacity-0 scale-95',

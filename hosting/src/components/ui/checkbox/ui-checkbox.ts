@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import { LightElement } from '@app/element';
+import { TokiwaElement } from '@app/element';
 
 /**
  * Checkbox size type
@@ -17,9 +17,12 @@ export type CheckboxSize = 'sm' | 'md' | 'lg';
  * html`<ui-checkbox size="sm" disabled>Small disabled</ui-checkbox>`
  * html`<ui-checkbox size="lg" indeterminate>Select all</ui-checkbox>`
  * ```
+ *
+ * @slot - Checkbox label content.
+ * @fires change - Fired when the checked state changes.
  */
 @customElement('ui-checkbox')
-export class UiCheckbox extends LightElement {
+export class UiCheckbox extends TokiwaElement {
   @property({ type: Boolean })
   checked = false;
 
@@ -43,7 +46,7 @@ export class UiCheckbox extends LightElement {
     this.checked = target.checked;
     this.indeterminate = false;
 
-    // Dispatch a custom change event
+    // Emit the updated checked state for parent components.
     this.dispatchEvent(
       new CustomEvent('change', {
         detail: { checked: this.checked, value: this.value },
@@ -73,7 +76,9 @@ export class UiCheckbox extends LightElement {
 
   protected override render(): TemplateResult {
     return html`
-      <label class="inline-flex items-center gap-2 select-none ${this.disabled ? 'cursor-not-allowed' : 'cursor-pointer'}">
+      <label
+        class="${this.disabled ? 'cursor-not-allowed' : 'cursor-pointer'} inline-flex items-center gap-2 select-none"
+      >
         <input
           type="checkbox"
           class="${this.getCheckboxClasses()}"

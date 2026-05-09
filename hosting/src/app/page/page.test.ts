@@ -1,5 +1,5 @@
 import type { Router } from '@lit-labs/router';
-import { html, type TemplateResult } from 'lit';
+import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { PartType, type ElementPart, type PartInfo } from 'lit/directive.js';
 import { LitShare } from 'lit-share';
@@ -29,7 +29,15 @@ class TestPage extends PageElement {
 // Test page with custom host classes
 @customElement('test-page-custom')
 class TestPageCustom extends PageElement {
-  protected static override hostClasses = ['flex', 'items-center'];
+  static override styles: CSSResultGroup = [
+    PageElement.styles,
+    css`
+      :host {
+        display: flex;
+        align-items: center;
+      }
+    `,
+  ];
 
   protected override render(): TemplateResult {
     return html`<div>Custom Layout</div>`;
@@ -88,34 +96,32 @@ describe('Page', () => {
   });
 
   describe('PageElement', () => {
-    it('renders in light DOM', async () => {
+    it('renders in shadow DOM', async () => {
       const element = document.createElement('test-page') as TestPage;
       container.appendChild(element);
       await element.updateComplete;
 
-      const content = element.querySelector('div');
+      const content = element.shadowRoot?.querySelector('div');
       expect(content?.textContent).toBe('Test Content');
-      expect(element.shadowRoot).toBeNull();
+      expect(element.shadowRoot).not.toBeNull();
     });
 
-    it('applies default host classes', async () => {
+    it('registers shared host styles by default', async () => {
       const element = document.createElement('test-page') as TestPage;
       container.appendChild(element);
       await element.updateComplete;
 
-      expect(element.classList.contains('block')).toBe(true);
-      expect(element.classList.contains('w-full')).toBe(true);
-      expect(element.classList.contains('h-full')).toBe(true);
+      expect(TestPage.styles).toBe(PageElement.styles);
+      expect(element.shadowRoot).not.toBeNull();
     });
 
-    it('applies custom host classes', async () => {
+    it('allows custom host styles to extend defaults', async () => {
       const element = document.createElement('test-page-custom') as TestPageCustom;
       container.appendChild(element);
       await element.updateComplete;
 
-      expect(element.classList.contains('flex')).toBe(true);
-      expect(element.classList.contains('items-center')).toBe(true);
-      expect(element.classList.contains('block')).toBe(false);
+      expect(TestPageCustom.styles).not.toBe(PageElement.styles);
+      expect(element.shadowRoot).not.toBeNull();
     });
 
     it('sets page metadata on connection', async () => {

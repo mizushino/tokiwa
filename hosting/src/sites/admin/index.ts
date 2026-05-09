@@ -1,11 +1,12 @@
 import { Routes } from '@lit-labs/router';
 import type { User } from 'firebase/auth';
 import type { Unsubscribe } from 'firebase/firestore';
-import { html, LitElement, type TemplateResult } from 'lit';
+import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { track } from 'lit-async';
 
 import { signOut, userSnapshot } from '@app/auth';
+import { PageElement } from '@app/page';
 import type { SidebarNavItem } from '@components/ui/sidebar/ui-sidebar';
 import { subscribeToUserDocument } from '@models/user';
 
@@ -20,7 +21,7 @@ import './checkboxes';
 import './dropdown';
 
 @customElement('admin-index')
-export class AdminIndex extends LitElement {
+export class AdminIndex extends PageElement {
   protected pageMetadata = pageMetadata;
 
   protected currentUser: User | null = null;
@@ -41,10 +42,6 @@ export class AdminIndex extends LitElement {
    * ユーザードキュメントのリアルタイム監視を停止する関数
    */
   private unsubscribeUserDoc: Unsubscribe | null = null;
-
-  protected override createRenderRoot(): HTMLElement | DocumentFragment {
-    return this;
-  }
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();

@@ -20,3 +20,13 @@ declare module '*/page.json' {
   const value: PageMetadata;
   export default value;
 }
+
+declare module '*.css' {
+  const stylesheet: CSSStyleSheet;
+  export default stylesheet;
+}
+
+declare module '*.css?inline' {
+  const cssText: string;
+  export default cssText;
+}

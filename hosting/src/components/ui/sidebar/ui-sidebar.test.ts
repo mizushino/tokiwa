@@ -1,6 +1,7 @@
 import type { User } from 'firebase/auth';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { proxyShadowQueries } from '@app/../test/query-shadow-root';
 import * as NavigateModule from '@app/page';
 
 import type { SidebarNavItem, UiSidebar } from './ui-sidebar';
@@ -15,7 +16,7 @@ describe('UiSidebar', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    element = document.createElement('ui-sidebar') as UiSidebar;
+    element = proxyShadowQueries(document.createElement('ui-sidebar') as UiSidebar);
     container.appendChild(element);
 
     // Spy on Navigate.to

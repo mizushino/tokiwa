@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { proxyShadowQueries } from '@app/../test/query-shadow-root';
+
 import type { ButtonSize, ButtonVariant, UiButton } from './ui-button';
 
 import './ui-button';
@@ -11,7 +13,7 @@ describe('UiButton', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    element = document.createElement('ui-button') as UiButton;
+    element = proxyShadowQueries(document.createElement('ui-button') as UiButton);
     container.appendChild(element);
   });
 

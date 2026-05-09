@@ -1,5 +1,7 @@
-import { html, LitElement, type TemplateResult } from 'lit';
+import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+
+import { TokiwaElement } from '@app/element';
 
 /**
  * Column definition for the table.
@@ -51,7 +53,16 @@ export interface TableSort {
  * ```
  */
 @customElement('ui-table')
-export class UiTable extends LitElement {
+export class UiTable extends TokiwaElement {
+  static override styles: CSSResultGroup = [
+    TokiwaElement.styles,
+    css`
+      :host {
+        display: block;
+      }
+    `,
+  ];
+
   @property({ type: Array })
   columns: TableColumn[] = [];
 
@@ -72,10 +83,6 @@ export class UiTable extends LitElement {
 
   @property({ type: String })
   filter = '';
-
-  protected override createRenderRoot(): HTMLElement | DocumentFragment {
-    return this;
-  }
 
   /**
    * Get nested property value using dot notation.
@@ -102,14 +109,14 @@ export class UiTable extends LitElement {
 
     return this.data.filter((row) => {
       return this.columns.some((column) => {
-        // Skip non-searchable columns
+        // Ignore columns that are explicitly excluded from filtering.
         if (column.searchable === false) return false;
 
-        // Get value from row
+        // Read the value using the configured dot-path.
         const value = this.getNestedValue(row, column.key);
         if (value == null) return false;
 
-        // Search in string representation
+        // Match against the string form so primitive values behave consistently.
         return String(value).toLowerCase().includes(searchTerm);
       });
     });
@@ -151,7 +158,7 @@ export class UiTable extends LitElement {
       ? 'ml-2 flex-none rounded-sm bg-gray-100 text-gray-900 group-hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:group-hover:bg-gray-700'
       : 'ml-2 flex-none rounded-sm text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-400';
 
-    // Rotate icon 180deg for ascending sort
+    // Flip the chevron when ascending order is active.
     const svgClasses = isAscending ? 'size-5 rotate-180' : 'size-5';
 
     return html`

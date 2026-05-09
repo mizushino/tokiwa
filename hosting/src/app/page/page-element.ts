@@ -1,6 +1,6 @@
-import { html, type TemplateResult } from 'lit';
+import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 
-import { LightElement } from '@app/element';
+import { TokiwaElement } from '@app/element';
 import { globalTranslations, getPreferredLanguage } from '@app/i18n';
 
 import { Navigate } from './navigate';
@@ -20,8 +20,7 @@ export interface PageMetadata {
  * Provides:
  * - Automatic page metadata management (title, description, OG tags)
  * - Navigation helper method
- * - Light DOM rendering (no shadow DOM)
- * - Default host element classes (can be overridden)
+ * - Shadow DOM rendering with shared Tailwind styles
  *
  * Usage:
  * ```ts
@@ -30,17 +29,20 @@ export interface PageMetadata {
  * export class MyPage extends PageElement {
  *   protected pageMetadata = pageMetadata;
  *
- *   // Optional: Override default classes
- *   protected static override hostClasses = ['block', 'w-full'];
  * }
  * ```
  */
-export class PageElement extends LightElement {
-  /**
-   * CSS classes to apply to the host element.
-   * Override in subclasses to customize default styling.
-   */
-  protected static override hostClasses: string[] = ['block', 'w-full', 'h-full'];
+export class PageElement extends TokiwaElement {
+  static override styles: CSSResultGroup = [
+    TokiwaElement.styles,
+    css`
+      :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    `,
+  ];
 
   /**
    * Page metadata (title, description, OG tags).

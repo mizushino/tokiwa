@@ -10,11 +10,12 @@ import {
   persistentMultipleTabManager,
   type FirestoreSettings,
 } from 'firebase/firestore';
-import { html, LitElement, type TemplateResult } from 'lit';
+import { css, html, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { share } from 'lit-share';
 import { URLPattern } from 'urlpattern-polyfill';
 
+import { TokiwaElement } from '@app/element';
 import { initializeAuth, type FirebaseAuthSettings } from '@app/auth';
 import { getFirebaseConfig } from '@app/firebase-config';
 import { type FunctionsSettings, initializeFunctions } from '@app/functions';
@@ -39,7 +40,18 @@ if (window.URLPattern === undefined) {
 }
 
 @customElement('default-app')
-export class DefaultApp extends LitElement {
+export class DefaultApp extends TokiwaElement {
+  static override styles = [
+    TokiwaElement.styles,
+    css`
+      :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    `,
+  ];
+
   private readonly useEmulator = import.meta.env.MODE === 'emulator' || import.meta.env.VITE_USE_EMULATOR === 'true';
 
   private firebaseConfig = getFirebaseConfig(import.meta.env as Record<string, string | undefined>, {
@@ -72,13 +84,8 @@ export class DefaultApp extends LitElement {
     }
   );
 
-  protected override createRenderRoot(): HTMLElement | DocumentFragment {
-    return this;
-  }
-
   public override connectedCallback(): void {
     super.connectedCallback();
-    (this.renderRoot as HTMLElement).classList.add('block', 'w-full', 'h-full');
 
     this.firebaseApp = initializeApp(this.firebaseConfig);
     const firestore = initializeFirestore(this.firebaseApp, this.firestoreSetting);

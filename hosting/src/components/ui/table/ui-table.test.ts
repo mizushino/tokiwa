@@ -1,6 +1,8 @@
 import { html } from 'lit';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { proxyShadowQueries } from '@app/../test/query-shadow-root';
+
 import type { TableColumn, UiTable } from './ui-table';
 
 import './ui-table';
@@ -32,7 +34,7 @@ describe('UiTable', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    element = document.createElement('ui-table') as UiTable;
+    element = proxyShadowQueries(document.createElement('ui-table') as UiTable);
     container.appendChild(element);
   });
 

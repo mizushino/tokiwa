@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { proxyShadowQueries } from '@app/../test/query-shadow-root';
+
 import type { CheckboxSize, UiCheckbox } from './ui-checkbox';
 
 import './ui-checkbox';
@@ -11,7 +13,7 @@ describe('UiCheckbox', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    element = document.createElement('ui-checkbox') as UiCheckbox;
+    element = proxyShadowQueries(document.createElement('ui-checkbox') as UiCheckbox);
     container.appendChild(element);
   });
 
@@ -198,15 +200,15 @@ describe('UiCheckbox', () => {
   });
 
   it('renders slotted content', async () => {
-    // Need to set content before appending to container for LightElement
+    // Slotted content can be attached before rendering for predictable assertions
     container.remove();
     container = document.createElement('div');
     document.body.appendChild(container);
-    
-    element = document.createElement('ui-checkbox') as UiCheckbox;
+
+    element = proxyShadowQueries(document.createElement('ui-checkbox') as UiCheckbox);
     element.textContent = 'Checkbox Label';
     container.appendChild(element);
-    
+
     await element.updateComplete;
     const slot = element.querySelector('slot');
     expect(slot).toBeTruthy();

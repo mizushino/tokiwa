@@ -3,9 +3,12 @@ import { html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 
-import { LightElement } from '@app/element';
+import { TokiwaElement } from '@app/element';
 import { Navigate } from '@app/page';
 
+/**
+ * Navigation item definition for the sidebar.
+ */
 export interface SidebarNavItem {
   label: string;
   href?: string;
@@ -15,17 +18,32 @@ export interface SidebarNavItem {
   divider?: boolean;
 }
 
+/**
+ * Sidebar navigation component with branded header, navigation links, and user profile actions.
+ *
+ * Usage:
+ * ```ts
+ * html`
+ *   <ui-sidebar
+ *     .currentUser=${user}
+ *     .navItems=${items}
+ *     @userclick=${this.handleUserClick}
+ *   >
+ *     <img slot="logo" src="/logo.svg" alt="Tokiwa" class="h-8" />
+ *   </ui-sidebar>
+ * `
+ * ```
+ *
+ * @slot logo - Branded content shown at the top of the sidebar.
+ * @fires userclick - Fired when the current user profile section is pressed.
+ */
 @customElement('ui-sidebar')
-export class UiSidebar extends LightElement {
+export class UiSidebar extends TokiwaElement {
   @property({ type: Object })
   currentUser?: User | null;
 
   @property({ type: Array })
   navItems: SidebarNavItem[] = [];
-
-  protected override createRenderRoot(): HTMLElement | DocumentFragment {
-    return this;
-  }
 
   private handleUserClick(e: Event): void {
     e.preventDefault();
@@ -40,17 +58,17 @@ export class UiSidebar extends LightElement {
   }
 
   private renderNavItem(item: SidebarNavItem): TemplateResult {
-    // Divider (section header)
+    // Render section headers as non-interactive dividers.
     if (item.divider) {
       return html`<li class="mx-2">
         <div class="-mx-2 mt-2 text-xs/6 font-semibold text-gray-400">${item.label}</div>
       </li>`;
     }
 
-    // Check if this item is active based on current pathname
+    // Derive the active state from the current location.
     const isActive = item.href === window.location.pathname;
 
-    // Regular nav item
+    // Render standard navigation items as links.
     const classes = isActive
       ? 'group flex gap-x-3 rounded-md bg-white/5 p-2 text-sm/6 font-semibold text-white'
       : 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white';

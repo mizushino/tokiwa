@@ -1,32 +1,48 @@
-import { html, type TemplateResult } from 'lit';
+import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref, type Ref } from 'lit/directives/ref.js';
 
-import { LightElement } from '@app/element';
+import { TokiwaElement } from '@app/element';
 
 /**
- * Resizable split panel divider component
- * Supports both horizontal (left-right) and vertical (top-bottom) directions
+ * Resizable split divider for adjacent panels.
  *
- * Performance optimized:
- * - During drag: only the split bar moves visually (direct DOM manipulation, no Lit re-render)
- * - On drag end: fires a single change event with final position
+ * Usage:
+ * ```ts
+ * html`
+ *   <div class="flex h-full">
+ *     <aside class="w-80"></aside>
+ *     <ui-split direction="horizontal" .min=${240} .max=${640}></ui-split>
+ *     <main class="flex-1"></main>
+ *   </div>
+ * `
+ * ```
+ *
+ * @fires change - Fired when a drag interaction commits a new panel size.
  */
 @customElement('ui-split')
-export class UiSplit extends LightElement {
-  protected static override hostClasses = ['flex', 'shrink-0'];
+export class UiSplit extends TokiwaElement {
+  static override styles: CSSResultGroup = [
+    TokiwaElement.styles,
+    css`
+      :host {
+        display: flex;
+        flex-shrink: 0;
+      }
+    `,
+  ];
 
   @property({ type: String }) direction: 'horizontal' | 'vertical' = 'horizontal';
   @property({ type: Number }) min?: number;
   @property({ type: Number }) max?: number;
 
-  // ドラッグ状態（@stateではなく通常のプロパティ - 再レンダリングを避ける）
+  // Track drag state without triggering Lit re-renders.
   protected isDragging = false;
   protected parentRect: DOMRect | undefined;
   protected startPrevSize = 0;
-  protected startMousePos = 0; // ドラッグ開始時のマウス位置（X or Y）
-  protected startMin?: number; // ドラッグ開始時のmin値（ドラッグ中に変わらないように）
-  protected startMax?: number; // ドラッグ開始時のmax値（ドラッグ中に変わらないように）
+  protected startMousePos = 0; // Mouse position captured when dragging starts.
+  protected startMin?: number; // Min size captured at drag start.
+  protected startMax?: number; // Max size captured at drag start.
   protected pendingSize: number | null = null;
 
   protected readonly handleRef: Ref<HTMLDivElement> = createRef();
@@ -34,8 +50,7 @@ export class UiSplit extends LightElement {
   protected override render(): TemplateResult {
     const isVertical = this.direction === 'vertical';
 
-    // Split bar with extended touch areas using absolute positioning
-    // Touch areas extend beyond visible bar without affecting layout
+    // Extend the hit area without affecting layout.
     return html`
       <div class="${isVertical ? 'h-4 w-full' : 'h-full w-4'} relative">
         <!-- Invisible touch extension (before) - absolute positioned -->
@@ -123,18 +138,18 @@ export class UiSplit extends LightElement {
     this.startPrevSize = this.direction === 'vertical' ? prevRect.height : prevRect.width;
     this.startMousePos = this.direction === 'vertical' ? clientY : clientX;
 
-    // ドラッグ開始時のmin/max値を保存（ドラッグ中に変わらないように）
+    // Freeze the current bounds for the full drag interaction.
     this.startMin = this.min;
     this.startMax = this.max;
 
-    // ドラッグ中にiframeがマウスイベントをキャプチャしないよう、透明オーバーレイを表示
+    // Prevent nested iframes from stealing pointer events while dragging.
     this.showDragOverlay();
 
-    // ドラッグ中はスプリットバーを半透明にして背景が見えるようにする
+    // Dim the handle to indicate that a drag is in progress.
     handleElement.style.opacity = '0.75';
   }
 
-  // ドラッグ中のオーバーレイ（iframeがmousemoveを吸収するのを防ぐ）
+  // Transparent overlay used to keep drag events flowing across iframes.
   protected dragOverlay: HTMLDivElement | null = null;
 
   protected showDragOverlay(): void {
@@ -171,7 +186,7 @@ export class UiSplit extends LightElement {
 
     if (handleElement) {
       handleElement.style.transform = '';
-      handleElement.style.opacity = ''; // 透明度をリセット
+      handleElement.style.opacity = ''; // Reset the temporary drag styling.
     }
 
     if (this.pendingSize !== null && prevElement) {
@@ -218,11 +233,11 @@ export class UiSplit extends LightElement {
     if (!handleElement || !this.parentRect) return;
 
     if (this.direction === 'vertical') {
-      // ドラッグ開始時のサイズ + マウス移動量で計算（reflowを避ける）
+      // Base the next size on the initial measurement to avoid reflow-driven drift.
       const mouseDelta = clientY - this.startMousePos;
       let height = this.startPrevSize + mouseDelta;
 
-      // ドラッグ開始時に保存したmin/maxを使用
+      // Clamp using the bounds captured at drag start.
       if (this.startMin !== undefined && height < this.startMin) height = this.startMin;
       if (this.startMax !== undefined && height > this.startMax) height = this.startMax;
 
@@ -237,11 +252,11 @@ export class UiSplit extends LightElement {
       handleElement.style.transform = `translateY(${offset}px)`;
       this.pendingSize = height;
     } else {
-      // ドラッグ開始時のサイズ + マウス移動量で計算（reflowを避ける）
+      // Base the next size on the initial measurement to avoid reflow-driven drift.
       const mouseDelta = clientX - this.startMousePos;
       let width = this.startPrevSize + mouseDelta;
 
-      // ドラッグ開始時に保存したmin/maxを使用
+      // Clamp using the bounds captured at drag start.
       if (this.startMin !== undefined && width < this.startMin) width = this.startMin;
       if (this.startMax !== undefined && width > this.startMax) width = this.startMax;
 

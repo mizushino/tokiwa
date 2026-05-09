@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { proxyShadowQueries } from '@app/../test/query-shadow-root';
+
 import type { UiModal } from './ui-modal';
 
 import './ui-modal';
@@ -11,7 +13,7 @@ describe('UiModal', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    element = document.createElement('ui-modal') as UiModal;
+    element = proxyShadowQueries(document.createElement('ui-modal') as UiModal);
     container.appendChild(element);
   });
 

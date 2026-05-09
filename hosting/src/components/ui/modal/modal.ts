@@ -3,7 +3,16 @@ import { html, render } from 'lit';
 import type { ModalButton, ModalIcon } from './ui-modal';
 import './ui-modal';
 
-// Modal API as plain object with functions
+/**
+ * Programmatic modal helpers for alerts, confirmations, and prompt flows.
+ *
+ * Usage:
+ * ```ts
+ * await Modal.success('Saved');
+ * const confirmed = await Modal.confirm('Delete?', 'This cannot be undone', 'danger');
+ * const keyword = await Modal.prompt('Rename', 'Enter the new name');
+ * ```
+ */
 function open(icon: ModalIcon, title: string, message: string, buttons?: ModalButton[]): Promise<boolean | string> {
   return new Promise((resolve) => {
     const container = document.createElement('div');
@@ -16,7 +25,7 @@ function open(icon: ModalIcon, title: string, message: string, buttons?: ModalBu
       if (!isResolved) {
         isResolved = true;
         isOpen = false;
-        renderModal(); // Re-render to trigger close animation
+        renderModal(); // Re-render to trigger the close transition.
         setTimeout(() => {
           resolve(value);
           cleanup();
@@ -61,28 +70,28 @@ function open(icon: ModalIcon, title: string, message: string, buttons?: ModalBu
   });
 }
 
-// Success alert (OK button only)
+// Show a success alert with a single OK action.
 async function success(title: string, message?: string): Promise<void> {
   const actualTitle = message ? title : '';
   const actualMessage = message ? message : title;
   await open('success', actualTitle, actualMessage, [{ label: 'OK', value: 'ok', variant: 'primary' }]);
 }
 
-// Info alert (OK button only)
+// Show an informational alert with a single OK action.
 async function info(title: string, message?: string): Promise<void> {
   const actualTitle = message ? title : '';
   const actualMessage = message ? message : title;
   await open('info', actualTitle, actualMessage, [{ label: 'OK', value: 'ok', variant: 'primary' }]);
 }
 
-// Error alert (OK button only)
+// Show an error alert with a single OK action.
 async function error(title: string, message?: string): Promise<void> {
   const actualTitle = message ? title : '';
   const actualMessage = message ? message : title;
   await open('danger', actualTitle, actualMessage, [{ label: 'OK', value: 'ok', variant: 'primary' }]);
 }
 
-// Generic confirm (Yes/No buttons)
+// Show a confirm dialog with the default confirm and cancel actions.
 async function confirm(title: string, message?: string, icon?: 'question' | 'danger' | 'warning'): Promise<boolean> {
   const actualTitle = message ? title : '';
   const actualMessage = message ? message : title;
@@ -91,9 +100,14 @@ async function confirm(title: string, message?: string, icon?: 'question' | 'dan
   return !!result;
 }
 
-// Prompt dialog (input field with OK/Cancel buttons)
-// validator: optional function that returns error message or null if valid
-// useHtml: if true, message is rendered as HTML (for emphasis styling)
+/**
+ * Show a prompt dialog with optional validation.
+ *
+ * Usage:
+ * ```ts
+ * const value = await Modal.prompt('Project name', 'Enter a display name', 'question');
+ * ```
+ */
 async function prompt(
   title: string,
   message: string,
@@ -112,7 +126,7 @@ async function prompt(
 
     const handleInputChange = (e: CustomEvent): void => {
       inputValue = e.detail.value;
-      // Clear error when user types
+      // Clear the current validation message as soon as the user edits the value.
       if (inputError) {
         inputError = '';
         renderModal();
@@ -122,19 +136,19 @@ async function prompt(
     const handleConfirm = (): void => {
       if (isResolved) return;
 
-      // Run validation if provided
+      // Keep the dialog open when validation fails.
       if (validator) {
         const validationError = validator(inputValue);
         if (validationError) {
           inputError = validationError;
           renderModal();
-          return; // Don't close, show error
+          return;
         }
       }
 
       isResolved = true;
       isOpen = false;
-      renderModal(); // Re-render to trigger close animation
+      renderModal(); // Re-render to trigger the close transition.
       setTimeout(() => {
         resolve(inputValue);
         cleanup();
@@ -145,7 +159,7 @@ async function prompt(
       if (!isResolved) {
         isResolved = true;
         isOpen = false;
-        renderModal(); // Re-render to trigger close animation
+        renderModal(); // Re-render to trigger the close transition.
         setTimeout(() => {
           resolve(null);
           cleanup();
@@ -193,12 +207,12 @@ async function prompt(
  * @param variant - Color variant: 'danger' for red (revoke/delete), 'success' for green (grant/add)
  * @returns true if confirmed, false if cancelled
  *
- * Example:
+ * Usage:
  * ```ts
  * const confirmed = await Modal.confirmWithInput(
- *   '権限の剥奪',
- *   '<span class="font-semibold text-gray-900 dark:text-white">田中太郎</span> の権限を<span class="font-semibold text-danger-600 dark:text-danger-400">剥奪</span>します。',
- *   '剥奪',
+ *   'Revoke access',
+ *   '<span class="font-semibold text-gray-900 dark:text-white">Jane Doe</span> will have <span class="font-semibold text-danger-600 dark:text-danger-400">access revoked</span>.',
+ *   'REVOKE',
  *   'danger'
  * );
  * ```
@@ -209,20 +223,20 @@ async function confirmWithInput(
   keyword: string,
   variant: 'danger' | 'success' = 'danger'
 ): Promise<boolean> {
-  // 「剥」の異体字対応: 剥(U+5265) と 剝(U+525D) を相互に許容
+  // Normalize variant forms of the same kanji so either input is accepted.
   const normalizeKeyword = (text: string): string => {
     return text.replace(/[剥剝]/g, '剥');
   };
 
   const normalizedKeyword = normalizeKeyword(keyword);
 
-  // キーワードを強調表示（付与系=緑、削除系=赤）
+  // Match the emphasis color to the requested action.
   const keywordClass =
     variant === 'success'
       ? 'font-semibold text-success-600 dark:text-success-400'
       : 'font-semibold text-danger-600 dark:text-danger-400';
   const keywordHtml = `<span class="${keywordClass}">${keyword}</span>`;
-  // HTMLモードでは<br>を使用（\nはpre-wrapで大きな空白になる）
+  // Use <br> in HTML mode to avoid oversized gaps from pre-wrap line breaks.
   const fullMessage = `${message}<br><br>確認のため${keywordHtml}と入力してください。`;
 
   const icon = variant === 'success' ? 'warning' : 'danger';
@@ -237,7 +251,7 @@ async function confirmWithInput(
       }
       return null;
     },
-    true // useHtml
+    true // Render the emphasized keyword as HTML.
   );
   return result !== null && normalizeKeyword(result) === normalizedKeyword;
 }

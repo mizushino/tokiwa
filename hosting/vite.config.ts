@@ -6,6 +6,8 @@ import { defineConfig, loadEnv } from 'vite';
 
 import { PostBuildPlugin } from './vite-plugin-post-build';
 
+let globalProperties = '';
+
 export default ({ mode }: { mode: string }): UserConfig => {
   const site = process.env.APP_SITE || 'default';
   process.env = { ...process.env, ...loadEnv(mode, `${process.cwd()}/src/sites/${site}`) };
@@ -61,6 +63,29 @@ export default ({ mode }: { mode: string }): UserConfig => {
         },
       },
       tailwindcss(),
+      {
+        name: 'tailwind-split-and-inject',
+        enforce: 'pre',
+        transform(code, id) {
+          if (!id.includes('tailwind.css')) {
+            return undefined;
+          }
+
+          const propertyRegex = /@property\s+--[\w-]+\s*\{[^}]+\}/g;
+          globalProperties = code.match(propertyRegex)?.join('\n') || '';
+
+          return {
+            code: code.replace(propertyRegex, ''),
+          };
+        },
+        transformIndexHtml(html) {
+          if (!globalProperties) {
+            return html;
+          }
+
+          return html.replace('</head>', `\n<style id="tw-properties">\n${globalProperties}\n</style>\n</head>`);
+        },
+      },
       PostBuildPlugin(),
     ],
     server: {

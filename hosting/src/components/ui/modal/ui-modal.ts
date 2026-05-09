@@ -1,8 +1,9 @@
 import { html, type TemplateResult } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
+import { createRef, ref } from 'lit/directives/ref.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
-import { LightElement } from '@app/element';
+import { TokiwaElement } from '@app/element';
 import { transition } from '@app/transition';
 
 /**
@@ -54,9 +55,15 @@ export interface ModalButton {
  *   ></ui-modal>
  * `
  * ```
+ *
+ * @slot content - Additional content rendered below the message.
+ * @fires button-click - Fired when a custom button is pressed.
+ * @fires confirm - Fired when the primary confirmation action is requested.
+ * @fires cancel - Fired when cancellation is requested.
+ * @fires input-change - Fired when the prompt input value changes.
  */
 @customElement('ui-modal')
-export class UiModal extends LightElement {
+export class UiModal extends TokiwaElement {
   @property({ type: String })
   title = '';
 
@@ -97,20 +104,17 @@ export class UiModal extends LightElement {
   @property({ type: Boolean })
   useHtml = false;
 
-  @query('dialog')
-  private dialog?: HTMLDialogElement;
-
-  @query('input[type="text"]')
-  private inputElement?: HTMLInputElement;
+  private readonly dialogRef = createRef<HTMLDialogElement>();
+  private readonly inputRef = createRef<HTMLInputElement>();
 
   protected override updated(changedProperties: Map<string, unknown>): void {
-    if (changedProperties.has('open') && this.dialog) {
+    if (changedProperties.has('open') && this.dialogRef.value) {
       if (this.open) {
-        this.dialog.showModal();
-        // Focus input field if present
+        this.dialogRef.value?.showModal();
+        // Focus the prompt input after the dialog becomes visible.
         if (this.showInput) {
           requestAnimationFrame(() => {
-            this.inputElement?.focus();
+            this.inputRef.value?.focus();
           });
         }
       }
@@ -130,7 +134,7 @@ export class UiModal extends LightElement {
 
   private handleInputKeyDown(e: KeyboardEvent): void {
     if (e.key === 'Enter') {
-      // Just dispatch event, let parent handle closing
+      // Let the owner validate and decide whether the modal should close.
       this.dispatchEvent(
         new CustomEvent('confirm', {
           bubbles: true,
@@ -141,7 +145,7 @@ export class UiModal extends LightElement {
   }
 
   private handleButtonClick(button: ModalButton): void {
-    // Dispatch event - let parent decide to close
+    // Let the owner decide whether clicking a custom action should close the modal.
     this.dispatchEvent(
       new CustomEvent('button-click', {
         detail: { value: button.value || button.label, label: button.label },
@@ -152,8 +156,7 @@ export class UiModal extends LightElement {
   }
 
   private handleConfirm(): void {
-    // Dispatch event first - let parent decide whether to close
-    // (e.g., for prompt dialogs with validation that may fail)
+    // Emit first so validation can block closing when needed.
     this.dispatchEvent(
       new CustomEvent('confirm', {
         bubbles: true,
@@ -163,7 +166,7 @@ export class UiModal extends LightElement {
   }
 
   private handleCancel(): void {
-    // Dispatch event - let parent decide to close
+    // Let the owner decide whether cancellation should close the modal.
     this.dispatchEvent(
       new CustomEvent('cancel', {
         bubbles: true,
@@ -173,20 +176,19 @@ export class UiModal extends LightElement {
   }
 
   private handleDialogClose(): void {
-    // Dialog close event fires when dialog is closed
-    // We don't need to do anything here as parent controls the open state
+    // The owner controls the open state, so no local action is needed here.
   }
 
   private handleDialogCancel(e: Event): void {
-    // Prevent default ESC behavior (which closes dialog)
+    // Prevent the native Escape behavior so the owner can decide.
     e.preventDefault();
-    // Dispatch cancel event to let parent decide
+    // Reuse the same cancel path as other close requests.
     this.handleCancel();
   }
 
   private handleBackdropClick(e: MouseEvent): void {
-    // If the user clicks directly on the <dialog> backdrop, treat as cancel
-    if (e.target === this.dialog) {
+    // Treat direct backdrop clicks as cancellation.
+    if (e.target === this.dialogRef.value) {
       this.handleCancel();
     }
   }
@@ -213,7 +215,7 @@ export class UiModal extends LightElement {
   }
 
   private renderButtons(): TemplateResult {
-    // Use custom buttons if provided
+    // Prefer the custom button set when one is supplied.
     if (this.buttons && this.buttons.length > 0) {
       return html`
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse sm:gap-2">
@@ -232,7 +234,7 @@ export class UiModal extends LightElement {
       `;
     }
 
-    // Default two-button layout
+    // Fall back to the standard confirm and cancel actions.
     return html`
       <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
         <button
@@ -350,6 +352,7 @@ export class UiModal extends LightElement {
   protected override render(): TemplateResult {
     return html`
       <dialog
+        ${ref(this.dialogRef)}
         @close=${this.handleDialogClose}
         @cancel=${this.handleDialogCancel}
         @click=${this.handleBackdropClick}
@@ -397,6 +400,7 @@ export class UiModal extends LightElement {
                   ? html`
                       <div class="mt-4">
                         <input
+                          ${ref(this.inputRef)}
                           type="text"
                           .value=${this.inputValue}
                           @input=${this.handleInputChange}

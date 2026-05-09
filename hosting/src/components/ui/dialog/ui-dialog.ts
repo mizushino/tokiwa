@@ -1,7 +1,8 @@
 import { html, type TemplateResult } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
+import { createRef, ref } from 'lit/directives/ref.js';
 
-import { LightElement } from '@app/element';
+import { TokiwaElement } from '@app/element';
 import { transition } from '@app/transition';
 
 /**
@@ -25,9 +26,13 @@ import { transition } from '@app/transition';
  *   </ui-dialog>
  * `
  * ```
+ *
+ * @slot content - Main dialog body content.
+ * @slot actions - Action buttons rendered in the footer.
+ * @fires close - Fired when the dialog requests to close.
  */
 @customElement('ui-dialog')
-export class UiDialog extends LightElement {
+export class UiDialog extends TokiwaElement {
   @property({ type: String })
   title = '';
 
@@ -37,17 +42,20 @@ export class UiDialog extends LightElement {
   @property({ type: String })
   size: 'sm' | 'md' | 'lg' | 'xl' | 'full' = 'md';
 
-  @query('dialog')
-  private dialog?: HTMLDialogElement;
+  private readonly dialogRef = createRef<HTMLDialogElement>();
 
   private mouseDownTarget: EventTarget | null = null;
+
+  private get dialog(): HTMLDialogElement | undefined {
+    return this.dialogRef.value ?? undefined;
+  }
 
   protected override updated(changedProperties: Map<string, unknown>): void {
     if (changedProperties.has('open') && this.dialog) {
       if (this.open) {
         this.dialog.showModal();
       } else {
-        // Delay closing to allow exit animation
+        // Delay closing so the exit transition can finish first.
         setTimeout(() => {
           this.dialog?.close();
         }, 200);
@@ -70,7 +78,7 @@ export class UiDialog extends LightElement {
   }
 
   private handleBackdropClick(e: MouseEvent): void {
-    // Only close if both mousedown and mouseup happened on the dialog backdrop
+    // Only close when both pointer events occur on the backdrop.
     if (e.target === this.dialog && this.mouseDownTarget === this.dialog) {
       this.handleDialogClose();
     }
@@ -91,6 +99,7 @@ export class UiDialog extends LightElement {
   protected override render(): TemplateResult {
     return html`
       <dialog
+        ${ref(this.dialogRef)}
         @close=${this.handleDialogClose}
         @mousedown=${this.handleMouseDown}
         @click=${this.handleBackdropClick}

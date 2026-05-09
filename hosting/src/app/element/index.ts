@@ -1,1 +1,1 @@
-export { LightElement } from './light-element';
+export { TokiwaElement } from './tokiwa-element';

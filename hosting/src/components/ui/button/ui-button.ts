@@ -1,7 +1,7 @@
-import { html, type TemplateResult } from 'lit';
+import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import { LightElement } from '@app/element';
+import { TokiwaElement } from '@app/element';
 
 /**
  * Button variant type
@@ -22,9 +22,24 @@ export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
  * html`<ui-button variant="danger" size="sm" disabled>Delete</ui-button>`
  * html`<ui-button variant="soft" rounded loading>Loading...</ui-button>`
  * ```
+ *
+ * @slot - Button label content.
  */
 @customElement('ui-button')
-export class UiButton extends LightElement {
+export class UiButton extends TokiwaElement {
+  static override styles: CSSResultGroup = [
+    TokiwaElement.styles,
+    css`
+      :host {
+        display: inline-flex;
+      }
+      :host([fullwidth]) {
+        display: block;
+        width: 100%;
+      }
+    `,
+  ];
+
   @property({ type: String })
   variant: ButtonVariant = 'primary';
 
@@ -40,7 +55,7 @@ export class UiButton extends LightElement {
   @property({ type: Boolean })
   loading = false;
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, reflect: true })
   fullWidth = false;
 
   @property({ type: Boolean })

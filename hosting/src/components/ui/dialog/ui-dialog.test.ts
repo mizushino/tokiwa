@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { proxyShadowQueries } from '@app/../test/query-shadow-root';
+
 import type { UiDialog } from './ui-dialog';
 
 import './ui-dialog';
@@ -11,7 +13,7 @@ describe('UiDialog', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    element = document.createElement('ui-dialog') as UiDialog;
+    element = proxyShadowQueries(document.createElement('ui-dialog') as UiDialog);
     container.appendChild(element);
   });
 

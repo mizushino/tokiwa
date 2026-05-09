@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { proxyShadowQueries } from '@app/../test/query-shadow-root';
+
 import type { DropdownSize, UiDropdown } from './ui-dropdown';
 
 import './ui-dropdown';
@@ -11,7 +13,7 @@ describe('UiDropdown', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    element = document.createElement('ui-dropdown') as UiDropdown;
+    element = proxyShadowQueries(document.createElement('ui-dropdown') as UiDropdown);
 
     // Add trigger button
     const trigger = document.createElement('button');
@@ -55,7 +57,22 @@ describe('UiDropdown', () => {
   }
 
   function getFocusableItems(): HTMLElement[] {
-    return Array.from(getMenu().querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])'));
+    const slot = getMenu().querySelector('slot[name="menu"]');
+    if (!(slot instanceof HTMLSlotElement)) {
+      return [];
+    }
+
+    const selector = 'a, button, [tabindex]:not([tabindex="-1"])';
+    return slot.assignedElements({ flatten: true }).flatMap((assignedElement) => {
+      const matches: HTMLElement[] = [];
+
+      if (assignedElement instanceof HTMLElement && assignedElement.matches(selector)) {
+        matches.push(assignedElement);
+      }
+
+      matches.push(...Array.from(assignedElement.querySelectorAll<HTMLElement>(selector)));
+      return matches;
+    });
   }
 
   it('renders with default properties', async () => {
@@ -117,7 +134,7 @@ describe('UiDropdown', () => {
   });
 
   it('closes dropdown when Escape key is pressed', async () => {
-    const trigger = await openDropdown();
+    await openDropdown();
     const menu = getMenu();
     expect(menu.classList.contains('hidden')).toBe(false);
 
@@ -126,7 +143,7 @@ describe('UiDropdown', () => {
     await element.updateComplete;
 
     expect(menu.classList.contains('hidden')).toBe(true);
-    expect(document.activeElement).toBe(trigger);
+    expect(document.activeElement).toBe(element.querySelector('[slot="trigger"]'));
   });
 
   it('applies small size classes', async () => {
@@ -265,13 +282,9 @@ describe('UiDropdown', () => {
     trigger.click();
     await element.updateComplete;
 
-    // After opening, items should be slotted into the menu via Light DOM pattern
-    // Check if the slot exists first
     const menu = element.querySelector('[data-dropdown-menu]');
     expect(menu).toBeTruthy();
 
-    // In Light DOM, the menu items might not be immediately queryable
-    // Check that the menu structure exists
     const slot = menu?.querySelector('[name="menu"]');
     expect(slot).toBeTruthy();
   });
