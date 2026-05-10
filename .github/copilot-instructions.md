@@ -9,114 +9,133 @@
 
 ## Project Overview
 
-Firebase-based multi-site web application framework using Lit Web Components, Tailwind CSS v4, and TypeScript.
+Firebase-based multi-site web application framework using Lit, Tailwind CSS v4, TypeScript, Firestore, and Firebase Cloud Functions.
 
 ### Project Structure
 
 ```
 /
-├── hosting/              # Frontend (Lit + Tailwind + Vite)
+├── hosting/               # Frontend (Lit + Tailwind + Vite)
+│   ├── public/            # Site entry HTML and built assets
 │   └── src/
-│       ├── app/         # Core: auth, navigation, base classes
-│       ├── sites/       # Multi-site: default, admin
-│       ├── components/  # Reusable UI components
-│       ├── models/      # Client-side Firestore models
-│       └── services/    # Functions API clients
-├── functions/            # Cloud Functions backend
+│       ├── app/           # Core: auth, element base classes, functions, i18n, page, transition
+│       ├── components/    # Reusable UI components
+│       ├── models/        # Client-side Firestore models
+│       ├── services/      # Callable Functions clients
+│       ├── sites/         # Site-specific pages and routers (default, admin)
+│       └── test/          # Test utilities
+├── functions/             # Cloud Functions backend
 │   └── src/
-│       ├── models/      # Server-side Firestore models
-│       ├── services/    # Triggers and business logic
-│       └── types/       # Type definitions
-├── firestore/            # Shared types and rules
-│   └── src/types/       # Shared type definitions (Key + Data interfaces)
-└── storage/              # Storage rules
+│       ├── models/        # Server-side Firestore models
+│       ├── services/      # Triggers and callable handlers
+│       ├── test/          # Test helpers
+│       └── types/         # Callable request/response types
+├── firestore/             # Shared Firestore types and rules
+│   └── src/types/         # Flat shared type definitions
+└── storage/               # Storage rules
 ```
 
 ### Architecture: Client-First Data Flow
 
-1. **Primary**: Direct Firestore access with Security Rules
-2. **Secondary**: Cloud Functions triggers for side effects
-3. **Last Resort**: Callable functions for complex operations
+1. Primary: direct Firestore access with Security Rules
+2. Secondary: Cloud Functions triggers for side effects and sync
+3. Last resort: callable functions for operations that cannot be expressed safely on the client
 
 ---
 
 ## Critical Patterns
 
-### 1. LightElement for Tailwind CSS
+### 1. TokiwaElement for Shared Tailwind Styles
 
-Components using Tailwind MUST extend `LightElement` (not `LitElement`):
+Tailwind is shared through `TokiwaElement`, which extends `LitElement` and injects the compiled Tailwind stylesheet into Shadow DOM via a constructable stylesheet.
 
 ```typescript
-import { LightElement } from '@app/element';
+import { html } from 'lit';
+import { customElement } from 'lit/decorators.js';
 
-@customElement('my-component')
-export class MyComponent extends LightElement {
-  protected static override hostClasses = ['flex', 'items-center'];
-  
+import { TokiwaElement } from '@app/element';
+
+@customElement('ui-example-card')
+export class UiExampleCard extends TokiwaElement {
   protected override render() {
-    return html`<div class="text-gray-900">Content</div>`;
+    return html`<div class="rounded-lg border p-4">Content</div>`;
   }
 }
 ```
 
 ### 2. PageElement for Pages
 
-All pages extend `PageElement` with required metadata:
+Pages extend `PageElement` for metadata, translations, and navigation helpers.
 
 ```typescript
+import { html, type TemplateResult } from 'lit';
+import { customElement } from 'lit/decorators.js';
+
 import { PageElement } from '@app/page';
+
 import pageMetadata from './page.json';
 
-@customElement('admin-dashboard')
-export class AdminDashboard extends PageElement {
+@customElement('default-helloworld')
+export class DefaultHelloWorld extends PageElement {
   protected pageMetadata = pageMetadata;
-  // Component naming: {site}-{page-name}
+
+  protected override render(): TemplateResult {
+    return html`<h1>Hello, World!</h1>`;
+  }
 }
 ```
 
 ### 3. Firestore Model Pattern
 
-Types in `firestore/`, models in both `hosting/` and `functions/`:
+Shared document types live in `firestore/src/types/*.ts`. Matching models may exist in both `hosting/src/models/*.ts` and `functions/src/models/*.ts` when the same collection is accessed from both client and server.
 
 ```typescript
-// firestore/src/types/user.ts - Shared types
-export interface UserKey { uid: string; }
-export interface UserData { email: string; displayName: string; /* ... */ }
+// firestore/src/types/user.ts
+export interface UserKey {
+  uid: string;
+}
 
-// functions/src/models/user.ts - Server model
+export interface UserData {
+  displayName: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// functions/src/models/user.ts
 export class UserDocument extends FirestoreDocument<UserKey, UserData> {
   static pathTemplate = userDocumentPath;
-  public static get defaultKey(): UserKey { return { uid: newId() }; }
-  public static get defaultData(): UserData { /* ... */ }
+
+  public static get defaultKey(): UserKey {
+    return { uid: '' };
+  }
 }
 ```
 
-### 4. Reactive Auth with AsyncGenerator
+### 4. Reactive Auth and Realtime Reads
 
-Use `userSnapshot()` with `track()` for reactive auth:
+Use `userSnapshot()` with `track()` for auth state, and use Firestore subscriptions from hosting models for permission-sensitive UI.
 
 ```typescript
 protected user = userSnapshot();
 
-render() {
-  return html`${track(this.user, (user) => 
-    user ? html`Welcome!` : html`Please sign in`
-  )}`;
+protected override render(): TemplateResult {
+  return html`${track(this.user, (user) => {
+    return user ? html`Welcome!` : html`Please sign in`;
+  })}`;
 }
 ```
 
 ### 5. Immutable Firestore Updates
 
-Always create new document instances for updates:
+When updating Firestore-backed documents, create a new document instance with merged data instead of mutating nested state in place.
 
 ```typescript
-// ✅ Correct
-const updatedDoc = new UserDocument({ uid }, { ...userDoc.data, email: newEmail });
+const updatedDoc = new UserDocument(
+  { uid },
+  { ...userDoc.data, permissions: { ...userDoc.data.permissions, projects: nextProjects } }
+);
 await updatedDoc.save();
-
-// ❌ Wrong: Direct mutation may not persist
-userDoc.data.email = newEmail;
-await userDoc.save();
 ```
 
 ---
@@ -131,55 +150,38 @@ await userDoc.save();
 | `shrink-0` | `flex-shrink-0` |
 | `dark:scheme-dark` | `dark:[color-scheme:dark]` |
 
-### Modal API
-
-```typescript
-import { Modal } from '@components/ui/modal';
-
-await Modal.success('Saved');
-await Modal.error('Failed');
-const confirmed = await Modal.confirm('Delete?', 'This cannot be undone', 'danger');
-```
-
 ### Node.js Version Requirement
 
-This project requires **Node.js 24** (specified in `functions/package.json` and `.nvmrc`).
+This project requires Node.js 24.
 
-**Using nvm (recommended for local development):**
 ```bash
 cd /path/to/project
-nvm use  # Reads .nvmrc and switches to Node 24
-```
-
-> ⚠️ **Important**: Each terminal session requires `nvm use`. New terminals default to your nvm default version, not the project's `.nvmrc`.
-
-**Without nvm:**
-If Node.js 24+ is installed system-wide, nvm is not required. Verify with:
-```bash
-node -v  # Should be v24.x.x or higher
+nvm use
+node -v
 ```
 
 ### Development Commands
 
 | Command | Description |
 |---------|-------------|
-| `nvm use` | Switch to project's Node.js version (if using nvm) |
-| `cd hosting && APP_SITE=admin npm run dev` | Dev server (admin site) |
-| `cd hosting && npm run test` | Component tests |
-| `cd hosting && npm run test:e2e` | Playwright E2E tests |
-| `cd functions && npm run test` | Functions E2E tests |
-| `firebase emulators:start` | Start Firebase Emulators |
+| `nvm use` | Switch to the project's Node.js version |
+| `npm run dev:default` | Start the default site in dev mode |
+| `npm run dev:admin` | Start the admin site in dev mode |
+| `npm run test` | Run hosting and functions tests |
+| `npm run test:e2e` | Run Playwright tests for hosting |
+| `npm run coverage` | Run coverage for hosting and functions |
+| `npm run emulators` | Start Firebase emulators from `.artifacts/firebase` |
 
-### Code Verification (CRITICAL)
+### Code Verification
 
-**Always run lint and build from the root directory:**
+Run verification from the repository root so both packages are checked.
 
 ```bash
-cd /path/to/<project>  # Root directory (NOT hosting/ or functions/)
+cd /path/to/<project>
 npm run lint && npm run build
 ```
 
-This ensures ALL packages (hosting + functions) are checked. Running from subdirectories will miss errors in other packages.
+When the change is test-related, prefer the narrowest matching root or package script before widening scope.
 
 ---
 
@@ -187,9 +189,9 @@ This ensures ALL packages (hosting + functions) are checked. Running from subdir
 
 | Guide | Description |
 |-------|-------------|
-| [Hosting Guide](./docs/hosting.md) | Pages, routing, components |
-| [Functions Guide](./docs/functions.md) | Models, triggers, services |
-| [Testing Guide](./docs/testing.md) | Component, E2E, and Functions testing |
-| [Design Guide](./docs/design.md) | Tailwind CSS v4, UI consistency, and design rules |
-| [Conventions](./docs/conventions.md) | Code style (English only) |
+| [Hosting Guide](./docs/hosting.md) | Pages, routing, components, client-side data access |
+| [Functions Guide](./docs/functions.md) | Models, triggers, callable handlers, backend structure |
+| [Testing Guide](./docs/testing.md) | Vitest, Playwright, emulator-based functions tests |
+| [Design Guide](./docs/design.md) | Tailwind CSS v4, UI consistency, and styling rules |
+| [Conventions](./docs/conventions.md) | Code style and repository conventions |
 | [Commit Guide](./docs/commit.md) | Git commit message format |

@@ -13,8 +13,8 @@ This document defines coding standards and conventions for the project.
 ## Code Style
 
 ### Linting and Formatting
-- **ESLint** with TypeScript rules for code quality
-- **Prettier** for automatic formatting (integrated with ESLint via `eslint-plugin-prettier`)
+- **ESLint 10 flat config** with `typescript-eslint` and `eslint-plugin-import-x` for code quality
+- **Prettier** is configured per package (`hosting/prettier.config.js`, `functions/prettier.config.js`)
 - **IMPORTANT**: After writing or modifying source code, always run the linter to ensure consistent code style
 
 ```bash
@@ -64,6 +64,8 @@ private renderCell(row: unknown, column: TableColumn, index: number): TemplateRe
 import { html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
+import { TokiwaElement } from '@app/element';
+
 // 2. Type definitions
 interface MyData {
   id: string;
@@ -75,7 +77,7 @@ const MAX_ITEMS = 100;
 
 // 4. Component/Class definition
 @customElement('my-component')
-export class MyComponent extends LitElement {
+export class MyComponent extends TokiwaElement {
   // Properties
   @property() data: MyData[] = [];
 
@@ -133,7 +135,7 @@ function getUserData() { }
 // PascalCase for classes and components
 class UserProfile { }
 @customElement('user-profile')
-export class UserProfile extends LitElement { }
+export class UserProfile extends TokiwaElement { }
 
 // SCREAMING_SNAKE_CASE for constants
 const MAX_RETRY_COUNT = 3;
@@ -206,9 +208,9 @@ export function calculateProjectPermissions(
 ```
 
 ### README Files
-- Every major directory should have a README.md
-- Explain purpose, usage, and examples
-- Keep documentation close to code
+- Add README.md files when a directory needs standalone onboarding or non-obvious usage notes
+- Keep documentation close to the code it describes
+- Remove or update docs when structure changes; do not leave stale usage guides in place
 
 ## Best Practices
 
@@ -254,16 +256,16 @@ import { html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 // 2. Internal modules
-import { UserDocument } from '@/models/user';
-import { formatDate } from '@/utils/date';
+import { TokiwaElement } from '@app/element';
+import { UserDocument } from '@models/user';
 
 // 3. Types (with 'type' prefix)
-import type { UserData } from '@firestore/types/user/user.js';
+import type { UserData } from '@firestore/types/user.js';
 
 // ❌ Bad: Mixed order, no grouping
-import type { UserData } from '@firestore/types/user/user.js';
-import { formatDate } from '@/utils/date';
+import type { UserData } from '@firestore/types/user.js';
 import { html } from 'lit';
+import { TokiwaElement } from '@app/element';
 ```
 
 ### Magic Numbers

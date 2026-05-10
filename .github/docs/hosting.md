@@ -9,495 +9,246 @@ For visual rules, Tailwind styling decisions, design consistency, accessibility 
 ## Directory Structure
 
 ```
-hosting/src/
-├── app/          # Core application logic (auth, navigation, etc.)
-├── sites/        # Multi-site support (default, admin, etc.)
-├── components/   # Reusable UI components
-├── services/     # Functions API client
-├── models/       # Database interaction layer
-└── assets/       # Static resources (images, fonts, etc.)
+hosting/
+├── public/              # Site entry HTML and generated assets
+├── src/
+│   ├── app/             # Core app modules
+│   ├── components/      # Shared UI components
+│   ├── models/          # Firestore access from the client
+│   ├── services/        # Callable Functions clients
+│   ├── sites/           # Site routers and page components
+│   └── test/            # Test helpers
+├── global-setup.ts      # Playwright global setup
+├── playwright.config.ts
+└── vite.config.ts
 ```
 
 ### Key Directories
 
-#### `app/`
-Contains core application functionality shared across all sites:
-- **element/**: Base classes for custom elements
-  - **light-element.ts**: Light DOM base class with slot functionality
-- **page/**: Page-related functionality
-  - **page-element.ts**: Base class for page components
-  - **navigate.ts**: Client-side navigation with history API
-- **auth/**: Firebase Authentication wrapper with AsyncGenerator for reactive auth state
-- **functions/**: Firebase Functions initialization
+#### `src/app/`
+Contains reusable application primitives:
+- `auth/`: Firebase Authentication helpers and `userSnapshot()`
+- `element/`: `TokiwaElement`, the shared Lit base class with Tailwind styles
+- `functions/`: Firebase Functions initialization and callable wrappers
+- `i18n/`: language detection and shared translations
+- `page/`: `PageElement`, metadata handling, and navigation helpers
+- `transition/`: transition directive utilities
 
-#### `sites/`
-Supports multiple independent sites within a single project:
-- **default/**: Main public-facing site
-- **admin/**: Admin dashboard site
-- Each site has its own `index.html`, `app.ts`, `app.css`, and routing
+#### `src/sites/`
+Contains site-specific routers and pages:
+- `default/`: public example site
+- `admin/`: admin site with auth and permission gating
+- each site has a root `index.ts` router component and a root `page.json`
+- nested folders such as `helloworld/`, `buttons/`, or `firestore/` map to route segments and usually contain `index.ts`, `page.json`, and optional `*.spec.ts`
 
-#### `components/`
-Reusable Web Components built with Lit:
-- **ui/**: UI components (sidebar, buttons, forms, etc.)
-- Uses Shadow DOM or Light DOM depending on styling needs
+#### `src/components/ui/`
+Reusable components shared across sites. Current UI components include button, checkbox, dialog, dropdown, modal, sidebar, split, and table.
 
-#### `services/`
-API clients for calling Cloud Functions:
-- Type-safe wrappers around Firebase Functions
-- Request/response handling
+#### `src/models/`
+Client-side Firestore models and subscriptions, for example `subscribeToUserDocument()` and Firestore document classes built on `@mzsn/firestore/web`.
 
-#### `models/`
-Data access layer for Firestore:
-- Database schema definitions
-- CRUD operations
-- Type-safe data models
+#### `src/services/`
+Typed clients for callable Functions. The current pattern is a thin wrapper around `callFirebaseFunction()`.
 
 ## Creating a New Page
 
-Pages are organized by URL path within each site directory. Each page requires two files:
+Pages are added under a site's folder and registered manually in that site's router.
 
 ### Directory Structure
+
 ```
 hosting/src/sites/{site-name}/{path}/
-├── index.ts       # Page component
-└── page.json      # Page metadata
+├── index.ts
+├── page.json
+└── {optional} {name}.spec.ts
 ```
 
 ### Step 1: Create `page.json`
-Define page metadata for SEO and routing:
 
 ```json
 {
   "title": "Hello, World!",
-  "description": "A simple Hello World example for the admin site."
+  "description": "A simple example page for the default site."
 }
 ```
 
+`PageElement` also supports optional `translations` for page-local strings.
+
 ### Step 2: Create `index.ts`
-Extend `PageElement` base class for consistent page behavior:
 
 ```ts
 import { html, type TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 
-import { PageElement } from '@app/page-element';
+import { PageElement } from '@app/page';
 
 import pageMetadata from './page.json';
 
-@customElement('admin-helloworld')
-export class AdminHelloWorld extends PageElement {
+@customElement('default-helloworld')
+export class DefaultHelloWorld extends PageElement {
   protected pageMetadata = pageMetadata;
 
-  @property() name = 'World';
-
   protected override render(): TemplateResult {
-    return html`<h1 class="h-full w-full bg-gray-50 p-2">Hello, ${this.name}!</h1>`;
+    return html`<h1>Hello, World!</h1>`;
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'admin-helloworld': AdminHelloWorld;
+    'default-helloworld': DefaultHelloWorld;
   }
 }
 ```
 
 ### Key Points
 
-- **Component naming**: Follow the pattern `{site}-{page-name}` (e.g., `admin-helloworld`)
-- **Extend PageElement**: Provides common page functionality and metadata handling
-- **Import page.json**: Link metadata to the component via `pageMetadata` property
-- **Type declaration**: Always declare the component in `HTMLElementTagNameMap` for TypeScript support
-- **Folder structure matches URL**: `sites/admin/dashboard/` → `/dashboard/` route
-
-### Customizing Page Layout Classes
-
-`PageElement` automatically applies `['block', 'w-full', 'h-full']` to the host element. Override `hostClasses` to customize:
-
-```ts
-@customElement('admin-custom-page')
-export class AdminCustomPage extends PageElement {
-  protected pageMetadata = pageMetadata;
-
-  // Override default host classes
-  protected static override hostClasses = ['flex', 'items-center', 'justify-center'];
-
-  protected override render(): TemplateResult {
-    return html`<div class="text-center">Centered Content</div>`;
-  }
-}
-```
-
-**Common patterns**:
-```ts
-// Default (full-size block page)
-protected static override hostClasses = ['block', 'w-full', 'h-full'];
-
-// Flex container page
-protected static override hostClasses = ['flex', 'flex-col', 'w-full', 'h-full'];
-
-// Centered content page
-protected static override hostClasses = ['flex', 'items-center', 'justify-center', 'w-full', 'h-full'];
-
-// Minimal styling (let content determine size)
-protected static override hostClasses = ['block'];
-```
+- Follow the custom element naming pattern `{site}-{page-name}` such as `default-helloworld` or `admin-buttons`
+- Import `PageElement` from `@app/page`
+- Import `page.json` and assign it to `pageMetadata`
+- Add the element to `HTMLElementTagNameMap`
+- Keep the folder structure aligned with the route segment you will register manually
 
 ### Step 3: Register the Route
 
-After creating the page, register it in the site's router (e.g., `sites/admin/index.ts`):
+Register the page in the site router, usually `hosting/src/sites/{site}/index.ts`.
 
 ```ts
+import './helloworld';
+
 protected routes = new Routes(
   this,
   [
     {
       path: 'helloworld/',
-      render: () => html`<admin-helloworld class="block h-full w-full"></admin-helloworld>`,
+      render: () => html`<default-helloworld></default-helloworld>`,
     },
-    // ... other routes
   ]
 );
 ```
 
-Don't forget to import the page component at the top of the file:
-
-```ts
-import './helloworld';
-```
+There is no automatic route discovery in the current codebase.
 
 ## Key Patterns
 
-### Authentication Pattern
+### TokiwaElement and Tailwind
 
-Uses AsyncGenerator pattern with `lit-async` for reactive auth state:
+Most components render with Shadow DOM and inherit Tailwind through `TokiwaElement`.
 
 ```ts
-export async function* userSnapshot(): AsyncGenerator<User | null | undefined> {
-  yield state.currentUserValue;
-  while (true) {
-    const user = await new Promise<User | null>((resolve) => {
-      const listener = (u: User | null): void => resolve(u);
-      userListeners.add(listener);
-    });
-    yield user;
+import { html } from 'lit';
+import { customElement } from 'lit/decorators.js';
+
+import { TokiwaElement } from '@app/element';
+
+@customElement('ui-example-card')
+export class UiExampleCard extends TokiwaElement {
+  protected override render() {
+    return html`<div class="rounded-lg border p-4">Content</div>`;
   }
 }
+```
 
-// Usage in components
+Use `static styles` or a wrapper element when host-level layout must be enforced. Do not document new components around a nonexistent `LightElement` or `hostClasses` API.
+
+### PageElement
+
+`PageElement` extends `TokiwaElement` and adds:
+- document title and description updates from `page.json`
+- page-local translation lookup via `trans()`
+- `navigateTo()` helper for programmatic navigation
+- a default full-size wrapper around `renderContents()`
+
+If you want the default wrapper, override `renderContents()`. If the page needs a custom shell, override `render()` directly.
+
+### Authentication Pattern
+
+Use `userSnapshot()` with `track()` for auth-aware rendering.
+
+```ts
 protected user = userSnapshot();
 
-render() {
+protected override render(): TemplateResult {
   return html`${track(this.user, (user) => {
     return user ? html`Welcome!` : html`Please sign in`;
   })}`;
 }
 ```
 
+The admin site additionally subscribes to the user document in Firestore to keep `admin` permission state current.
+
 ### Navigation
 
-Uses `@lit-labs/router` for client-side routing with custom `Navigate` directive:
+Use `@lit-labs/router` routes plus the helper exported from `@app/page`.
 
 ```ts
-// Directive usage
-html`<a href="/dashboard/" ${navigate('/dashboard/')}>Dashboard</a>`
+html`<button ${navigate('/helloworld/')}>Hello World</button>`;
 
-// Programmatic usage
 await Navigate.to('/dashboard/');
 ```
 
-### Tailwind CSS and Light DOM
+### Firestore Access in Hosting
 
-#### LightElement Base Class
-
-For components that need Light DOM (required for Tailwind CSS), extend `LightElement`:
+Prefer client-side models for direct Firestore access.
 
 ```ts
-import { html } from 'lit';
-import { customElement } from 'lit/decorators.js';
-#### Setting Display Style for Custom Elements
+import { UserDocument, subscribeToUserDocument } from '@models/user';
 
-**Using LightElement's hostClasses** (Recommended):
+const unsubscribe = subscribeToUserDocument(uid, (userData) => {
+  console.log(userData?.admin);
+});
+```
+
+When updating document data, use immutable reconstruction rather than mutating nested fields in place.
+
+### Callable Functions Clients
+
+Use `callFirebaseFunction()` from `src/app/functions/functions.ts` to keep request and response types explicit.
 
 ```ts
-@customElement('my-component')
-export class MyComponent extends LightElement {
-  protected static override hostClasses = ['block', 'w-full', 'h-full'];
-  
-  protected override render() {
-    return html`<div>Content</div>`;
-  }
-}
+import { callFirebaseFunction } from '@app/functions';
+import type { SampleRunRequest, SampleRunResponse } from '@functions/types/sample';
+
+export const sample = {
+  run: callFirebaseFunction<SampleRunRequest, SampleRunResponse>('sample-run'),
+};
 ```
-
-**Manual approach** (if not using LightElement):
-
-Custom elements are inline by default. Add classes in `connectedCallback`:
-@customElement('my-button')
-export class MyButton extends LightElement {
-  // Automatically applies these classes to the host element
-  protected static override hostClasses = ['inline-flex', 'items-center'];
-
-  protected override render() {
-    return html`
-      <button class="rounded-md px-3 py-2">
-        <slot></slot>
-      </button>
-    `;
-  }
-}
-```
-
-**Features**:
-- Automatic Light DOM rendering (no Shadow DOM)
-- Host class management via `hostClasses` static property
-- Slot functionality in Light DOM (simulates Shadow DOM `<slot>`)
-- Child nodes are preserved and inserted into `<slot>` elements
-- Supports both named slots (`slot="name"`) and default slot
-
-**Named Slots Example**:
-```ts
-@customElement('my-card')
-export class MyCard extends LightElement {
-  protected static override hostClasses = ['block'];
-
-  protected override render() {
-    return html`
-      <div class="card">
-        <header>
-          <slot name="title">Default Title</slot>
-        </header>
-        <main>
-          <slot></slot>
-        </main>
-      </div>
-    `;
-  }
-}
-```
-
-**Usage**:
-```html
-<!-- With named slot -->
-<my-card>
-  <h2 slot="title">Custom Title</h2>
-  <p>Card content goes here</p>
-</my-card>
-
-<!-- Without named slot (shows fallback) -->
-<my-card>
-  <p>Only default slot content</p>
-</my-card>
-```
-
-**Default Button Example**:
-```html
-<my-button>Click me</my-button>
-<!-- "Click me" text is automatically placed in the <slot> -->
-```
-
-#### Light DOM for Tailwind
-```ts
-protected override createRenderRoot(): HTMLElement | DocumentFragment {
-  return this; // Use Light DOM instead of Shadow DOM
-}
-```
-
-#### Setting Display Style for Custom Elements
-Custom elements are inline by default. To make them block elements, add classes in `connectedCallback`:
-
-```ts
-public override connectedCallback(): void {
-  super.connectedCallback();
-  (this.renderRoot as HTMLElement).classList.add('block', 'w-full', 'h-full');
-}
-```
-
-**Why in `connectedCallback`?**
-- Ensures the element is properly styled when added to the DOM
-- Works consistently across all usage contexts
-- Can be combined with additional classes from the parent
-
-**Best Practice**:
-- Set essential display properties (like `display: block`) in `connectedCallback`
-- Let parent components control layout-specific properties (margins, padding, etc.) via class attributes
-
-#### Write Utility Classes Inline
-Tailwind classes are written directly in HTML templates:
-
-```ts
-render() {
-  return html`
-    <div class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold text-white hover:bg-white/5">
-      <img src="${this.avatarUrl}" class="size-8 rounded-full bg-gray-800" />
-      <span>${this.userName}</span>
-    </div>
-  `;
-}
-```
-
-#### Break Down Large Templates
-**Problem**: Large HTML with many Tailwind classes becomes hard to read.
-
-**Solution 1**: Extract into `renderXXX()` methods
-
-```ts
-private renderUserProfile(): TemplateResult {
-  return html`
-    <a
-      href="#"
-      class="flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-white hover:bg-white/5"
-      @click=${this.handleUserClick}
-    >
-      <img
-        src="${this.currentUser?.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}"
-        alt=""
-        class="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"
-      />
-      <span class="sr-only">Your profile</span>
-      <span aria-hidden="true">${this.currentUser?.displayName || 'User'}</span>
-    </a>
-  `;
-}
-
-render() {
-  return html`
-    <div class="flex h-full min-h-screen bg-gray-900">
-      ${this.renderUserProfile()}
-    </div>
-  `;
-}
-```
-
-**Solution 2**: Create separate components
-
-```ts
-// Before: Large monolithic component
-@customElement('dashboard-page')
-class DashboardPage extends LitElement {
-  render() {
-    return html`
-      <div class="...many classes...">
-        <!-- 100+ lines of HTML with Tailwind classes -->
-      </div>
-    `;
-  }
-}
-
-// After: Split into smaller components
-@customElement('dashboard-page')
-class DashboardPage extends LitElement {
-  render() {
-    return html`
-      <div class="flex h-full flex-col gap-4 p-6">
-        <dashboard-header></dashboard-header>
-        <dashboard-stats></dashboard-stats>
-        <dashboard-chart></dashboard-chart>
-      </div>
-    `;
-  }
-}
-```
-
-#### Guidelines
-- **One component/method should focus on one UI concern**
-- **If a render method exceeds ~30 lines**, consider extracting parts
-- **Reusable UI patterns** should become separate components in `components/ui/`
-- **Page-specific sections** can use `renderXXX()` methods within the page component
-
-### Font Awesome Icons
-
-The project uses Font Awesome Kit for icons. Icons are loaded via CDN in each site's `index.html`.
-
-#### Setup
-
-Font Awesome Kit is already configured in `hosting/src/sites/{site}/index.html`:
-
-```html
-<script src="https://kit.fontawesome.com/c4db74980d.js" crossorigin="anonymous"></script>
-```
-
-#### Usage
-
-Font Awesome icons are text-based elements, not SVG. Use text utility classes for sizing:
-
-```ts
-// ✅ Good: Text-based sizing
-icon: html`<i class="fa-solid fa-house py-0.5 text-xl"></i>`
-
-// ❌ Bad: SVG sizing (doesn't work with Font Awesome)
-icon: html`<i class="fa-solid fa-house size-6"></i>`
-```
-
-**Common patterns**:
-```ts
-// Navigation icons (text-xl with vertical padding)
-html`<i class="fa-solid fa-folder py-0.5 text-xl"></i>`
-
-// Logo icons (larger size)
-html`<i class="fa-solid fa-cube text-4xl text-primary-500"></i>`
-
-// Button icons (inline with text)
-html`<i class="fa-solid fa-plus mr-2"></i> Add Item`
-
-// Status icons (smaller size)
-html`<i class="fa-solid fa-check text-sm text-success-500"></i>`
-```
-
-**Icon Categories**:
-- `fa-solid`: Solid style icons (default)
-- `fa-regular`: Regular (outline) style icons
-- `fa-brands`: Brand logos (GitHub, Twitter, etc.)
-
-**Finding Icons**:
-Browse available icons at [fontawesome.com/icons](https://fontawesome.com/icons)
 
 ### Transition Directive
 
-The project provides a `transition` directive for animating element enter/leave states with Tailwind CSS classes.
-
-#### Basic Usage
+Use the `transition` directive from `@app/transition` for enter and leave animations driven by Tailwind classes.
 
 ```ts
-import { transition } from '@app/transition';
-
 html`
-  <div ${transition(this.isVisible ? 'enter' : 'leave', {
+  <div ${transition(this.open ? 'enter' : 'leave', {
     enter: 'transition-opacity duration-300 ease-out',
     enterFrom: 'opacity-0',
     enterTo: 'opacity-100',
     leave: 'transition-opacity duration-200 ease-in',
     leaveFrom: 'opacity-100',
     leaveTo: 'opacity-0',
-  })}>
-    Content to animate
-  </div>
-`
+  })}></div>
+`;
 ```
 
-#### How It Works
+## Frontend Workflow
 
-1. **Direction-based**: Pass `'enter'` or `'leave'` as the first argument
-2. **Tailwind classes**: Use Tailwind transition utilities for animations
-3. **Automatic state management**: Handles `hidden` class and transition timing
-4. **Interruptible**: Can switch directions mid-animation
+Prefer root-level scripts during day-to-day work:
 
-#### Transition Options
-
-```ts
-interface TransitionOptions {
-  enter: string;        // Classes applied during enter (e.g., 'transition-opacity duration-300')
-  enterFrom: string;    // Starting state for enter (e.g., 'opacity-0')
-  enterTo: string;      // Ending state for enter (e.g., 'opacity-100')
-  leave: string;        // Classes applied during leave
-  leaveFrom: string;    // Starting state for leave
-  leaveTo: string;      // Ending state for leave
-}
+```bash
+npm run dev:default
+npm run dev:admin
+npm run test
+npm run test:e2e
 ```
 
-#### Common Patterns
+Package-level scripts remain useful when you want to scope work to hosting only:
 
-**Fade transition**:
+```bash
+cd hosting
+npm run test
+npm run test:watch
+npm run coverage
+```
 ```ts
 ${transition(show ? 'enter' : 'leave', {
   enter: 'transition-opacity duration-300 ease-out',

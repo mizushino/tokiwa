@@ -74,24 +74,34 @@ Example from the current admin site theme:
 ## Lit Component Styling
 
 ### Use the Correct Base Class
-- Components using Tailwind must extend `LightElement`
-- Pages must extend `PageElement`
-- Do not build Tailwind-based UI on plain `LitElement` in this project
+- Reusable components should usually extend `TokiwaElement`
+- Pages should extend `PageElement`
+- Do not build project UI directly on plain `LitElement` unless there is a deliberate reason to bypass the shared styling base
 
 ```ts
-import { LightElement } from '@app/element';
+import { TokiwaElement } from '@app/element';
 import { customElement } from 'lit/decorators.js';
 
 @customElement('ui-example-card')
-export class UiExampleCard extends LightElement {
-  protected static override hostClasses = ['block'];
-}
+export class UiExampleCard extends TokiwaElement {}
 ```
 
-### Use `hostClasses` for Host-Level Layout
-- Put structural host styling in `hostClasses`
-- Use template classes for internal layout and visual details
-- Keep `hostClasses` short and predictable, such as `block`, `flex`, `w-full`, or `h-full`
+### Tailwind Runs in Shadow DOM
+- `TokiwaElement` injects the shared Tailwind stylesheet into Shadow DOM
+- Write utility classes in templates as usual
+- When host-level layout matters, use `static styles` for `:host` or wrap content in a layout container
+
+```ts
+static override styles = [
+  TokiwaElement.styles,
+  css`
+    :host {
+      display: block;
+      width: 100%;
+    }
+  `,
+];
+```
 
 ### Keep Components Composable
 - Prefer small building blocks with slots or focused props over large monolithic components
@@ -160,7 +170,7 @@ Keep CSS close to the owning site or shared component. Do not create disconnecte
 ## Design Checklist
 
 Before shipping a UI change, verify:
-- The component uses the correct base class (`LightElement` or `PageElement`)
+- The component uses the correct base class (`TokiwaElement` or `PageElement`)
 - Tailwind v4 syntax is used
 - Existing theme tokens and shared components were preferred over one-off values
 - Mobile, desktop, empty, loading, and error states were considered

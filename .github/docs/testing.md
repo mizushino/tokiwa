@@ -1,494 +1,226 @@
 # Testing Guide
 
-This guide covers testing strategies for the project:
-- **Component Testing**: Vitest for Lit components (hosting)
-- **Playwright E2E Testing**: Browser-based E2E tests (hosting)
-- **Functions E2E Testing**: Firebase Emulator-based tests (functions)
+This project uses three testing layers:
+
+- Component tests for hosting with Vitest and happy-dom
+- Browser E2E tests for hosting with Playwright
+- Emulator-backed service tests for functions with Vitest
+
+Use the narrowest test command that can falsify the change you just made.
 
 ---
 
-## Component Testing (Hosting)
+## Root-Level Commands
 
-### Testing Framework
-- **Vitest**: Fast unit test framework with happy-dom environment
-- **happy-dom**: Lightweight DOM implementation for testing
-- **Coverage**: v8 provider for code coverage reporting
+Run these from the repository root when you want a package-agnostic entry point:
+
+```bash
+npm run test
+npm run test:hosting
+npm run test:functions
+npm run test:e2e
+npm run coverage
+npm run coverage:hosting
+npm run coverage:functions
+```
+
+## Hosting Component Tests
+
+### Current Setup
+
+- Test runner: Vitest
+- Environment: happy-dom
+- Include pattern: `src/**/*.test.ts`
+- Coverage provider: v8
+- Per-file coverage thresholds: 80 for statements, branches, functions, and lines
 
 ### Running Tests
+
 ```bash
 cd hosting
 
-# Run all tests
 npm run test
-
-# Run tests in watch mode
-npm run test:run
-
-# Generate coverage report
-npm run coverage
-
-# Open coverage UI
+npm run test:watch
 npm run test:ui
+npm run coverage
 ```
 
-### Test File Structure
-Test files are colocated with their components:
-```
-hosting/src/components/ui/sidebar/
-├── ui-sidebar.ts
-└── ui-sidebar.test.ts
+### File Placement
+
+Component and app-level unit tests are colocated with the code they exercise.
+
+Examples in the current tree:
+
+```text
+hosting/src/components/ui/button/ui-button.test.ts
+hosting/src/components/ui/sidebar/ui-sidebar.test.ts
+hosting/src/app/auth/auth.test.ts
+hosting/src/app/page/page.test.ts
 ```
 
-### Writing Component Tests
+### Querying the DOM
 
-#### Basic Setup Pattern
+Most components in this repository extend `TokiwaElement` or `PageElement`, so they render in Shadow DOM.
+
 ```ts
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { MyComponent } from './my-component';
-import './my-component';
+it('renders the heading', async () => {
+  const element = document.createElement('my-component') as MyComponent;
+  document.body.appendChild(element);
 
-describe('MyComponent', () => {
-  let element: MyComponent;
-  let container: HTMLElement;
-
-  beforeEach(() => {
-    container = document.createElement('div');
-    document.body.appendChild(container);
-    element = document.createElement('my-component') as MyComponent;
-    container.appendChild(element);
-  });
-
-  afterEach(() => {
-    container.remove();
-  });
-
-  it('renders with default properties', async () => {
-    await element.updateComplete;
-    expect(element).toBeDefined();
-  });
-});
-```
-
-#### Key Testing Principles
-
-**1. Test Behavior, Not Implementation**
-```ts
-// ❌ Bad: Testing Tailwind classes (implementation detail)
-expect(button.className).toContain('bg-blue-500');
-
-// ✅ Good: Testing DOM structure and behavior
-const button = element.querySelector('button[type="submit"]');
-expect(button).toBeTruthy();
-button?.click();
-expect(mockHandler).toHaveBeenCalled();
-```
-
-**2. Avoid Testing Styles**
-```ts
-// ❌ Bad: Style-dependent tests
-expect(element.className).toContain('rotate-180');
-
-// ✅ Good: Structural and semantic tests
-const icon = element.querySelector('svg');
-expect(icon?.getAttribute('aria-hidden')).toBe('true');
-```
-
-**3. Test User Interactions**
-```ts
-it('emits custom event on click', async () => {
-  element.data = sampleData;
   await element.updateComplete;
 
-  const eventHandler = vi.fn();
-  element.addEventListener('itemclick', eventHandler);
-
-  const item = element.querySelector('[data-testid="item-0"]');
-  item?.click();
-
-  expect(eventHandler).toHaveBeenCalledOnce();
-});
-```
-
-**4. Test Conditional Rendering**
-```ts
-it('shows empty state when no data', async () => {
-  element.data = [];
-  await element.updateComplete;
-
-  const emptyMessage = element.querySelector('[data-empty]');
-  expect(emptyMessage?.textContent).toContain('No items found');
-});
-```
-
-**5. Test Accessibility**
-```ts
-it('has proper ARIA attributes', async () => {
-  await element.updateComplete;
-
-  const button = element.querySelector('button');
-  expect(button?.getAttribute('aria-label')).toBe('Close dialog');
-});
-```
-
-### Common Testing Patterns
-
-**Testing with Light DOM:**
-```ts
-it('renders in light DOM', async () => {
-  await element.updateComplete;
-  
-  // Query directly on element, not shadowRoot
-  const heading = element.querySelector('h1');
-  expect(heading?.textContent).toBe('Title');
-});
-```
-
-**Testing with Shadow DOM:**
-```ts
-it('renders in shadow DOM', async () => {
-  await element.updateComplete;
-  
-  // Query via shadowRoot
   const heading = element.shadowRoot?.querySelector('h1');
   expect(heading?.textContent).toBe('Title');
 });
 ```
 
-**Testing Async Operations:**
-```ts
-it('loads data asynchronously', async () => {
-  const promise = element.loadData();
-  
-  await element.updateComplete;
-  expect(element.loading).toBe(true);
-  
-  await promise;
-  await element.updateComplete;
-  
-  expect(element.loading).toBe(false);
-  expect(element.data.length).toBeGreaterThan(0);
-});
-```
+Use `element.querySelector()` only when you are intentionally testing light DOM children provided by the test harness or slotted content outside the component's render root.
 
-### Coverage Goals
+### What to Assert
 
-**What to test:**
-- ✅ All user-facing functionality
-- ✅ Event handlers and custom events
-- ✅ Conditional rendering paths
-- ✅ Error states and edge cases
-- ✅ Property changes and reactivity
+- User-facing behavior
+- Events and callbacks
+- Conditional rendering
+- Accessibility attributes and semantics
+- Async state transitions
 
-**What NOT to test:**
-- ❌ Tailwind CSS class names
-- ❌ Specific pixel values or colors
-- ❌ CSS layout behavior
-- ❌ Third-party library internals
+Avoid asserting raw Tailwind class names or implementation-only layout details unless the class itself is the behavior.
 
 ---
 
-## Playwright E2E Testing (Hosting)
+## Hosting Playwright Tests
 
-### Overview
-Playwright provides browser-based E2E testing for the hosting application, testing real user interactions across multiple sites.
+### Current Setup
+
+- Test directory: `hosting/src`
+- Match pattern: `**/*.spec.ts`
+- Base URL: `http://localhost:5173`
+- Additional admin site: `http://localhost:5174`
+- HTML report output: `.artifacts/playwright/report`
 
 ### Running Tests
+
 ```bash
 cd hosting
 
-# Run all E2E tests (servers start automatically)
 npm run test:e2e
-
-# Run tests in UI mode (interactive)
 npm run test:e2e:ui
-
-# Run tests in debug mode (step-through)
 npm run test:e2e:debug
-
-# Show last test report
 npm run test:e2e:report
 ```
 
-Playwright automatically starts:
-- Default site: `http://localhost:5173`
-- Admin site: `http://localhost:5174`
+`hosting/playwright.config.ts` starts three background services automatically:
 
-### Test File Structure
-E2E tests are colocated with the pages they test:
-```
-hosting/src/sites/
-├── default/
-│   └── default.spec.ts     # Default site E2E tests
-└── admin/
-    └── admin.spec.ts       # Admin site E2E tests
-```
+1. Firebase emulators for auth, firestore, and storage
+2. The default site on port 5173
+3. The admin site on port 5174
 
-### Writing E2E Tests
+### File Placement
 
-#### Basic Test Pattern
-```ts
-import { test, expect } from '@playwright/test';
+Playwright specs are colocated under `src/**/*.spec.ts`.
 
-test.describe('Feature Name', () => {
-  test('should do something', async ({ page }) => {
-    await page.goto('/path');
-    await page.waitForLoadState('networkidle');
-    
-    await page.click('button[type="submit"]');
-    
-    await expect(page.locator('.success-message')).toBeVisible();
-  });
-});
+Examples in the current tree:
+
+```text
+hosting/src/sites/default/index.spec.ts
+hosting/src/sites/default/helloworld/helloworld.spec.ts
+hosting/src/sites/admin/admin.spec.ts
+hosting/src/sites/admin/buttons/buttons.spec.ts
 ```
 
-#### Testing Multi-Site Architecture
+### Good Playwright Practices
+
+- Prefer stable selectors such as roles, labels, and data attributes
+- Wait on visible user outcomes instead of arbitrary timeouts
+- Use `test.use({ baseURL: 'http://localhost:5174' })` when scoping a describe block to the admin site
+- Keep assertions aligned with real user flows, not internal implementation
+
 ```ts
 test.describe('Admin Site', () => {
   test.use({ baseURL: 'http://localhost:5174' });
 
-  test('admin page loads', async ({ page }) => {
+  test('loads the admin entry page', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/Admin/);
   });
 });
 ```
 
-#### Testing Custom Elements
-```ts
-test('custom element renders correctly', async ({ page }) => {
-  await page.goto('/');
-  
-  await page.waitForFunction(() => {
-    return customElements.get('my-component') !== undefined;
-  });
-  
-  const element = page.locator('my-component');
-  await expect(element).toBeVisible();
-});
-```
-
-### Best Practices
-
-**1. Use Stable Selectors**
-```ts
-// ✅ Good: Semantic selectors
-page.locator('button[type="submit"]')
-page.locator('[aria-label="Close dialog"]')
-page.locator('[data-testid="user-menu"]')
-
-// ❌ Bad: CSS class selectors
-page.locator('.bg-blue-500')
-```
-
-**2. Wait for Network**
-```ts
-await page.waitForLoadState('networkidle');
-
-await page.waitForResponse(resp => 
-  resp.url().includes('/api/users') && resp.status() === 200
-);
-```
-
-**3. Handle Async Operations**
-```ts
-// ✅ Good: Wait for elements to appear
-await expect(page.locator('.toast-message')).toBeVisible();
-
-// ❌ Bad: Check immediately
-expect(page.locator('.toast-message')).toBeVisible();
-```
-
-### Configuration
-
-Key configuration in `hosting/playwright.config.ts`:
-```ts
-export default defineConfig({
-  testDir: './src',
-  testMatch: '**/*.spec.ts',
-  
-  use: {
-    baseURL: 'http://localhost:5173',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-  },
-  
-  webServer: [
-    {
-      command: 'PORT=5173 APP_SITE=default npm run dev',
-      url: 'http://localhost:5173',
-      reuseExistingServer: !process.env.CI,
-    },
-    {
-      command: 'PORT=5174 APP_SITE=admin npm run dev',
-      url: 'http://localhost:5174',
-      reuseExistingServer: !process.env.CI,
-    },
-  ],
-});
-```
-
 ---
 
-## Functions E2E Testing
+## Functions Testing
 
-### Testing Framework
-- **Vitest**: Fast test framework with node environment
-- **Firebase Emulator**: Real Firebase services locally
-- **firebase-functions-test**: Integration testing utilities
+### Current Setup
+
+- Test runner: Vitest
+- Environment: node
+- Global setup: `functions/src/test-setup.ts`
+- Tests run through `firebase emulators:exec`
+- Vitest config root is pinned to `functions/` so test discovery is stable even when emulators run from `.artifacts/firebase`
+- Coverage thresholds are 80 per file
 
 ### Running Tests
+
 ```bash
 cd functions
 
-# Run all tests with emulator
 npm run test
-
-# Generate coverage report
+npm run test:watch
+npm run test:ui
 npm run coverage
-
-# Emulator ports:
-# - Auth: 9099
-# - Firestore: 8080
-# - Storage: 9199
 ```
 
-### Test File Structure
-Test files are colocated with services:
-```
-functions/src/services/user/
-├── user.ts
-└── user.test.ts
+Or from the repository root:
+
+```bash
+npm run test:functions
+npm run coverage:functions
 ```
 
-### Writing E2E Tests
+### File Placement
 
-#### Basic Setup Pattern
+Functions tests are colocated with their service modules.
+
+```text
+functions/src/services/user/user.test.ts
+functions/src/services/project/project.test.ts
+functions/src/services/storage/storage.test.ts
+functions/src/services/sample/sample.test.ts
+```
+
+### Preferred Test Shape
+
+Extract business logic into named functions and test those directly. Keep Firebase trigger exports as thin wrappers.
+
 ```ts
-import * as admin from 'firebase-admin';
-import firebaseFunctionsTest from 'firebase-functions-test';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+it('updates permissions when a project role changes', async () => {
+  await updateUserPermissions('project-1', 'user-1', {
+    role: 'manager',
+  } as ProjectUserData);
 
-const testEnv = firebaseFunctionsTest({
-  projectId: '<projectId>',
-  storageBucket: '<storageBucket>',
-});
+  const userDocument = new UserDocument({ uid: 'user-1' });
+  await userDocument.get();
 
-describe('user service E2E', () => {
-  let db: admin.firestore.Firestore;
-  let auth: admin.auth.Auth;
-
-  beforeAll(() => {
-    if (!admin.apps.length) {
-      admin.initializeApp();
-    }
-    db = admin.firestore();
-    auth = admin.auth();
-  });
-
-  afterEach(async () => {
-    // Clean up test data
-    const usersSnapshot = await db.collection('users').get();
-    const batch = db.batch();
-    usersSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
-    await batch.commit();
-  });
-
-  it('creates user document on authentication signup', async () => {
-    const { handleUserCreated } = await import('./user.js');
-    
-    const uid = 'test-user-123';
-    const email = 'test@example.com';
-    
-    await handleUserCreated(uid, email, 'Test User', null);
-    
-    const userDoc = await db.collection('users').doc(uid).get();
-    expect(userDoc.exists).toBe(true);
-    expect(userDoc.data()?.email).toBe(email);
-  });
+  expect(userDocument.data.permissions?.projects).toContain('project-1:m');
 });
 ```
 
-#### Testing Callable Functions
-```ts
-it('processes request with valid data', async () => {
-  const { myCallable } = await import('./service.js');
-  const wrapped = testEnv.wrap(myCallable);
+### Functions Testing Rules
 
-  const result = await wrapped({
-    data: { name: 'test' },
-    auth: { uid: 'user123', token: {} },
-    rawRequest: {},
-    acceptsStreaming: false,
-  });
-
-  expect(result).toEqual({ success: true });
-});
-```
-
-#### Testing Document Triggers
-```ts
-it('updates related data on document write', async () => {
-  const { written } = await import('./service.js');
-  const wrapped = testEnv.wrap(written);
-
-  await db.collection('items').doc('item1').set({ name: 'Item 1' });
-
-  const beforeSnap = testEnv.firestore.makeDocumentSnapshot({}, 'items/item1');
-  const afterSnap = testEnv.firestore.makeDocumentSnapshot(
-    { name: 'Updated Item' },
-    'items/item1'
-  );
-
-  await wrapped({
-    data: testEnv.makeChange(beforeSnap, afterSnap),
-    params: { itemId: 'item1' },
-  });
-
-  const result = await db.collection('logs').doc('item1').get();
-  expect(result.exists).toBe(true);
-});
-```
-
-### Best Practices
-
-1. **Use Real Firebase Services**: Test with actual Firestore, Auth via emulator
-2. **Clean Up After Each Test**: Delete test data in `afterEach`
-3. **Extract Business Logic**: Separate testable logic from trigger wrappers
-4. **Use Immutable Data Pattern**: Always create new document instances for updates
-5. **Keep Tests Independent**: Each test should run in isolation
-
-### Common Pitfalls
-
-**❌ Direct data mutation:**
-```ts
-userDoc.data.permissions['projects'] = newValue; // May not persist!
-```
-
-**✅ Immutable pattern:**
-```ts
-const updatedDoc = new UserDocument({ uid }, {
-  ...userDoc.data,
-  permissions: { ...userDoc.data.permissions, projects: newValue }
-});
-await updatedDoc.save();
-```
-
-**❌ Forgetting cleanup:**
-```ts
-// Test data persists across tests, causing flaky failures
-```
-
-**✅ Clean up in afterEach:**
-```ts
-afterEach(async () => {
-  const snapshot = await db.collection('test').get();
-  const batch = db.batch();
-  snapshot.docs.forEach((doc) => batch.delete(doc.ref));
-  await batch.commit();
-});
-```
+- Keep tests sequential and isolated; the current config already disables parallel file execution to avoid emulator conflicts
+- Clean up any Firestore or Storage state a test creates
+- Prefer immutable document updates in both implementation and tests
+- Test the exported helper when possible, and wrap the trigger only when the event shape itself is part of the behavior
 
 ---
+
+## Verification Strategy
+
+After changing code:
+
+1. Run the narrowest matching test command first
+2. Run `npm run lint && npm run build` from the root when the change affects source files
+3. Use broader root scripts only after the touched slice is green
 
 ## Resources
 

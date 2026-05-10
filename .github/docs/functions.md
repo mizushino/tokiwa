@@ -6,21 +6,33 @@ This guide covers backend development with Firebase Cloud Functions.
 
 ```
 functions/src/
-├── models/      # Firestore document models
-├── services/    # Business logic and triggers
-└── types/       # Type definitions
+├── index.ts              # Namespace exports for deployed functions
+├── models/               # Firestore document and collection classes
+├── services/             # Trigger handlers and callable handlers
+├── test/                 # Shared test helpers
+├── test-setup.ts         # Vitest global setup
+└── types/                # Callable request/response types
 ```
+
+### Current Layout Conventions
+
+- Firestore shared types live in `firestore/src/types/*.ts` as flat files such as `user.ts` or `project-user.ts`
+- Functions models live in `functions/src/models/*.ts` as flat files such as `user.ts` or `sample.ts`
+- Trigger and callable implementations are grouped by domain under `functions/src/services/{domain}/{domain}.ts`
+- Tests are colocated with service modules as `*.test.ts`
 
 ## Creating a Firestore Model
 
-Firestore document models consist of three parts: type definitions, document class, and collection class.
+Firestore-backed features usually span three layers:
 
-### Step 1: Create Type Definitions (firestore/src/types/)
+1. Shared type definitions in `firestore/src/types/*.ts`
+2. Server-side models in `functions/src/models/*.ts`
+3. Optional matching client-side models in `hosting/src/models/*.ts` when the client reads the same collection directly
 
-First, create the type definitions in the `firestore` package:
+### Step 1: Add Shared Types
 
 ```ts
-// firestore/src/types/user/user.ts
+// firestore/src/types/user.ts
 export const userCollectionPath = 'users';
 export const userDocumentPath = `${userCollectionPath}/{uid}`;
 
@@ -29,36 +41,30 @@ export interface UserKey {
 }
 
 export interface UserData {
-  email: string;
   displayName: string;
-  photoURL?: string;
-  role: 'admin' | 'member' | 'owner';
+  email: string;
+  image?: string;
+  permissions?: { [key: string]: string[] };
+  admin?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 ```
 
-**Key Points**:
-- Collection and document path templates
-- `Key` interface defines the document ID structure
-- `Data` interface defines the document fields
-- Always include `createdAt` and `updatedAt` timestamps
-
-### Step 2: Create Document and Collection Classes (functions/src/models/)
-
-Then create the document model in the `functions` package:
+### Step 2: Add the Server Model
 
 ```ts
-// functions/src/models/user/user.ts
-import { userCollectionPath, userDocumentPath, type UserData, type UserKey } from '@firestore/types/user/user.js';
-import { FirestoreCollection, FirestoreDocument, newId } from '@mzsn/firestore';
+// functions/src/models/user.ts
+import { FirestoreCollection, FirestoreDocument } from '@mzsn/firestore';
+
+import { userCollectionPath, userDocumentPath, type UserData, type UserKey } from '@firestore/types/user.js';
 
 export class UserDocument extends FirestoreDocument<UserKey, UserData> {
   static pathTemplate = userDocumentPath;
 
   public static get defaultKey(): UserKey {
     return {
-      uid: newId(),
+      uid: '',
     };
   }
 
@@ -67,7 +73,9 @@ export class UserDocument extends FirestoreDocument<UserKey, UserData> {
     return {
       email: '',
       displayName: '',
-      role: 'member',
+      image: '',
+      permissions: {},
+      admin: false,
       createdAt: now,
       updatedAt: now,
     };
@@ -86,195 +94,141 @@ export class UserCollection extends FirestoreCollection<never, UserKey, UserData
 }
 ```
 
-**Key Points**:
-- **`defaultKey`**: Static getter that returns default key values (use `newId()` for auto-generated IDs)
-- **`defaultData`**: Static getter that returns default data values
-- **`beforeSave()`**: Lifecycle hook to update fields before saving (e.g., `updatedAt` timestamp)
-- Always extend `FirestoreDocument` and `FirestoreCollection` from `@mzsn/firestore`
-
-### Step 3: Usage Example
-
-```ts
-import { UserDocument, UserCollection } from './models/user/user.js';
-
-// Create a new document with default values
-const userDoc = new UserDocument(
-  UserDocument.defaultKey,
-  UserDocument.defaultData
-);
-
-// Override specific fields
-userDoc.data.email = 'user@example.com';
-userDoc.data.displayName = 'John Doe';
-
-// Save (beforeSave() will automatically update updatedAt)
-await userDoc.save();
-
-// Fetch from collection
-const users = new UserCollection({});
-const allUsers = await users.list();
-```
-
 ### Important Conventions
 
-- **Do NOT create custom methods** like `defaultKeyWithUid()` or `defaultDataWithEmail()`
-- **Always use static getters** `defaultKey` and `defaultData` for overriding default values
-- **File structure**: `firestore/src/types/{model}/{model}.ts` and `functions/src/models/{model}/{model}.ts`
-- **Naming**: Use singular form (e.g., `user`, not `users`) for directory and file names
-- **Timestamps**: Always include `createdAt` and `updatedAt` in data interfaces
+- Use flat file paths such as `firestore/src/types/user.ts` and `functions/src/models/user.ts`
+- Keep `defaultKey` aligned with the actual ID source; for auth-backed documents, the UID usually comes from Auth rather than `newId()`
+- Keep `defaultData` complete enough to build a valid first write
+- Use `beforeSave()` for timestamps and other consistently derived fields
 
 ## Data Update Pattern
 
-### The Problem
-`@mzsn/firestore`'s `UserDocument.data` property has complex getter/setter behavior. Direct mutation doesn't reliably save changes:
+Avoid mutating nested document state in place. Create a new document instance with merged data.
 
 ```ts
-// ❌ BAD: Direct mutation may not save
-const userDoc = new UserDocument({ uid });
-await userDoc.get();
-userDoc.data.permissions['projects'] = newProjects;  // May not persist!
-await userDoc.save();
-```
-
-### The Solution: Immutable Pattern
-Always create a new document instance with updated data:
-
-```ts
-// ✅ GOOD: Immutable pattern
-const userDoc = new UserDocument({ uid });
-await userDoc.get();
+const userDocument = new UserDocument({ uid });
+await userDocument.get();
 
 const updatedData = {
-  ...userDoc.data,
+  ...userDocument.data,
   permissions: {
-    ...userDoc.data.permissions,
-    projects: newProjects,
+    ...(userDocument.data.permissions || {}),
+    projects: nextProjects,
   },
 };
 
-const updatedDoc = new UserDocument({ uid }, updatedData);
-await updatedDoc.save();
+const updatedDocument = new UserDocument({ uid }, updatedData);
+await updatedDocument.save();
 ```
 
-### Why This Matters
-- Ensures changes are reliably persisted
-- Avoids subtle bugs in production
-- All E2E tests use this pattern
-- Required for testability
+This pattern is used by the current project trigger logic and should remain the default.
 
-## Creating Triggers
+## Creating Services
 
-### Extract Business Logic for Testability
+### Trigger Structure
 
-When creating Firebase triggers, extract the core business logic into separate functions:
+Keep exported triggers thin and move the real business logic into named functions that tests can call directly.
 
 ```ts
-// ✅ GOOD: Testable structure
 export async function updateUserPermissions(
   pid: string,
   uid: string,
   projectUserData: ProjectUserData | null
 ): Promise<void> {
-  // Business logic here (fully testable)
-  const userDoc = new UserDocument({ uid });
-  await userDoc.get();
-  
-  const updatedData = {
-    ...userDoc.data,
-    // ... update logic
-  };
-  
-  const updatedDoc = new UserDocument({ uid }, updatedData);
-  await updatedDoc.save();
+  const userDocument = new UserDocument({ uid });
+  await userDocument.get();
+
+  if (!userDocument.exists) {
+    return;
+  }
+
+  const updatedDocument = new UserDocument({ uid }, {
+    ...userDocument.data,
+    permissions: {
+      ...(userDocument.data.permissions || {}),
+      projects: calculateProjectPermissions(
+        userDocument.data.permissions?.projects,
+        pid,
+        projectUserData
+      ),
+    },
+  });
+
+  await updatedDocument.save();
 }
 
-// Trigger is a thin wrapper
 export const written = onDocumentWritten(
   { region: 'asia-northeast1', document: '/projects/{pid}/users/{uid}' },
   async (event) => {
-    const pid = event.params.pid;
-    const uid = event.params.uid;
-    const projectUserData = event.data?.after.data() as ProjectUserData | null;
-    await updateUserPermissions(pid, uid, projectUserData);
+    await updateUserPermissions(
+      event.params.pid,
+      event.params.uid,
+      event.data?.after.data() as ProjectUserData | null
+    );
   }
 );
 ```
 
-### Benefits
-- Business logic can be unit tested
-- Trigger wrapper remains simple
-- Easy to debug and maintain
-- Enables E2E testing with real Firestore
+### Callable Functions
 
-## Common Patterns
+Place request and response types in `functions/src/types/*.ts` and keep the callable wrapper small.
 
-### Callable Functions (HTTP/HTTPS)
 ```ts
-export const myFunction = onCall(
+import { HttpsError, onCall } from 'firebase-functions/v2/https';
+
+import type { SampleRunRequest, SampleRunResponse } from 'src/types/sample.js';
+
+export async function runHandler(request: { data: SampleRunRequest }): Promise<SampleRunResponse> {
+  const id = request.data.id.trim();
+
+  if (!id) {
+    throw new HttpsError('invalid-argument', 'id is required');
+  }
+
+  return {
+    id,
+    name: request.data.name.trim(),
+    count: 1,
+  };
+}
+
+export const run = onCall<SampleRunRequest, Promise<SampleRunResponse>>(
   { region: 'asia-northeast1' },
-  async (request): Promise<MyResponse> => {
-    const { data, auth } = request;
-    
-    // Validate auth
-    if (!auth) {
-      throw new HttpsError('unauthenticated', 'User must be authenticated');
-    }
-    
-    // Business logic
-    return { result: 'success' };
-  }
+  runHandler
 );
 ```
 
-### Document Triggers
+### Blocking Auth Triggers
+
+Use `beforeUserCreated()` when user creation needs to seed Firestore or inherit pre-registered permissions before the account becomes active.
+
+## Export Structure
+
+The root `functions/src/index.ts` exports domains as namespaces:
+
 ```ts
-export const onUserCreated = onDocumentCreated(
-  { region: 'asia-northeast1', document: 'users/{uid}' },
-  async (event) => {
-    const uid = event.params.uid;
-    const data = event.data?.data();
-    // Handle creation
-  }
-);
-
-export const onUserUpdated = onDocumentUpdated(
-  { region: 'asia-northeast1', document: 'users/{uid}' },
-  async (event) => {
-    const before = event.data?.before.data();
-    const after = event.data?.after.data();
-    // Handle update
-  }
-);
+export * as user from './services/user/user.js';
+export * as project from './services/project/project.js';
+export * as storage from './services/storage/storage.js';
 ```
 
-### beforeUserCreated (Blocking Function)
-```ts
-export const created = beforeUserCreated(
-  { region: 'asia-northeast1' },
-  async (event) => {
-    const userRecord = event.data;
-    
-    // Validate or modify user before creation
-    // Throw error to block creation
-  }
-);
-```
+Follow the same pattern for new service domains so deployment output stays predictable.
 
-## Firebase Emulator Setup
+## Local Development and Testing
 
-For local development and testing:
+Use Node.js 24.
 
 ```bash
-# Start emulators
-firebase emulators:start
-
-# Emulator ports (configured in firebase.json)
-# - Auth: 9099
-# - Firestore: 8080
-# - Functions: 5001
-# - Storage: 9199
+nvm use
+cd functions
+npm run test
 ```
 
-## Testing
+Repository-level scripts are also available from the root:
 
-See [Testing Guide](./testing.md#functions-e2e-testing) for detailed E2E testing with Firebase Emulator.
+```bash
+npm run test:functions
+npm run coverage:functions
+```
+
+See [Testing Guide](./testing.md#functions-testing) for test details.

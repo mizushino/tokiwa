@@ -48,7 +48,7 @@ chore: upgrade dependencies to latest versions
 - Use present tense ("add feature" not "added feature")
 - Use imperative mood ("move cursor to..." not "moves cursor to...")
 - Keep the subject line under 72 characters
-- Capitalize the subject line
+- Keep the description in natural sentence case; do not force capitalization
 - Don't end the subject line with a period
 - Separate subject from body with a blank line
 - Use the body to explain what and why, not how
