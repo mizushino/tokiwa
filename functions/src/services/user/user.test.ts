@@ -1,11 +1,15 @@
-import { apps, auth as adminAuth, firestore as adminFirestore, initializeApp } from 'firebase-admin';
+import { getApps, initializeApp } from 'firebase-admin/app';
+import { getAuth, type Auth } from 'firebase-admin/auth';
+import { getFirestore, Timestamp, type Firestore } from 'firebase-admin/firestore';
+import { logger } from 'firebase-functions';
 import firebaseFunctionsTest from 'firebase-functions-test';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { UserData } from '@firestore/types/user.js';
 import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
 
 const testEnv = firebaseFunctionsTest(getFirebaseTestConfig());
+const wrapBlockingFunction = <T>(fn: T): ReturnType<typeof testEnv.wrap> => testEnv.wrap(fn as never);
 
 async function waitForCondition(assertion: () => Promise<void> | void, attempts = 20, delayMs = 100): Promise<void> {
   let lastError: unknown;
@@ -24,17 +28,21 @@ async function waitForCondition(assertion: () => Promise<void> | void, attempts 
 }
 
 describe('user service E2E', () => {
-  let db: adminFirestore.Firestore;
-  let auth: adminAuth.Auth;
+  let db: Firestore;
+  let auth: Auth;
   let createdUserIds: string[] = [];
 
   beforeAll(() => {
     // Initialize Firebase Admin
-    if (!apps.length) {
+    if (!getApps().length) {
       initializeApp();
     }
-    db = adminFirestore();
-    auth = adminAuth();
+    db = getFirestore();
+    auth = getAuth();
+  });
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
   });
 
   afterEach(async () => {
@@ -153,8 +161,8 @@ describe('user service E2E', () => {
       await db.doc(`users/${userRecord.uid}`).set({
         email: userRecord.email || '',
         displayName: 'Original Name',
-        createdAt: adminFirestore.Timestamp.now(),
-        updatedAt: adminFirestore.Timestamp.now(),
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
       });
 
       const userData: UserData = {
@@ -206,8 +214,8 @@ describe('user service E2E', () => {
       await db.doc(`users/${userRecord.uid}`).set({
         email: 'test-storage@example.com',
         displayName: 'Storage Test',
-        createdAt: adminFirestore.Timestamp.now(),
-        updatedAt: adminFirestore.Timestamp.now(),
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
       });
 
       const userData: UserData = {
@@ -303,6 +311,34 @@ describe('user service E2E', () => {
         expect(user.customClaims).toEqual({});
       });
     });
+
+    it('logs and continues when the auth user no longer exists', async () => {
+      const { written } = await import('./user.js');
+      const wrapped = testEnv.wrap(written);
+      const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+      const userData: UserData = {
+        email: 'missing@example.com',
+        displayName: 'Missing User',
+        image: 'users/profile',
+        permissions: { projects: ['proj1:r'] },
+        admin: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const beforeSnap = testEnv.firestore.makeDocumentSnapshot({} as UserData, 'users/missing-user');
+      const afterSnap = testEnv.firestore.makeDocumentSnapshot(userData, 'users/missing-user');
+
+      await expect(
+        wrapped({
+          data: testEnv.makeChange(beforeSnap, afterSnap),
+          params: { uid: 'missing-user' },
+        })
+      ).resolves.toBeUndefined();
+
+      expect(warnSpy).toHaveBeenCalled();
+    });
   });
 
   describe('created trigger', () => {
@@ -378,6 +414,62 @@ describe('user service E2E', () => {
       const deletedDoc = new UserDocument({ uid: email });
       await deletedDoc.get();
       expect(deletedDoc.exists).toBe(false);
+    });
+
+    it('returns early when created trigger has no user payload', async () => {
+      const { created } = await import('./user.js');
+      const wrapped = wrapBlockingFunction(created);
+
+      await expect(wrapped({ data: undefined })).resolves.toBeUndefined();
+    });
+
+    it('returns early when created trigger payload has no email', async () => {
+      const { created } = await import('./user.js');
+      const wrapped = wrapBlockingFunction(created);
+
+      await expect(
+        wrapped({
+          data: {
+            uid: 'missing-email',
+            email: undefined,
+            displayName: 'No Email',
+            photoURL: null,
+          },
+        })
+      ).resolves.toBeUndefined();
+
+      const doc = await db.doc('users/missing-email').get();
+      expect(doc.exists).toBe(false);
+    });
+
+    it('preserves an existing user document when no pre-registration exists', async () => {
+      const { UserDocument } = await import('../../models/user.js');
+      const { handleUserCreated } = await import('./user.js');
+
+      const existingUid = 'existing-user';
+      const existingUser = new UserDocument(
+        { uid: existingUid },
+        {
+          ...UserDocument.defaultData,
+          email: 'existing@example.com',
+          displayName: 'Existing Name',
+          image: 'existing-image',
+          permissions: { projects: ['proj-existing:o'] },
+          admin: true,
+        }
+      );
+      await existingUser.save();
+
+      await handleUserCreated(existingUid, 'existing@example.com', 'Ignored Name', 'new-photo');
+
+      const resultDoc = new UserDocument({ uid: existingUid });
+      await resultDoc.get();
+
+      expect(resultDoc.exists).toBe(true);
+      expect(resultDoc.data.displayName).toBe('Existing Name');
+      expect(resultDoc.data.image).toBe('existing-image');
+      expect(resultDoc.data.permissions).toEqual({ projects: ['proj-existing:o'] });
+      expect(resultDoc.data.admin).toBe(true);
     });
   });
 });

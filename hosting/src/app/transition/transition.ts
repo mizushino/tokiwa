@@ -30,7 +30,7 @@ interface TransitionOptions {
   leaveTo?: string;
 }
 
-class TransitionDirective extends AsyncDirective {
+export class TransitionDirective extends AsyncDirective {
   private element?: HTMLElement;
   private currentDirection: 'enter' | 'leave' | null = null;
   private initialized = false;

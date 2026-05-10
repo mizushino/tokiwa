@@ -5,6 +5,8 @@ import { PartType, type ElementPart, type PartInfo } from 'lit/directive.js';
 import { LitShare } from 'lit-share';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { clearPreferredLanguageCache, setPreferredLanguage } from '@app/i18n';
+
 import { Navigate } from './navigate';
 import { PageElement, type PageMetadata } from './page-element';
 
@@ -44,10 +46,25 @@ class TestPageCustom extends PageElement {
   }
 }
 
+@customElement('test-page-translated')
+class TestPageTranslated extends PageElement {
+  protected pageMetadata: PageMetadata = {
+    translations: {
+      en: { greeting: 'Hello' },
+      ja: { greeting: 'こんにちは' },
+    },
+  };
+
+  public exposeTrans(code: string): string {
+    return this.trans(code);
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'test-page': TestPage;
     'test-page-custom': TestPageCustom;
+    'test-page-translated': TestPageTranslated;
   }
 }
 
@@ -91,6 +108,7 @@ describe('Page', () => {
 
   afterEach(() => {
     container.remove();
+    clearPreferredLanguageCache();
     vi.clearAllMocks();
     vi.restoreAllMocks();
   });
@@ -175,6 +193,34 @@ describe('Page', () => {
       expect(navigateToSpy).toHaveBeenCalledWith('/test-path/', state);
       navigateToSpy.mockRestore();
     });
+
+    it('prefers page translations over global translations', async () => {
+      setPreferredLanguage('en');
+
+      const element = document.createElement('test-page-translated') as TestPageTranslated;
+      container.appendChild(element);
+      await element.updateComplete;
+
+      expect(element.exposeTrans('greeting')).toBe('Hello');
+    });
+
+    it('falls back to global translations when page translation is missing', async () => {
+      setPreferredLanguage('ja');
+
+      const element = document.createElement('test-page-translated') as TestPageTranslated;
+      container.appendChild(element);
+      await element.updateComplete;
+
+      expect(element.exposeTrans('cancel')).toBe('キャンセル');
+    });
+
+    it('returns the code when no translation is found', async () => {
+      const element = document.createElement('test-page-translated') as TestPageTranslated;
+      container.appendChild(element);
+      await element.updateComplete;
+
+      expect(element.exposeTrans('missing-code')).toBe('missing-code');
+    });
   });
 
   describe('Navigate', () => {
@@ -182,6 +228,11 @@ describe('Page', () => {
       it('throws error when used in non-element context', () => {
         const partInfo = { type: PartType.ATTRIBUTE } as PartInfo;
         expect(() => new Navigate(partInfo)).toThrow('The `navigate` directive must be used in the element');
+      });
+
+      it('returns no rendered content from render', () => {
+        const directive = new Navigate({ type: PartType.ELEMENT } as PartInfo);
+        expect(directive.render('/test-path/')).toBeUndefined();
       });
 
       it('updates element pathname on update', async () => {
@@ -544,6 +595,20 @@ describe('Page', () => {
       // Restore
       LitShare.set('router', mockRouter);
       history.pushState(null, '', originalPathname);
+    });
+
+    it('does nothing when an existing hash target cannot be found', async () => {
+      const originalHash = location.hash;
+      location.hash = '#missing-anchor';
+
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {
+        /* noop */
+      });
+
+      await Navigate.to('#missing-anchor');
+
+      expect(scrollToSpy).not.toHaveBeenCalled();
+      location.hash = originalHash;
     });
   });
 });

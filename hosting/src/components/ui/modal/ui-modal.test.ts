@@ -15,9 +15,14 @@ describe('UiModal', () => {
     document.body.appendChild(container);
     element = proxyShadowQueries(document.createElement('ui-modal') as UiModal);
     container.appendChild(element);
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     container.remove();
   });
 
@@ -166,5 +171,89 @@ describe('UiModal', () => {
     await element.updateComplete;
 
     expect(cancelHandler).toHaveBeenCalled();
+  });
+
+  it('emits button-click for custom buttons', async () => {
+    element.buttons = [{ label: 'Delete', value: 'delete', variant: 'danger' }];
+    element.open = true;
+    await element.updateComplete;
+
+    const buttonClickHandler = vi.fn();
+    element.addEventListener('button-click', buttonClickHandler);
+
+    const customButton = element.querySelector('button');
+    customButton?.click();
+
+    expect(buttonClickHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detail: { label: 'Delete', value: 'delete' },
+      })
+    );
+  });
+
+  it('focuses the input and emits input-change for prompt dialogs', async () => {
+    const focusSpy = vi.spyOn(HTMLInputElement.prototype, 'focus').mockImplementation(() => undefined);
+    const inputChangeHandler = vi.fn();
+
+    element.showInput = true;
+    element.open = true;
+    element.addEventListener('input-change', inputChangeHandler);
+    await element.updateComplete;
+
+    const input = element.querySelector('input');
+    expect(focusSpy).toHaveBeenCalled();
+    expect(input).toBeInstanceOf(HTMLInputElement);
+
+    if (!input) {
+      throw new Error('Expected prompt input to exist');
+    }
+
+    input.value = 'typed value';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+
+    expect(element.inputValue).toBe('typed value');
+    expect(inputChangeHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detail: { value: 'typed value' },
+      })
+    );
+  });
+
+  it('emits confirm when Enter is pressed in the prompt input', async () => {
+    const confirmHandler = vi.fn();
+
+    element.showInput = true;
+    element.open = true;
+    element.addEventListener('confirm', confirmHandler);
+    await element.updateComplete;
+
+    const input = element.querySelector('input');
+    input?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+    expect(confirmHandler).toHaveBeenCalled();
+  });
+
+  it('prevents native dialog cancel and routes it through cancel event', async () => {
+    const cancelHandler = vi.fn();
+
+    element.open = true;
+    element.addEventListener('cancel', cancelHandler);
+    await element.updateComplete;
+
+    const dialog = element.querySelector('dialog');
+    const cancelEvent = new Event('cancel', { cancelable: true, bubbles: true });
+    dialog?.dispatchEvent(cancelEvent);
+
+    expect(cancelEvent.defaultPrevented).toBe(true);
+    expect(cancelHandler).toHaveBeenCalled();
+  });
+
+  it('renders message as HTML when useHtml is enabled', async () => {
+    element.message = '<strong>Danger</strong> zone';
+    element.useHtml = true;
+    await element.updateComplete;
+
+    const strong = element.querySelector('strong');
+    expect(strong?.textContent).toBe('Danger');
   });
 });

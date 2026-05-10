@@ -1,15 +1,16 @@
-import { apps, firestore as adminFirestore, initializeApp } from 'firebase-admin';
+import { getApps, initializeApp } from 'firebase-admin/app';
+import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 describe('sample service E2E', () => {
-  let db: adminFirestore.Firestore;
+  let db: Firestore;
 
   beforeAll(() => {
-    if (!apps.length) {
+    if (!getApps().length) {
       initializeApp();
     }
-    db = adminFirestore();
+    db = getFirestore();
   });
 
   afterEach(async () => {

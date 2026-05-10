@@ -315,4 +315,28 @@ describe('UiTable', () => {
     expect(rows[0].textContent).toContain('Charlie');
     expect(rows[2].textContent).toContain('Alice');
   });
+
+  it('supports nested keys and alignment classes', async () => {
+    const columns: TableColumn[] = [
+      { key: 'profile.name', label: 'Name', align: 'center' },
+      { key: 'stats.score', label: 'Score', sortable: true, align: 'right' },
+    ];
+
+    element.columns = columns;
+    element.data = [
+      { profile: { name: 'Alice' }, stats: { score: 10 } },
+      { profile: { name: 'Bob' }, stats: { score: 5 } },
+    ];
+    await element.updateComplete;
+
+    const headers = element.querySelectorAll('th');
+    expect(headers[0].className).toContain('text-center');
+    expect(headers[1].className).toContain('text-right');
+
+    const cells = element.querySelectorAll('tbody td');
+    expect(cells[0].className).toContain('text-center');
+    expect(cells[1].className).toContain('text-right');
+    expect(cells[0].textContent?.trim()).toBe('Alice');
+    expect(cells[1].textContent?.trim()).toBe('10');
+  });
 });

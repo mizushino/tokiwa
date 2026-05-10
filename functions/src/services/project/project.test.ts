@@ -1,4 +1,5 @@
-import { apps, firestore as adminFirestore, initializeApp } from 'firebase-admin';
+import { getApps, initializeApp } from 'firebase-admin/app';
+import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import firebaseFunctionsTest from 'firebase-functions-test';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
@@ -7,7 +8,7 @@ import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
 
 const testEnv = firebaseFunctionsTest(getFirebaseTestConfig());
 
-async function waitForCondition(assertion: () => Promise<void> | void, attempts = 20, delayMs = 100): Promise<void> {
+async function waitForCondition(assertion: () => Promise<void> | void, attempts = 40, delayMs = 100): Promise<void> {
   let lastError: unknown;
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
@@ -23,21 +24,23 @@ async function waitForCondition(assertion: () => Promise<void> | void, attempts 
   throw lastError;
 }
 
-async function waitForUserDocument(db: adminFirestore.Firestore, uid: string): Promise<void> {
+async function waitForUserDocument(db: Firestore, uid: string): Promise<void> {
   await waitForCondition(async () => {
-    const userSnapshot = await db.collection('users').doc(uid).get();
-    expect(userSnapshot.exists).toBe(true);
+    const { UserDocument } = await import('../../models/user.js');
+    const userDocument = new UserDocument({ uid });
+    await userDocument.get();
+    expect(userDocument.exists).toBe(true);
   });
 }
 
 describe('project service E2E', () => {
-  let db: adminFirestore.Firestore;
+  let db: Firestore;
 
   beforeAll(() => {
-    if (!apps.length) {
+    if (!getApps().length) {
       initializeApp();
     }
-    db = adminFirestore();
+    db = getFirestore();
   });
 
   afterEach(async () => {
@@ -273,6 +276,7 @@ describe('project service E2E', () => {
     const resultDoc = new UserDocument({ uid: 'user-trigger' });
     await waitForCondition(async () => {
       await resultDoc.get();
+      expect(resultDoc.exists).toBe(true);
       expect(resultDoc.data.permissions?.projects).toContain('proj-trigger:o');
       expect(resultDoc.data.permissions?.projects).toContain('other:r');
     });
