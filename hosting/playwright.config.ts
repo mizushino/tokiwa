@@ -5,7 +5,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
 const isCI = Boolean(env.CI);
-const firebaseProjectId = env.FIREBASE_PROJECT_ID || 'demo-tokiwa-template';
+const firebaseProjectId = env.FIREBASE_PROJECT_ID || 'tokiwa-template';
 
 export default defineConfig({
   testDir: './src',

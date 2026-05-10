@@ -11,7 +11,7 @@ const REQUIRED_KEYS = [
   'VITE_FIREBASE_APP_ID',
 ] as const;
 
-const DEFAULT_TEMPLATE_PROJECT_ID = 'demo-tokiwa-template';
+const DEFAULT_TEMPLATE_PROJECT_ID = 'tokiwa-template';
 
 interface FirebaseConfigOptions {
   allowDemoFallback?: boolean;
