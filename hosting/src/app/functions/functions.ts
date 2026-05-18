@@ -56,9 +56,9 @@ export function initializeFunctions(app: FirebaseApp, settings?: FunctionsSettin
 export function callFirebaseFunction<T, U>(name: string): (data: T) => Promise<U | null> {
   return async (data: T) => {
     try {
-      const callable = httpsCallable(firebaseFunctions, name);
+      const callable = httpsCallable<T, U>(firebaseFunctions, name);
       const result = await callable(data);
-      return result?.data as U;
+      return result?.data ?? null;
     } catch (e) {
       console.warn(e);
     }
