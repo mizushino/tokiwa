@@ -64,7 +64,7 @@ private renderCell(row: unknown, column: TableColumn, index: number): TemplateRe
 import { html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import { tailwindCSS } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 
 // 2. Type definitions
 interface MyData {
@@ -260,7 +260,7 @@ import { html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 // 2. Internal modules
-import { tailwindCSS } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 import { UserDocument } from '@models/user';
 
 // 3. Types (with 'type' prefix)
@@ -269,7 +269,7 @@ import type { UserData } from '@firestore/types/user.js';
 // ❌ Bad: Mixed order, no grouping
 import type { UserData } from '@firestore/types/user.js';
 import { html } from 'lit';
-import { tailwindCSS } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 ```
 
 ### Magic Numbers

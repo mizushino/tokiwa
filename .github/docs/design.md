@@ -51,14 +51,16 @@ Example from the current admin site theme:
 
 ```css
 @theme {
-  --font-sans: "Noto Sans JP", sans-serif;
+  --font-sans: var(--site-font-sans, "Noto Sans JP", sans-serif);
 
-  --color-primary-500: var(--color-indigo-500);
-  --color-secondary-500: var(--color-slate-500);
-  --color-success-500: var(--color-emerald-500);
-  --color-danger-500: var(--color-rose-500);
+  --color-primary-500: var(--site-color-primary-500, var(--color-indigo-500));
+  --color-secondary-500: var(--site-color-secondary-500, var(--color-slate-500));
+  --color-success-500: var(--site-color-success-500, var(--color-emerald-500));
+  --color-danger-500: var(--site-color-danger-500, var(--color-rose-500));
 }
 ```
+
+The shared stylesheet uses the `--site-*` variables as the site-level override point and falls back to Tailwind's default palette tokens.
 
 ### Use Tailwind v4 Syntax
 - Use Tailwind v4 class names and conventions, not legacy syntax
