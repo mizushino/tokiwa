@@ -64,7 +64,7 @@ private renderCell(row: unknown, column: TableColumn, index: number): TemplateRe
 import { html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/element';
 
 // 2. Type definitions
 interface MyData {
@@ -77,7 +77,9 @@ const MAX_ITEMS = 100;
 
 // 4. Component/Class definition
 @customElement('my-component')
-export class MyComponent extends TokiwaElement {
+export class MyComponent extends LitElement {
+  static override styles = [tailwindCSS];
+
   // Properties
   @property() data: MyData[] = [];
 
@@ -135,7 +137,9 @@ function getUserData() { }
 // PascalCase for classes and components
 class UserProfile { }
 @customElement('user-profile')
-export class UserProfile extends TokiwaElement { }
+export class UserProfile extends LitElement {
+  static override styles = [tailwindCSS];
+}
 
 // SCREAMING_SNAKE_CASE for constants
 const MAX_RETRY_COUNT = 3;
@@ -256,7 +260,7 @@ import { html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 // 2. Internal modules
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/element';
 import { UserDocument } from '@models/user';
 
 // 3. Types (with 'type' prefix)
@@ -265,7 +269,7 @@ import type { UserData } from '@firestore/types/user.js';
 // ❌ Bad: Mixed order, no grouping
 import type { UserData } from '@firestore/types/user.js';
 import { html } from 'lit';
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/element';
 ```
 
 ### Magic Numbers

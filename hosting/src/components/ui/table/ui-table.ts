@@ -1,7 +1,7 @@
-import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
+import { LitElement, css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 
 /**
  * Column definition for the table.
@@ -53,9 +53,9 @@ export interface TableSort {
  * ```
  */
 @customElement('ui-table')
-export class UiTable extends TokiwaElement {
+export class UiTable extends LitElement {
   static override styles: CSSResultGroup = [
-    TokiwaElement.styles,
+    tailwindCSS,
     css`
       :host {
         display: block;

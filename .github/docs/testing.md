@@ -60,7 +60,7 @@ hosting/src/app/page/page.test.ts
 
 ### Querying the DOM
 
-Most components in this repository extend `TokiwaElement` or `PageElement`, so they render in Shadow DOM.
+Most components in this repository extend `LitElement` with `tailwindCSS`, or extend `PageElement`, so they render in Shadow DOM.
 
 ```ts
 it('renders the heading', async () => {

@@ -1,7 +1,7 @@
-import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
+import { LitElement, css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 
 /**
  * Button variant type
@@ -26,9 +26,9 @@ export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
  * @slot - Button label content.
  */
 @customElement('ui-button')
-export class UiButton extends TokiwaElement {
+export class UiButton extends LitElement {
   static override styles: CSSResultGroup = [
-    TokiwaElement.styles,
+    tailwindCSS,
     css`
       :host {
         display: inline-flex;

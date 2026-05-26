@@ -1,8 +1,8 @@
-import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
+import { LitElement, css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref, type Ref } from 'lit/directives/ref.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 
 /**
  * Resizable split divider for adjacent panels.
@@ -21,9 +21,9 @@ import { TokiwaElement } from '@app/element';
  * @fires change - Fired when a drag interaction commits a new panel size.
  */
 @customElement('ui-split')
-export class UiSplit extends TokiwaElement {
+export class UiSplit extends LitElement {
   static override styles: CSSResultGroup = [
-    TokiwaElement.styles,
+    tailwindCSS,
     css`
       :host {
         display: flex;

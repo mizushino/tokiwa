@@ -74,26 +74,32 @@ Example from the current admin site theme:
 ## Lit Component Styling
 
 ### Use the Correct Base Class
-- Reusable components should usually extend `TokiwaElement`
+- Reusable components should extend `LitElement` and include `tailwindCSS` in their static styles
 - Pages should extend `PageElement`
-- Do not build project UI directly on plain `LitElement` unless there is a deliberate reason to bypass the shared styling base
+- Do not build project UI directly on plain `LitElement` without including `tailwindCSS` unless there is a deliberate reason to bypass shared styling
 
 ```ts
-import { TokiwaElement } from '@app/element';
+import { LitElement } from 'lit';
+import { tailwindCSS } from '@app/styles';
 import { customElement } from 'lit/decorators.js';
 
 @customElement('ui-example-card')
-export class UiExampleCard extends TokiwaElement {}
+export class UiExampleCard extends LitElement {
+  static override styles = [tailwindCSS];
+}
 ```
 
 ### Tailwind Runs in Shadow DOM
-- `TokiwaElement` injects the shared Tailwind stylesheet into Shadow DOM
+- `tailwindCSS` is a constructable CSSStyleSheet that injects the shared Tailwind stylesheet into Shadow DOM
 - Write utility classes in templates as usual
 - When host-level layout matters, use `static styles` for `:host` or wrap content in a layout container
 
 ```ts
+import { LitElement, css } from 'lit';
+import { tailwindCSS } from '@app/styles';
+
 static override styles = [
-  TokiwaElement.styles,
+  tailwindCSS,
   css`
     :host {
       display: block;
@@ -170,7 +176,7 @@ Keep CSS close to the owning site or shared component. Do not create disconnecte
 ## Design Checklist
 
 Before shipping a UI change, verify:
-- The component uses the correct base class (`TokiwaElement` or `PageElement`)
+- The component extends the correct base class (`LitElement` with `tailwindCSS`, or `PageElement`) and includes Tailwind styles in Shadow DOM
 - Tailwind v4 syntax is used
 - Existing theme tokens and shared components were preferred over one-off values
 - Mobile, desktop, empty, loading, and error states were considered

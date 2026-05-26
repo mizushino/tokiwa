@@ -10,15 +10,15 @@ import {
   persistentMultipleTabManager,
   type FirestoreSettings,
 } from 'firebase/firestore';
-import { css, html, type TemplateResult } from 'lit';
+import { LitElement, css, html, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { share } from 'lit-share';
 import { URLPattern } from 'urlpattern-polyfill';
 
 import { initializeAuth, type FirebaseAuthSettings } from '@app/auth';
-import { TokiwaElement } from '@app/element';
 import { getFirebaseConfig } from '@app/firebase-config';
 import { type FunctionsSettings, initializeFunctions } from '@app/functions';
+import { tailwindCSS } from '@app/styles';
 
 import './index';
 import './app.css';
@@ -40,9 +40,9 @@ if (window.URLPattern === undefined) {
 }
 
 @customElement('default-app')
-export class DefaultApp extends TokiwaElement {
+export class DefaultApp extends LitElement {
   static override styles = [
-    TokiwaElement.styles,
+    tailwindCSS,
     css`
       :host {
         display: block;

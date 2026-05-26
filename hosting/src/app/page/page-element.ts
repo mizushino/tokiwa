@@ -1,7 +1,7 @@
-import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
+import { LitElement, css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 
-import { TokiwaElement } from '@app/element';
 import { globalTranslations, getPreferredLanguage } from '@app/i18n';
+import { tailwindCSS } from '@app/styles';
 
 import { Navigate } from './navigate';
 
@@ -32,9 +32,9 @@ export interface PageMetadata {
  * }
  * ```
  */
-export class PageElement extends TokiwaElement {
+export class PageElement extends LitElement {
   static override styles: CSSResultGroup = [
-    TokiwaElement.styles,
+    tailwindCSS,
     css`
       :host {
         display: block;

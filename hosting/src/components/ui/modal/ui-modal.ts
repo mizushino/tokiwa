@@ -1,9 +1,9 @@
-import { html, type TemplateResult } from 'lit';
+import { LitElement, type CSSResultGroup, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 import { transition } from '@app/transition';
 
 /**
@@ -63,7 +63,9 @@ export interface ModalButton {
  * @fires input-change - Fired when the prompt input value changes.
  */
 @customElement('ui-modal')
-export class UiModal extends TokiwaElement {
+export class UiModal extends LitElement {
+  static override styles: CSSResultGroup = [tailwindCSS];
+
   @property({ type: String })
   title = '';
 

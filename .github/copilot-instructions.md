@@ -45,18 +45,20 @@ Firebase-based multi-site web application framework using Lit, Tailwind CSS v4, 
 
 ## Critical Patterns
 
-### 1. TokiwaElement for Shared Tailwind Styles
+### 1. Tailwind Styles via `tailwindCSS`
 
-Tailwind is shared through `TokiwaElement`, which extends `LitElement` and injects the compiled Tailwind stylesheet into Shadow DOM via a constructable stylesheet.
+Tailwind is shared through `tailwindCSS`, a constructable CSSStyleSheet exported from `@app/styles`. Include it in the component's `static styles` to inject Tailwind into Shadow DOM.
 
 ```typescript
 import { html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 
 @customElement('ui-example-card')
-export class UiExampleCard extends TokiwaElement {
+export class UiExampleCard extends LitElement {
+  static override styles = [tailwindCSS];
+
   protected override render() {
     return html`<div class="rounded-lg border p-4">Content</div>`;
   }

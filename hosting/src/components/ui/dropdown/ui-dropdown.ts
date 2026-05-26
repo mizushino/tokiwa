@@ -1,8 +1,8 @@
-import { html, type TemplateResult } from 'lit';
+import { LitElement, type CSSResultGroup, html, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 import { transition } from '@app/transition';
 
 /**
@@ -30,7 +30,9 @@ export type DropdownSize = 'sm' | 'md' | 'lg';
  * @slot menu - Menu content rendered inside the dropdown panel.
  */
 @customElement('ui-dropdown')
-export class UiDropdown extends TokiwaElement {
+export class UiDropdown extends LitElement {
+  static override styles: CSSResultGroup = [tailwindCSS];
+
   @property({ type: String })
   size: DropdownSize = 'md';
 

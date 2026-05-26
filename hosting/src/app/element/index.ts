@@ -1,1 +1,0 @@
-export { TokiwaElement } from './tokiwa-element';

@@ -1,8 +1,8 @@
-import { html, type TemplateResult } from 'lit';
+import { LitElement, type CSSResultGroup, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 import { transition } from '@app/transition';
 
 /**
@@ -32,7 +32,9 @@ import { transition } from '@app/transition';
  * @fires close - Fired when the dialog requests to close.
  */
 @customElement('ui-dialog')
-export class UiDialog extends TokiwaElement {
+export class UiDialog extends LitElement {
+  static override styles: CSSResultGroup = [tailwindCSS];
+
   @property({ type: String })
   title = '';
 

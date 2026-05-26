@@ -28,7 +28,7 @@ hosting/
 #### `src/app/`
 Contains reusable application primitives:
 - `auth/`: Firebase Authentication helpers and `userSnapshot()`
-- `element/`: `TokiwaElement`, the shared Lit base class with Tailwind styles
+- `styles/`: `tailwindCSS`, a constructable CSSStyleSheet for injecting Tailwind into Shadow DOM
 - `functions/`: Firebase Functions initialization and callable wrappers
 - `i18n/`: language detection and shared translations
 - `page/`: `PageElement`, metadata handling, and navigation helpers
@@ -130,29 +130,31 @@ There is no automatic route discovery in the current codebase.
 
 ## Key Patterns
 
-### TokiwaElement and Tailwind
+### tailwindCSS and Tailwind
 
-Most components render with Shadow DOM and inherit Tailwind through `TokiwaElement`.
+Most components render with Shadow DOM and include Tailwind via `tailwindCSS`.
 
 ```ts
-import { html } from 'lit';
+import { html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 
 @customElement('ui-example-card')
-export class UiExampleCard extends TokiwaElement {
+export class UiExampleCard extends LitElement {
+  static override styles = [tailwindCSS];
+
   protected override render() {
     return html`<div class="rounded-lg border p-4">Content</div>`;
   }
 }
 ```
 
-Use `static styles` or a wrapper element when host-level layout must be enforced. Do not document new components around a nonexistent `LightElement` or `hostClasses` API.
+Use `static styles` or a wrapper element when host-level layout must be enforced. Do not document new components around a nonexistent base class.
 
 ### PageElement
 
-`PageElement` extends `TokiwaElement` and adds:
+`PageElement` extends `LitElement` and adds:
 - document title and description updates from `page.json`
 - page-local translation lookup via `trans()`
 - `navigateTo()` helper for programmatic navigation

@@ -1,10 +1,10 @@
 import type { User } from 'firebase/auth';
-import { html, type TemplateResult } from 'lit';
+import { LitElement, type CSSResultGroup, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 
-import { TokiwaElement } from '@app/element';
 import { Navigate } from '@app/page';
+import { tailwindCSS } from '@app/styles';
 
 /**
  * Navigation item definition for the sidebar.
@@ -38,7 +38,9 @@ export interface SidebarNavItem {
  * @fires userclick - Fired when the current user profile section is pressed.
  */
 @customElement('ui-sidebar')
-export class UiSidebar extends TokiwaElement {
+export class UiSidebar extends LitElement {
+  static override styles: CSSResultGroup = [tailwindCSS];
+
   @property({ type: Object })
   currentUser?: User | null;
 

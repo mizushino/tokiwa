@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { proxyShadowQueries } from '@app/../test/query-shadow-root';
 
-import type { ButtonSize, ButtonVariant, UiButton } from './ui-button';
+import { type ButtonSize, type ButtonVariant, type UiButton } from './ui-button';
 
 import './ui-button';
 
@@ -173,7 +173,7 @@ describe('UiButton', () => {
     element.loading = true;
     await element.updateComplete;
     const button = element.querySelector('button');
-    expect(button?.className).toContain('flex');
+    expect(button?.className).toContain('inline-flex');
     expect(button?.className).toContain('items-center');
   });
 

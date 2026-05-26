@@ -1,7 +1,7 @@
-import { html, type TemplateResult } from 'lit';
+import { LitElement, type CSSResultGroup, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import { TokiwaElement } from '@app/element';
+import { tailwindCSS } from '@app/styles';
 
 /**
  * Checkbox size type
@@ -22,7 +22,9 @@ export type CheckboxSize = 'sm' | 'md' | 'lg';
  * @fires change - Fired when the checked state changes.
  */
 @customElement('ui-checkbox')
-export class UiCheckbox extends TokiwaElement {
+export class UiCheckbox extends LitElement {
+  static override styles: CSSResultGroup = [tailwindCSS];
+
   @property({ type: Boolean })
   checked = false;
 
