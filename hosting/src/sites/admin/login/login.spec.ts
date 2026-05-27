@@ -32,10 +32,7 @@ test.describe('Admin Site - Login', () => {
     await page.fill('input[type="email"]', 'admin@playwright.test');
     await page.fill('input[type="password"]', 'mi6O4yUkNb');
 
-    await Promise.all([
-      page.waitForURL('**/'),
-      page.click('button[type="submit"]'),
-    ]);
+    await Promise.all([page.waitForURL('**/'), page.click('button[type="submit"]')]);
 
     await waitForAdminShell(page);
   });

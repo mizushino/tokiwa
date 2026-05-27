@@ -1,7 +1,7 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 
 if (getApps().length === 0) {
-	initializeApp();
+  initializeApp();
 }
 
 export * as user from './services/user/user.js';

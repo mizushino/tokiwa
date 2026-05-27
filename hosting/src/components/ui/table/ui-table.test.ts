@@ -180,7 +180,7 @@ describe('UiTable', () => {
 
     element.columns = columns as TableColumn[];
     element.data = sampleData;
-  element.filter = 'Admin';
+    element.filter = 'Admin';
     await element.updateComplete;
 
     const rows = element.querySelectorAll('tbody tr');
@@ -234,7 +234,7 @@ describe('UiTable', () => {
     await element.updateComplete;
 
     const cells = element.querySelectorAll('tbody td');
-  expect(cells[2].textContent?.trim()).toBe('');
+    expect(cells[2].textContent?.trim()).toBe('');
   });
 
   it('handles null values in filter', async () => {

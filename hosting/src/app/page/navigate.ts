@@ -22,6 +22,7 @@ export class Navigate extends Directive {
   }
 
   public render(..._props: unknown[]): void {
+    return;
   }
 
   public override update(part: ElementPart, props: unknown[]): void {
