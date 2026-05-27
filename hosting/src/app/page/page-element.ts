@@ -96,7 +96,7 @@ export class PageElement extends LitElement {
   }
 
   protected override render(): TemplateResult {
-    return html`<div class="h-full w-full">${this.renderContents()}</div>`;
+    return this.renderContents();
   }
 
   protected renderContents(): TemplateResult {

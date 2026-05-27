@@ -18,31 +18,21 @@ export class DefaultIndex extends PageElement {
   protected routes = new Routes(
     this,
     [
-      { path: '', render: () => this.renderIndex() },
+      { path: '', render: () => html`<default-helloworld></default-helloworld>` },
       { path: 'helloworld/', render: () => html`<default-helloworld></default-helloworld>` },
       { path: 'counter/', render: () => html`<default-counter></default-counter>` },
       { path: 'firestore/', render: () => html`<default-firestore></default-firestore>` },
       { path: 'functions/', render: () => html`<default-functions></default-functions>` },
     ],
-    { fallback: { render: () => html`Not Found` } }
+    { fallback: { render: () => html`` } }
   );
-
-  protected renderIndex(): TemplateResult {
-    return html`
-      <div class="space-y-2 p-2">
-        <h1>Sample</h1>
-        <p>新しいフレームワーク用の最小サンプルです。</p>
-        <h1>Index</h1>
-      </div>
-    `;
-  }
 
   protected override render(): TemplateResult {
     return html`
-      <div class="min-h-full w-full bg-white dark:bg-gray-900 dark:text-white dark:scheme-dark">
+      <div class="min-h-full w-full bg-white text-gray-900 dark:bg-gray-900 dark:text-white dark:scheme-dark">
         <h1 class="p-2">Example</h1>
-        <div class="m-2 border p-2">${this.routes.outlet()}</div>
-        <hr />
+        <div class="m-2 rounded border border-gray-300 p-4 dark:border-white/15">${this.routes.outlet()}</div>
+        <hr class="border-gray-300 dark:border-white/15" />
         <div class="p-2">
           <button ${navigate('/')}>[Top]</button>
           <button ${navigate('/helloworld/')}>[HelloWorld]</button>
