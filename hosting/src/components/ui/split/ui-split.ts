@@ -40,9 +40,9 @@ export class UiSplit extends LitElement {
   protected isDragging = false;
   protected parentRect: DOMRect | undefined;
   protected startPrevSize = 0;
-  protected startMousePos = 0; // Mouse position captured when dragging starts.
-  protected startMin?: number; // Min size captured at drag start.
-  protected startMax?: number; // Max size captured at drag start.
+  protected startMousePos = 0;
+  protected startMin?: number;
+  protected startMax?: number;
   protected pendingSize: number | null = null;
 
   protected readonly handleRef: Ref<HTMLDivElement> = createRef();
@@ -53,7 +53,6 @@ export class UiSplit extends LitElement {
     // Extend the hit area without affecting layout.
     return html`
       <div class="${isVertical ? 'h-4 w-full' : 'h-full w-4'} relative">
-        <!-- Invisible touch extension (before) - absolute positioned -->
         <div
           class="${isVertical
             ? '-top-2 left-0 h-2 w-full cursor-ns-resize'
@@ -61,7 +60,6 @@ export class UiSplit extends LitElement {
           @mousedown=${this.onMouseDown}
           @touchstart=${this.onTouchStart}
         ></div>
-        <!-- Visible split bar -->
         <div
           ${ref(this.handleRef)}
           class="${isVertical
@@ -98,7 +96,6 @@ export class UiSplit extends LitElement {
                 </svg>
               `}
         </div>
-        <!-- Invisible touch extension (after) - absolute positioned -->
         <div
           class="${isVertical
             ? '-bottom-2 left-0 h-2 w-full cursor-ns-resize'
@@ -186,7 +183,7 @@ export class UiSplit extends LitElement {
 
     if (handleElement) {
       handleElement.style.transform = '';
-      handleElement.style.opacity = ''; // Reset the temporary drag styling.
+      handleElement.style.opacity = '';
     }
 
     if (this.pendingSize !== null && prevElement) {

@@ -19,7 +19,6 @@ describe('UiSidebar', () => {
     element = proxyShadowQueries(document.createElement('ui-sidebar') as UiSidebar);
     container.appendChild(element);
 
-    // Spy on Navigate.to
     navigateToSpy = vi.spyOn(NavigateModule.Navigate, 'to').mockResolvedValue();
   });
 
@@ -148,7 +147,6 @@ describe('UiSidebar', () => {
   });
 
   it('highlights active navigation item based on pathname', async () => {
-    // Mock current pathname
     const originalPathname = window.location.pathname;
     Object.defineProperty(window, 'location', {
       value: { ...window.location, pathname: '/dashboard' },
@@ -166,12 +164,10 @@ describe('UiSidebar', () => {
     const activeLink = links[0] as HTMLAnchorElement;
     const inactiveLink = links[1] as HTMLAnchorElement;
 
-    // Verify active link has different styling (class count as proxy)
     expect(activeLink.className.length).toBeGreaterThan(0);
     expect(inactiveLink.className.length).toBeGreaterThan(0);
     expect(activeLink.className).not.toBe(inactiveLink.className);
 
-    // Restore original pathname
     Object.defineProperty(window, 'location', {
       value: { ...window.location, pathname: originalPathname },
       writable: true,
@@ -186,7 +182,6 @@ describe('UiSidebar', () => {
     const link = element.querySelector('a[href="#"]') as HTMLAnchorElement;
     expect(link).toBeTruthy();
 
-    // Click should not call Navigate.to
     link.click();
     await element.updateComplete;
     expect(navigateToSpy).not.toHaveBeenCalled();
@@ -213,7 +208,6 @@ describe('UiSidebar', () => {
     const link = element.querySelector('a[href="/dashboard"]') as HTMLAnchorElement;
     expect(link).toBeTruthy();
 
-    // Click should call Navigate.to with the correct path
     link.click();
     await element.updateComplete;
     expect(navigateToSpy).toHaveBeenCalledWith('/dashboard');

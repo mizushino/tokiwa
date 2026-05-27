@@ -3,7 +3,6 @@ import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import type { ProjectUserData } from '@firestore/types/project-user.js';
 import { UserDocument } from 'src/models/user.js';
 
-// Map project roles to abbreviated forms to shorten permission strings
 export const roleTable = new Map<string, string>([
   ['owner', 'o'],
   ['manager', 'm'],
@@ -38,21 +37,17 @@ export async function updateUserPermissions(
   uid: string,
   projectUserData: ProjectUserData | null
 ): Promise<void> {
-  // Get user document
   const userDocument = new UserDocument({ uid: uid });
   await userDocument.get();
   if (!userDocument.exists) {
     return;
   }
 
-  // Get current permissions
   const currentPermissions = userDocument.data.permissions || { projects: [] };
   const currentProjects = currentPermissions['projects'] || [];
 
-  // Calculate new permissions
   const newProjects = calculateProjectPermissions(currentProjects, pid, projectUserData);
 
-  // Create new document with updated data
   const updatedData = {
     ...userDocument.data,
     permissions: {

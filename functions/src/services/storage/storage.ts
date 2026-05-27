@@ -46,11 +46,10 @@ interface StorageChangeEvent {
 type Bucket = ReturnType<ReturnType<typeof getStorage>['bucket']>;
 type File = ReturnType<Bucket['file']>;
 
-// Image processing configuration
 const IMAGE_CONFIG = {
-  MAX_SIZE: 2048, // Maximum image size
-  MIN_SIZE: 128, // Minimum image size
-  QUALITY: 85, // Image quality (1-100)
+  MAX_SIZE: 2048,
+  MIN_SIZE: 128,
+  QUALITY: 85,
 } as const;
 
 const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
@@ -64,7 +63,6 @@ function isSupportedImageType(contentType: string): contentType is SupportedImag
   return SUPPORTED_IMAGE_TYPES.includes(contentType as SupportedImageType);
 }
 
-// Mapping of image formats to extensions and MIME types
 const FORMAT_MAP = {
   jpeg: { extension: 'jpg', mimeType: 'image/jpeg' },
   png: { extension: 'png', mimeType: 'image/png' },
@@ -197,11 +195,9 @@ async function modifyAndUploadImage(
       const tempPath = `${tempBase}.${formatInfo.extension}`;
 
       try {
-        // Resize and encode in target format
         const transformer = new Transformer(imageBuffer).resize(width, height);
         const output = await encodeImage(transformer, option.format, option.quality);
 
-        // Write to temp file
         await writeFile(tempPath, output);
 
         await Promise.all(
@@ -293,7 +289,6 @@ async function uploadImage(
   try {
     await file.setMetadata({ metadata: METADATA_INACTIVE });
 
-    // Download image buffer directly
     const [imageBuffer] = await file.download();
     const transformer = new Transformer(imageBuffer);
     const metadata = await transformer.metadata();
@@ -439,7 +434,6 @@ export async function handleUpload(object: StorageUploadEvent): Promise<void> {
   const bucket = getStorage().bucket(bucketName);
   const file = bucket.file(objectName);
 
-  // Extract directoryId from path: /{directoryId}/{filename}
   const pathMatch = objectName.match(/^([^/]+)\//);
   if (!pathMatch) {
     return;
@@ -529,15 +523,12 @@ export async function handleChange(event: StorageChangeEvent): Promise<void> {
 
   const bucket = getStorage().bucket(data.bucket);
 
-  // Get all format extensions to update
   const formats = createFormatOptions();
   const extensions = formats.map((opt) => FORMAT_MAP[opt.format].extension);
 
   const tasks = Object.values(variations)
     .filter((variation): variation is ImageStorageVariation => isImageStorageVariation(variation))
     .flatMap((variation) => {
-      // For each variation, update metadata for all format variations
-      // variation.path already includes the original extension (e.g., "test/D.jpg@128")
       return extensions.map((ext) => {
         const file = bucket.file(`${variation.path}.${ext}`);
         return file.setMetadata({ metadata: generateMetadata(imageData) });

@@ -16,9 +16,7 @@ import { transition } from '@app/transition';
  *     .open=${this.dialogOpen}
  *     @close=${this.handleClose}
  *   >
- *     <div slot="content">
- *       <!-- Dialog content -->
- *     </div>
+ *     <div slot="content">User form fields</div>
  *     <div slot="actions">
  *       <ui-button @click=${this.handleSave}>Save</ui-button>
  *       <ui-button variant="secondary" @click=${this.handleCancel}>Cancel</ui-button>
@@ -107,7 +105,6 @@ export class UiDialog extends LitElement {
         @click=${this.handleBackdropClick}
         class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto border-0 bg-transparent p-0"
       >
-        <!-- Backdrop with transition -->
         <div
           ${transition(this.open ? 'enter' : 'leave', {
             enter: 'transition-opacity duration-300 ease-out',
@@ -121,7 +118,6 @@ export class UiDialog extends LitElement {
         ></div>
 
         <div class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
-          <!-- Panel with transition -->
           <div
             ${transition(this.open ? 'enter' : 'leave', {
               enter: 'transition-all duration-300 ease-out',
@@ -133,7 +129,6 @@ export class UiDialog extends LitElement {
             })}
             class="${this.getSizeClasses()} relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10"
           >
-            <!-- Close button -->
             <div class="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
               <button
                 type="button"
@@ -147,7 +142,6 @@ export class UiDialog extends LitElement {
               </button>
             </div>
 
-            <!-- Header with title -->
             ${this.title
               ? html`
                   <div class="sm:flex sm:items-start">
@@ -158,12 +152,10 @@ export class UiDialog extends LitElement {
                 `
               : ''}
 
-            <!-- Content -->
             <div class="mt-3 sm:mt-4">
               <slot name="content"></slot>
             </div>
 
-            <!-- Actions -->
             <div class="mt-5 gap-3 sm:mt-6 sm:flex sm:flex-row-reverse">
               <slot name="actions"></slot>
             </div>

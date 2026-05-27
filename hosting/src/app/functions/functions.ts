@@ -29,8 +29,6 @@ export function initializeFunctions(app: FirebaseApp, settings?: FunctionsSettin
 
   const useEmulator = import.meta.env.MODE === 'emulator' || import.meta.env.VITE_USE_EMULATOR === 'true';
 
-  // Connect to emulator only when explicitly enabled
-  // (Production Firebase Functions are used by default)
   if (useEmulator) {
     connectFunctionsEmulator(firebaseFunctions, 'localhost', 5001);
   }

@@ -20,7 +20,6 @@ import {
   userSnapshot,
 } from './auth';
 
-// Mock firebase/auth
 vi.mock('firebase/auth', async () => {
   const actual = await vi.importActual('firebase/auth');
   return {
@@ -49,7 +48,6 @@ describe('Auth', () => {
   let currentUserValue: User | null;
 
   beforeEach(async () => {
-    // Reset modules to clear state
     vi.clearAllMocks();
 
     authStateListeners = [];
@@ -68,7 +66,7 @@ describe('Auth', () => {
       },
       onAuthStateChanged: vi.fn((callback) => {
         authStateListeners.push(callback);
-        return vi.fn(); // unsubscribe function
+        return vi.fn();
       }),
       signOut: vi.fn().mockResolvedValue(undefined),
     } as unknown as Auth;
@@ -117,7 +115,6 @@ describe('Auth', () => {
 
       initializeAuth(mockApp);
 
-      // Wait for async getRedirectResult to complete
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(getRedirectResult).toHaveBeenCalled();
@@ -423,7 +420,6 @@ describe('Auth', () => {
 
       const loadPromise = loadUser();
 
-      // Simulate auth state change
       setTimeout(() => {
         currentUserValue = mockUser;
         authStateListeners.forEach((listener) => listener(mockUser));
@@ -443,7 +439,6 @@ describe('Auth', () => {
 
       expect(isLoading()).toBe(true);
 
-      // Simulate auth state change
       setTimeout(() => {
         currentUserValue = mockUser;
         authStateListeners.forEach((listener) => listener(mockUser));
@@ -463,10 +458,8 @@ describe('Auth', () => {
       const snapshot = userSnapshot();
       const { value } = await snapshot.next();
 
-      // Should yield current auth state (null or user from previous tests)
       expect(value === null || value === undefined || typeof value === 'object').toBe(true);
 
-      // Cleanup: close the generator
       await snapshot.return();
     });
 
@@ -476,10 +469,8 @@ describe('Auth', () => {
 
       const snapshot = userSnapshot();
 
-      // Get initial value
       await snapshot.next();
 
-      // Simulate sign in with timeout to prevent blocking
       const nextPromise = Promise.race([
         snapshot.next(),
         new Promise<IteratorResult<User | null | undefined>>((resolve) =>
@@ -494,7 +485,6 @@ describe('Auth', () => {
         expect(result.value).toBe(mockUser);
       }
 
-      // Cleanup: close the generator
       await snapshot.return();
     });
 
@@ -504,10 +494,8 @@ describe('Auth', () => {
 
       const snapshot = userSnapshot();
 
-      // Get initial value
       await snapshot.next();
 
-      // Simulate sign out with timeout
       const nextPromise = Promise.race([
         snapshot.next(),
         new Promise<IteratorResult<User | null | undefined>>((resolve) =>
@@ -522,7 +510,6 @@ describe('Auth', () => {
         expect(result.value).toBeNull();
       }
 
-      // Cleanup: close the generator
       await snapshot.return();
     });
 
@@ -533,10 +520,8 @@ describe('Auth', () => {
       const snapshot = userSnapshot();
       await snapshot.next();
 
-      // Close the generator
       const result = await snapshot.return();
 
-      // Should be done
       expect(result.done).toBe(true);
     });
   });

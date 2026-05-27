@@ -200,7 +200,6 @@ describe('UiCheckbox', () => {
   });
 
   it('renders slotted content', async () => {
-    // Slotted content can be attached before rendering for predictable assertions
     container.remove();
     container = document.createElement('div');
     document.body.appendChild(container);

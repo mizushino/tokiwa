@@ -109,10 +109,8 @@ export class UiTable extends LitElement {
 
     return this.data.filter((row) => {
       return this.columns.some((column) => {
-        // Ignore columns that are explicitly excluded from filtering.
         if (column.searchable === false) return false;
 
-        // Read the value using the configured dot-path.
         const value = this.getNestedValue(row, column.key);
         if (value == null) return false;
 
@@ -158,7 +156,6 @@ export class UiTable extends LitElement {
       ? 'ml-2 flex-none rounded-sm bg-gray-100 text-gray-900 group-hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:group-hover:bg-gray-700'
       : 'ml-2 flex-none rounded-sm text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-400';
 
-    // Flip the chevron when ascending order is active.
     const svgClasses = isAscending ? 'size-5 rotate-180' : 'size-5';
 
     return html`

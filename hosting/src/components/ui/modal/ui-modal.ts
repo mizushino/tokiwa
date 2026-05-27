@@ -25,7 +25,6 @@ export interface ModalButton {
  *
  * Usage:
  * ```ts
- * // Simple usage with default buttons
  * html`
  *   <ui-modal
  *     title="Delete User"
@@ -39,7 +38,6 @@ export interface ModalButton {
  *   ></ui-modal>
  * `
  *
- * // Custom buttons usage
  * html`
  *   <ui-modal
  *     title="Save Changes"
@@ -360,7 +358,6 @@ export class UiModal extends LitElement {
         @click=${this.handleBackdropClick}
         class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto border-0 bg-transparent p-0"
       >
-        <!-- Backdrop with transition -->
         <div
           ${transition(this.open ? 'enter' : 'leave', {
             enter: 'transition-opacity duration-300 ease-out',
@@ -374,7 +371,6 @@ export class UiModal extends LitElement {
         ></div>
 
         <div class="flex min-h-full items-center justify-center p-4 text-center focus:outline-none sm:p-0">
-          <!-- Panel with transition -->
           <div
             ${transition(this.open ? 'enter' : 'leave', {
               enter: 'transition-all duration-300 ease-out',
@@ -419,7 +415,6 @@ export class UiModal extends LitElement {
                       </div>
                     `
                   : ''}}
-                <!-- Slot for custom content (e.g., input fields) -->
                 <slot name="content"></slot>
               </div>
             </div>

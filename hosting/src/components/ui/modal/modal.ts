@@ -70,28 +70,24 @@ function open(icon: ModalIcon, title: string, message: string, buttons?: ModalBu
   });
 }
 
-// Show a success alert with a single OK action.
 async function success(title: string, message?: string): Promise<void> {
   const actualTitle = message ? title : '';
   const actualMessage = message ? message : title;
   await open('success', actualTitle, actualMessage, [{ label: 'OK', value: 'ok', variant: 'primary' }]);
 }
 
-// Show an informational alert with a single OK action.
 async function info(title: string, message?: string): Promise<void> {
   const actualTitle = message ? title : '';
   const actualMessage = message ? message : title;
   await open('info', actualTitle, actualMessage, [{ label: 'OK', value: 'ok', variant: 'primary' }]);
 }
 
-// Show an error alert with a single OK action.
 async function error(title: string, message?: string): Promise<void> {
   const actualTitle = message ? title : '';
   const actualMessage = message ? message : title;
   await open('danger', actualTitle, actualMessage, [{ label: 'OK', value: 'ok', variant: 'primary' }]);
 }
 
-// Show a confirm dialog with the default confirm and cancel actions.
 async function confirm(title: string, message?: string, icon?: 'question' | 'danger' | 'warning'): Promise<boolean> {
   const actualTitle = message ? title : '';
   const actualMessage = message ? message : title;

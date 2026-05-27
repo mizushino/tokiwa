@@ -33,7 +33,6 @@ describe('user service E2E', () => {
   let createdUserIds: string[] = [];
 
   beforeAll(() => {
-    // Initialize Firebase Admin
     if (!getApps().length) {
       initializeApp();
     }
@@ -46,13 +45,11 @@ describe('user service E2E', () => {
   });
 
   afterEach(async () => {
-    // Clean up test data
     const usersSnapshot = await db.collection('users').get();
     const batch = db.batch();
     usersSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
     await batch.commit();
 
-    // Clean up auth users that were explicitly tracked
     for (const uid of createdUserIds) {
       try {
         await auth.deleteUser(uid);
@@ -62,7 +59,6 @@ describe('user service E2E', () => {
     }
     createdUserIds = [];
 
-    // Wait a bit after cleanup to avoid timing issues
     await new Promise((resolve) => setTimeout(resolve, 100));
   });
 
@@ -121,7 +117,6 @@ describe('user service E2E', () => {
       });
       createdUserIds.push(userRecord.uid);
 
-      // Wait for Auth Emulator to fully create the user
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const userData: UserData = {
@@ -154,10 +149,8 @@ describe('user service E2E', () => {
       });
       createdUserIds.push(userRecord.uid);
 
-      // Wait for Auth Emulator to fully create the user
       await new Promise((resolve) => setTimeout(resolve, 150));
 
-      // Save user document to Firestore first
       await db.doc(`users/${userRecord.uid}`).set({
         email: userRecord.email || '',
         displayName: 'Original Name',
@@ -207,10 +200,8 @@ describe('user service E2E', () => {
       });
       createdUserIds.push(userRecord.uid);
 
-      // Wait a bit for Auth Emulator to fully create the user
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Save user document to Firestore first
       await db.doc(`users/${userRecord.uid}`).set({
         email: 'test-storage@example.com',
         displayName: 'Storage Test',
@@ -256,7 +247,6 @@ describe('user service E2E', () => {
       });
       createdUserIds.push(userRecord.uid);
 
-      // Wait for Auth Emulator to fully create the user
       await new Promise((resolve) => setTimeout(resolve, 150));
 
       const userData: UserData = {
@@ -292,7 +282,6 @@ describe('user service E2E', () => {
       });
       createdUserIds.push(userRecord.uid);
 
-      // Set initial claims
       await auth.setCustomUserClaims(userRecord.uid, { p: { projects: ['proj1:o'] }, a: true });
 
       const beforeSnap = testEnv.firestore.makeDocumentSnapshot(
@@ -365,7 +354,6 @@ describe('user service E2E', () => {
       const { UserDocument } = await import('../../models/user.js');
       const { handleUserCreated } = await import('./user.js');
 
-      // Create pre-registered data keyed by email
       const email = 'preregistered@example.com';
       const preRegDoc = new UserDocument(
         { uid: email },
@@ -379,7 +367,6 @@ describe('user service E2E', () => {
       );
       await preRegDoc.save();
 
-      // Create Auth user (simulating actual signup)
       const userRecord = await auth.createUser({
         email: email,
         password: 'password123',
@@ -387,30 +374,24 @@ describe('user service E2E', () => {
       createdUserIds.push(userRecord.uid);
       const newUid = userRecord.uid;
 
-      // Wait for Auth Emulator to fully create the user
       await new Promise((resolve) => setTimeout(resolve, 200));
 
-      // Verify user exists
       await auth.getUser(newUid);
 
-      // Call handleUserCreated (same as trigger would do)
       await handleUserCreated(newUid, email, 'Actual User', null);
 
-      // Verify inheritance
       const resultDoc = new UserDocument({ uid: newUid });
       await resultDoc.get();
 
       expect(resultDoc.data.admin).toBe(true);
       expect(resultDoc.data.permissions).toEqual({ projects: ['proj1:o', 'proj2:m'] });
 
-      // Verify custom claims were set
       const user = await auth.getUser(newUid);
       expect(user.customClaims).toEqual({
         p: { projects: ['proj1:o', 'proj2:m'] },
         a: true,
       });
 
-      // Verify pre-registered data was deleted
       const deletedDoc = new UserDocument({ uid: email });
       await deletedDoc.get();
       expect(deletedDoc.exists).toBe(false);

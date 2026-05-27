@@ -13,7 +13,6 @@ test.describe('Admin Site - Buttons', () => {
     await page.goto('/buttons/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    // Check page heading
     const heading = page.locator('h1:has-text("Button Components")');
     await expect(heading).toBeVisible();
   });
@@ -22,7 +21,6 @@ test.describe('Admin Site - Buttons', () => {
     await page.goto('/buttons/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    // Check section headings
     await expect(page.locator('h2:has-text("Variants")')).toBeVisible();
     await expect(page.locator('h2:has-text("Sizes")')).toBeVisible();
     await expect(page.locator('h2:has-text("Rounded")')).toBeVisible();
@@ -44,7 +42,6 @@ test.describe('Admin Site - Buttons', () => {
     await page.goto('/buttons/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    // Check size labels (use first() to avoid strict mode)
     await expect(page.locator('text=XS:').first()).toBeVisible();
     await expect(page.locator('text=SM:').first()).toBeVisible();
     await expect(page.locator('text=MD:').first()).toBeVisible();
@@ -56,10 +53,8 @@ test.describe('Admin Site - Buttons', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    // Click Buttons navigation link
     await page.click('a[href="/buttons/"]');
 
-    // Verify navigation to buttons page
     await expect(page).toHaveURL(/\/buttons\//);
     const heading = page.locator('h1:has-text("Button Components")');
     await expect(heading).toBeVisible();

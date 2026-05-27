@@ -64,19 +64,16 @@ export class AdminIndex extends PageElement {
    * admin フラグが変更されたら自動的に isAdmin を更新
    */
   private startUserDocSubscription(uid: string): void {
-    // 既に同じユーザーを監視中なら何もしない
     if (this.subscribedUid === uid && this.unsubscribeUserDoc) {
       return;
     }
 
-    // 既存の監視を停止
     this.stopUserDocSubscription();
 
     this.subscribedUid = uid;
     this.unsubscribeUserDoc = subscribeToUserDocument(uid, (userData) => {
       const newIsAdmin = userData?.admin === true;
 
-      // 権限が変更された場合のみ更新
       if (this.isAdmin !== newIsAdmin) {
         this.isAdmin = newIsAdmin;
       }
@@ -227,25 +224,20 @@ export class AdminIndex extends PageElement {
 
       this.currentUser = user as unknown as User;
 
-      // ログインしていない場合
       if (!user) {
         this.stopUserDocSubscription();
         this.isAdmin = undefined;
         return html`<admin-login></admin-login>`;
       }
 
-      // ユーザードキュメントのリアルタイム監視を開始
-      // admin フラグが変更されたら自動的に isAdmin が更新される
       this.startUserDocSubscription(user.uid);
 
-      // まだ初回データを取得していない場合はローディング表示
       if (this.isAdmin === undefined) {
         return html`<div class="flex min-h-screen items-center justify-center bg-gray-900">
           <div class="text-white">権限を確認中...</div>
         </div>`;
       }
 
-      // admin 権限がない場合
       if (!this.isAdmin) {
         return this.renderAccessDenied();
       }

@@ -44,7 +44,6 @@ describe('project service E2E', () => {
   });
 
   afterEach(async () => {
-    // Clean up test data
     const usersSnapshot = await db.collection('users').get();
     const projectsSnapshot = await db.collection('projects').get();
 
@@ -58,7 +57,6 @@ describe('project service E2E', () => {
     const { updateUserPermissions } = await import('./project.js');
     const { UserDocument } = await import('../../models/user.js');
 
-    // Create user document using UserDocument class
     const userDoc = new UserDocument(
       { uid: 'user123' },
       {
@@ -91,7 +89,6 @@ describe('project service E2E', () => {
     const { updateUserPermissions } = await import('./project.js');
     const { UserDocument } = await import('../../models/user.js');
 
-    // Create user with existing permission
     const userDoc = new UserDocument(
       { uid: 'user456' },
       {
@@ -137,7 +134,6 @@ describe('project service E2E', () => {
     await userDoc.save();
     await waitForUserDocument(db, 'user789');
 
-    // null means user was removed
     await updateUserPermissions('proj789', 'user789', null);
 
     const resultDoc = new UserDocument({ uid: 'user789' });
@@ -188,14 +184,12 @@ describe('project service E2E', () => {
     const { updateUserPermissions } = await import('./project.js');
     const { UserDocument } = await import('../../models/user.js');
 
-    // Create user without permissions field
     const userDoc = new UserDocument(
       { uid: 'user111' },
       {
         ...UserDocument.defaultData,
         email: 'user@example.com',
         displayName: 'Test User',
-        // Don't set permissions at all to test initialization
       }
     );
     await userDoc.save();
@@ -227,7 +221,6 @@ describe('project service E2E', () => {
       role: 'owner',
     };
 
-    // Should not throw error
     await updateUserPermissions('proj222', 'nonexistent', projectUserData);
 
     const userDoc = await db.collection('users').doc('nonexistent').get();

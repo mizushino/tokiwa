@@ -6,7 +6,6 @@ test.describe('Default Site - Hello World', () => {
   test('page loads successfully', async ({ page }) => {
     await page.goto('/helloworld/', { waitUntil: 'domcontentloaded' });
 
-    // Check page title
     await expect(page).toHaveTitle(/Hello World/);
   });
 

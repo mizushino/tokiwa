@@ -15,7 +15,6 @@ vi.mock('firebase/analytics', () => ({
   logEvent: vi.fn(),
 }));
 
-// Test page component
 @customElement('test-page')
 class TestPage extends PageElement {
   protected pageMetadata: PageMetadata = {
@@ -28,7 +27,6 @@ class TestPage extends PageElement {
   }
 }
 
-// Test page with custom host classes
 @customElement('test-page-custom')
 class TestPageCustom extends PageElement {
   static override styles: CSSResultGroup = [
@@ -76,19 +74,16 @@ describe('Page', () => {
     container = document.createElement('div');
     document.body.appendChild(container);
 
-    // Mock router
     mockRouter = {
       goto: vi.fn().mockResolvedValue(undefined),
     } as unknown as Router;
     LitShare.set('router', mockRouter);
 
-    // Mock requestAnimationFrame
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
       cb(0);
       return 0;
     });
 
-    // Setup meta tags
     if (!document.querySelector('meta[name="description"]')) {
       const desc = document.createElement('meta');
       desc.setAttribute('name', 'description');
@@ -160,7 +155,6 @@ describe('Page', () => {
       container.appendChild(element);
       await element.updateComplete;
 
-      // Should not throw error when pageMetadata is undefined
       expect(element).toBeDefined();
     });
 
@@ -248,7 +242,6 @@ describe('Page', () => {
 
         directive.update(part, ['/test-path/']);
 
-        // Trigger click
         button.click();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -288,7 +281,6 @@ describe('Page', () => {
         directive.update(part, ['/test-path/']);
         directive.disconnected();
 
-        // Click should not trigger navigation
         button.click();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -311,7 +303,6 @@ describe('Page', () => {
         directive.disconnected();
         directive.reconnected();
 
-        // Click should trigger navigation again
         button.click();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -344,7 +335,6 @@ describe('Page', () => {
 
       expect(location.hash).toBe('#test-section');
 
-      // Restore
       location.hash = originalHash;
     });
 
@@ -383,7 +373,6 @@ describe('Page', () => {
       expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
       expect(mockRouter.goto).toHaveBeenCalledWith('/test-page/');
 
-      // Restore
       history.pushState(null, '', originalPathname);
     });
 
@@ -399,7 +388,6 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(state, '', '/test-page/');
 
-      // Restore
       history.pushState(null, '', originalPathname);
     });
 
@@ -414,7 +402,6 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/');
 
-      // Restore
       history.pushState(null, '', originalPathname);
     });
 
@@ -429,7 +416,6 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/');
 
-      // Restore
       history.pushState(null, '', originalPathname);
     });
 
@@ -444,7 +430,6 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/');
 
-      // Restore
       history.pushState(null, '', originalPathname);
     });
 
@@ -459,7 +444,6 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/');
 
-      // Restore
       history.pushState(null, '', originalPathname);
     });
 
@@ -476,7 +460,6 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/parent/current/sibling/');
 
-      // Restore
       history.pushState(null, '', originalPathname);
     });
 
@@ -493,7 +476,6 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/parent/sibling/');
 
-      // Restore
       history.pushState(null, '', originalPathname);
     });
 
@@ -510,7 +492,6 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/a/b/e/');
 
-      // Restore
       history.pushState(null, '', originalPathname);
     });
 
@@ -533,7 +514,6 @@ describe('Page', () => {
 
       await Navigate.to('/another/');
 
-      // Should scroll to top first, then to hash target
       expect(scrollToSpy).toHaveBeenCalled();
       expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
 
@@ -553,7 +533,6 @@ describe('Page', () => {
 
       await Navigate.to('/test/');
 
-      // Should only scroll to top, not to hash
       expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
       expect(scrollToSpy).toHaveBeenCalledTimes(1);
 
@@ -572,7 +551,6 @@ describe('Page', () => {
 
       await Navigate.to('/test/');
 
-      // Should only scroll to top since target doesn't exist
       expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
 
       history.pushState(null, '', originalPathname);
@@ -592,7 +570,6 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test/');
 
-      // Restore
       LitShare.set('router', mockRouter);
       history.pushState(null, '', originalPathname);
     });

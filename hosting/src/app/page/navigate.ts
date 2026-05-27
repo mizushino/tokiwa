@@ -22,7 +22,6 @@ export class Navigate extends Directive {
   }
 
   public render(..._props: unknown[]): void {
-    // empty
   }
 
   public override update(part: ElementPart, props: unknown[]): void {
@@ -57,13 +56,11 @@ export class Navigate extends Directive {
    * @param state - Optional state object to pass to history.pushState
    */
   public static async to(pathname: string, state?: unknown): Promise<void> {
-    // External links: open in new tab
     if (pathname.startsWith('https://') || pathname.startsWith('http://')) {
       window.open(pathname, '_blank');
       return;
     }
 
-    // Hash links: scroll to anchor
     if (pathname[0] === '#') {
       if (location.hash !== pathname) {
         location.hash = pathname;
@@ -76,7 +73,6 @@ export class Navigate extends Directive {
       return;
     }
 
-    // Internal navigation
     pathname = Navigate.resolveRelativePath(pathname);
     pathname = Navigate.normalizePathname(pathname);
 
@@ -90,7 +86,6 @@ export class Navigate extends Directive {
 
     await Navigate.scrollToHashIfNeeded();
 
-    // Track page view in Firebase Analytics
     try {
       const analytics = getAnalytics();
       logEvent(analytics, 'page_view', {

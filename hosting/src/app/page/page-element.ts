@@ -79,10 +79,8 @@ export class PageElement extends LitElement {
    */
   protected trans(code: string): string {
     const lang = getPreferredLanguage();
-    // 1. Page-specific translation
     const pageValue = this.pageMetadata?.translations?.[lang]?.[code];
     if (pageValue !== undefined) return pageValue;
-    // 2. Global shared translation fallback
     const globalValue = globalTranslations[lang]?.[code];
     return globalValue ?? code;
   }

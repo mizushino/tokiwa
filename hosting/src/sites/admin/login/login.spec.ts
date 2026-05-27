@@ -14,7 +14,6 @@ test.describe('Admin Site - Login', () => {
   test('displays login form elements', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    // Check form elements
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
     await expect(page.locator('button[type="submit"]:has-text("ログイン")')).toBeVisible();
@@ -23,7 +22,6 @@ test.describe('Admin Site - Login', () => {
   test('displays social login buttons', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    // Check social login buttons
     await expect(page.locator('button:has-text("Google")')).toBeVisible();
     await expect(page.locator('button:has-text("X (Twitter)")')).toBeVisible();
   });

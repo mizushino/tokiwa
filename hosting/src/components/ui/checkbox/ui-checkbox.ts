@@ -48,7 +48,6 @@ export class UiCheckbox extends LitElement {
     this.checked = target.checked;
     this.indeterminate = false;
 
-    // Emit the updated checked state for parent components.
     this.dispatchEvent(
       new CustomEvent('change', {
         detail: { checked: this.checked, value: this.value },

@@ -6,7 +6,6 @@ test.describe('Default Site - Firestore', () => {
   test('page loads successfully', async ({ page }) => {
     await page.goto('/firestore/', { waitUntil: 'domcontentloaded' });
 
-    // Check page title
     await expect(page).toHaveTitle(/Firestore/);
   });
 
@@ -21,10 +20,8 @@ test.describe('Default Site - Firestore', () => {
   test('displays snapshot data', async ({ page }) => {
     await page.goto('/firestore/', { waitUntil: 'domcontentloaded' });
 
-    // Wait for snapshot to appear (realtime data)
     await page.waitForSelector('text=snapshot(realtime)');
 
-    // Snapshot data should be visible
     await expect(page.locator('text=snapshot(realtime)')).toBeVisible();
   });
 
@@ -44,11 +41,9 @@ test.describe('Default Site - Firestore', () => {
   test('can input text in the text field', async ({ page }) => {
     await page.goto('/firestore/', { waitUntil: 'domcontentloaded' });
 
-    // Type in the input field
     const input = page.locator('input.border.border-black');
     await input.fill('Test Value');
 
-    // Verify input value
     await expect(input).toHaveValue('Test Value');
   });
 

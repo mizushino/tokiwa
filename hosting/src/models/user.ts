@@ -14,11 +14,10 @@ import { userCollectionPath, userDocumentPath, type UserData, type UserKey } fro
  * ```ts
  * const unsubscribe = subscribeToUserDocument(uid, (userData) => {
  *   if (userData?.admin) {
- *     // User has admin access
+ *     console.log('admin access granted');
  *   }
  * });
  *
- * // Later, to stop listening:
  * unsubscribe();
  * ```
  */

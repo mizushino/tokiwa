@@ -13,7 +13,6 @@ test.describe('Admin Site - Hello World', () => {
     await page.goto('/helloworld/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    // Check page title (exact match)
     await expect(page).toHaveTitle('Hello, World!');
   });
 
@@ -29,10 +28,8 @@ test.describe('Admin Site - Hello World', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    // Click Hello World navigation link
     await page.click('a[href="/helloworld/"]');
 
-    // Verify navigation to helloworld page
     await expect(page).toHaveURL(/\/helloworld\//);
     const heading = page.locator('h1:has-text("Hello, World!")');
     await expect(heading).toBeVisible();

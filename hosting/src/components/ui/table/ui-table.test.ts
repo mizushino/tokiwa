@@ -85,7 +85,7 @@ describe('UiTable', () => {
     await element.updateComplete;
 
     const sortableHeaders = element.querySelectorAll('th a.group');
-    expect(sortableHeaders.length).toBe(3); // ID, Name, Email are sortable
+    expect(sortableHeaders.length).toBe(3);
 
     const sortIndicator = sortableHeaders[0].querySelector('span');
     expect(sortIndicator).toBeTruthy();
@@ -159,7 +159,7 @@ describe('UiTable', () => {
     await element.updateComplete;
 
     const rows = element.querySelectorAll('tbody tr');
-    expect(rows.length).toBe(2); // Bob and Charlie have 'User' role
+    expect(rows.length).toBe(2);
   });
 
   it('shows all data when filter is empty', async () => {
@@ -180,7 +180,7 @@ describe('UiTable', () => {
 
     element.columns = columns as TableColumn[];
     element.data = sampleData;
-    element.filter = 'Admin'; // Should not match because role is not searchable
+  element.filter = 'Admin';
     await element.updateComplete;
 
     const rows = element.querySelectorAll('tbody tr');
@@ -234,7 +234,7 @@ describe('UiTable', () => {
     await element.updateComplete;
 
     const cells = element.querySelectorAll('tbody td');
-    expect(cells[2].textContent?.trim()).toBe(''); // Empty email
+  expect(cells[2].textContent?.trim()).toBe('');
   });
 
   it('handles null values in filter', async () => {
@@ -249,7 +249,7 @@ describe('UiTable', () => {
     await element.updateComplete;
 
     const rows = element.querySelectorAll('tbody tr');
-    expect(rows.length).toBe(1); // Only Alice matches
+    expect(rows.length).toBe(1);
   });
 
   it('renders empty table with no data', async () => {
@@ -275,12 +275,10 @@ describe('UiTable', () => {
     element.data = unsortedData;
     await element.updateComplete;
 
-    // Click name header to sort ascending
     const nameHeader = element.querySelectorAll('th a.group')[1] as HTMLAnchorElement;
     nameHeader.click();
     await element.updateComplete;
 
-    // Check that rows are sorted by name
     const rows = element.querySelectorAll('tbody tr');
     expect(rows.length).toBe(3);
     expect(rows[0].textContent).toContain('Alice');
@@ -301,14 +299,12 @@ describe('UiTable', () => {
 
     const nameHeader = element.querySelectorAll('th a.group')[1] as HTMLAnchorElement;
 
-    // First click: ascending
     nameHeader.click();
     await element.updateComplete;
     let rows = element.querySelectorAll('tbody tr');
     expect(rows[0].textContent).toContain('Alice');
     expect(rows[2].textContent).toContain('Charlie');
 
-    // Second click: descending
     nameHeader.click();
     await element.updateComplete;
     rows = element.querySelectorAll('tbody tr');

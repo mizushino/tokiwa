@@ -44,7 +44,7 @@ export class TransitionDirective extends AsyncDirective {
   }
 
   override render(_direction: 'enter' | 'leave', _options: TransitionOptions): void {
-    // Rendering is handled in update
+    return;
   }
 
   override update(
@@ -54,11 +54,9 @@ export class TransitionDirective extends AsyncDirective {
     this.element = part.element as HTMLElement;
 
     if (!this.initialized) {
-      // Initial state without animation
       this.applyInitialState(direction, options);
       this.initialized = true;
     } else if (direction !== this.currentDirection) {
-      // Direction changed, start transition
       void this.transition(direction, options);
     }
   }
@@ -81,7 +79,6 @@ export class TransitionDirective extends AsyncDirective {
   private async transition(direction: 'enter' | 'leave', options: TransitionOptions): Promise<void> {
     if (!this.element) return;
 
-    // Clean up any existing transition listener
     if (this.transitionHandler) {
       this.element.removeEventListener('transitionend', this.transitionHandler);
       this.transitionHandler = undefined;
@@ -90,15 +87,12 @@ export class TransitionDirective extends AsyncDirective {
     this.currentDirection = direction;
 
     if (direction === 'enter') {
-      // Show element
       this.element.classList.remove('hidden');
 
-      // Remove leave classes
       this.removeClasses(options.leave);
       this.removeClasses(options.leaveFrom);
       this.removeClasses(options.leaveTo);
 
-      // Apply enter transition
       this.applyClasses(options.enter);
       this.applyClasses(options.enterFrom);
 
@@ -109,12 +103,10 @@ export class TransitionDirective extends AsyncDirective {
 
       await this.waitForTransition();
     } else {
-      // Remove enter classes
       this.removeClasses(options.enter);
       this.removeClasses(options.enterFrom);
       this.removeClasses(options.enterTo);
 
-      // Apply leave transition
       this.applyClasses(options.leave);
       this.applyClasses(options.leaveFrom);
 
@@ -125,7 +117,6 @@ export class TransitionDirective extends AsyncDirective {
 
       await this.waitForTransition();
 
-      // Hide element
       this.element.classList.add('hidden');
     }
   }

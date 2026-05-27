@@ -60,17 +60,14 @@ export class UiSidebar extends LitElement {
   }
 
   private renderNavItem(item: SidebarNavItem): TemplateResult {
-    // Render section headers as non-interactive dividers.
     if (item.divider) {
       return html`<li class="mx-2">
         <div class="-mx-2 mt-2 text-xs/6 font-semibold text-gray-400">${item.label}</div>
       </li>`;
     }
 
-    // Derive the active state from the current location.
     const isActive = item.href === window.location.pathname;
 
-    // Render standard navigation items as links.
     const classes = isActive
       ? 'group flex gap-x-3 rounded-md bg-white/5 p-2 text-sm/6 font-semibold text-white'
       : 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white';

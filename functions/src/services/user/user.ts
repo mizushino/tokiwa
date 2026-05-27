@@ -43,7 +43,6 @@ export async function handleUserCreated(
   photoURL: string | null
 ): Promise<void> {
   await getFirestore().runTransaction(async (transaction) => {
-    // Create new user document with UID
     const userDocument = new UserDocument({ uid: uid });
     await userDocument.get(transaction);
 
@@ -57,18 +56,15 @@ export async function handleUserCreated(
       };
     }
 
-    // Check for pre-registered data keyed by email address
     const userDocumentByEmail = new UserDocument({ uid: email });
     await userDocumentByEmail.get(transaction);
     if (userDocumentByEmail.exists) {
-      // Inherit admin privileges and permissions
       userData = {
         ...userData,
         admin: userDocumentByEmail.data.admin !== undefined ? userDocumentByEmail.data.admin : userData.admin,
         permissions: userDocumentByEmail.data.permissions ?? userData.permissions,
       };
       await updateCustomUserClaims(uid, userData);
-      // Delete pre-registered data
       await userDocumentByEmail.delete(transaction);
     }
 
@@ -105,7 +101,6 @@ export const written = onDocumentWritten({ region: 'asia-northeast1', document: 
 
   if (user) {
     try {
-      // Update Firebase Auth user info
       const photoURL = getFirebaseImageURL(user.image);
       await getAuth().updateUser(event.params.uid, {
         displayName: user.displayName,
@@ -117,7 +112,6 @@ export const written = onDocumentWritten({ region: 'asia-northeast1', document: 
     }
   }
 
-  // Update custom claims in JWT token
   try {
     await updateCustomUserClaims(uid, user);
   } catch (error) {

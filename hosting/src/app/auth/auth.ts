@@ -109,10 +109,8 @@ function notifyUserChange(user: User | null): void {
  * ```
  */
 export async function* userSnapshot(): AsyncGenerator<User | null | undefined, void, unknown> {
-  // Immediately yield current value
   yield state.currentUserValue;
 
-  // Then yield each time the user changes
   while (true) {
     const user = await new Promise<User | null>((resolve) => {
       const listener = (u: User | null): void => {
@@ -205,7 +203,6 @@ export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuth
     connectAuthEmulator(state.auth, settings.emulatorUrl);
   }
 
-  // Listen for auth state changes and notify all userSnapshot() subscribers
   state.auth.onAuthStateChanged((user) => {
     seedPreferredLanguageFromUser(user);
     notifyUserChange(user);
@@ -214,7 +211,6 @@ export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuth
     }
   });
 
-  // Handle redirect results from popup/redirect sign-in flows
   getRedirectResult(state.auth, resolver)
     .then(async (result) => {
       if (result?.user) {
@@ -260,7 +256,6 @@ export async function signInWithEmail(email: string, password: string): Promise<
       throw new AuthError(AuthErrorCode.EmailNotVerified);
     }
   } catch (error: unknown) {
-    // Re-throw AuthError as-is
     if (error instanceof AuthError) {
       throw error;
     }

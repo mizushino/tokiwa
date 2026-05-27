@@ -196,12 +196,10 @@ export class UiDropdown extends LitElement {
   protected override render(): TemplateResult {
     return html`
       <div class="relative inline-block text-left">
-        <!-- Trigger button -->
         <div ${ref(this.triggerRef)} @click=${this.toggle} data-dropdown-trigger>
           <slot ${ref(this.triggerSlotRef)} name="trigger"></slot>
         </div>
 
-        <!-- Dropdown menu with transition -->
         <div
           ${ref(this.menuRef)}
           ${transition(this.isOpen ? 'enter' : 'leave', {

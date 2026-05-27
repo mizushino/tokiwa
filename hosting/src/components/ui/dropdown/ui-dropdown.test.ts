@@ -15,13 +15,11 @@ describe('UiDropdown', () => {
     document.body.appendChild(container);
     element = proxyShadowQueries(document.createElement('ui-dropdown') as UiDropdown);
 
-    // Add trigger button
     const trigger = document.createElement('button');
     trigger.setAttribute('slot', 'trigger');
     trigger.textContent = 'Options';
     element.appendChild(trigger);
 
-    // Add menu items
     const menu = document.createElement('div');
     menu.setAttribute('slot', 'menu');
     const item1 = document.createElement('a');
@@ -92,9 +90,7 @@ describe('UiDropdown', () => {
   it('menu is rendered but visually hidden by default', async () => {
     await element.updateComplete;
     const menu = element.querySelector('[data-dropdown-menu]');
-    // Menu always renders with transition directive managing visibility
     expect(menu).toBeTruthy();
-    // Menu should have 'hidden' class when isOpen is false
     expect(menu?.classList.contains('hidden')).toBe(true);
   });
 
@@ -106,7 +102,6 @@ describe('UiDropdown', () => {
 
     const menu = element.querySelector('[data-dropdown-menu]');
     expect(menu).toBeTruthy();
-    // Menu should not have 'hidden' class when opened
     expect(menu?.classList.contains('hidden')).toBe(false);
   });
 
@@ -270,7 +265,6 @@ describe('UiDropdown', () => {
       const menu = element.querySelector('[data-dropdown-menu]');
       expect(menu?.className).toContain(expectedClasses[size]);
 
-      // Close for next iteration
       trigger.click();
       await element.updateComplete;
     }
@@ -349,13 +343,10 @@ describe('UiDropdown', () => {
     trigger.click();
     await element.updateComplete;
 
-    // Spy on removeEventListener
     const spy = vi.spyOn(document, 'removeEventListener');
 
-    // Disconnect element
     element.remove();
 
-    // Should remove event listeners
     expect(spy).toHaveBeenCalledWith('click', expect.any(Function));
     expect(spy).toHaveBeenCalledWith('keydown', expect.any(Function));
 
