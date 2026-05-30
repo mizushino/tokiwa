@@ -57,7 +57,7 @@ export class Navigate extends Directive {
    * @param state - Optional state object to pass to history.pushState
    */
   public static async to(pathname: string, state?: unknown): Promise<void> {
-    if (pathname.startsWith('https://') || pathname.startsWith('http://')) {
+    if (Navigate.isExternalUrl(pathname)) {
       window.open(pathname, '_blank');
       return;
     }
@@ -124,6 +124,19 @@ export class Navigate extends Directive {
     }
 
     return segments.join('/') + '/' + pathname;
+  }
+
+  /**
+   * Check if the pathname is an external URL (http/https).
+   * Rejects dangerous schemes like javascript: and data:.
+   */
+  private static isExternalUrl(pathname: string): boolean {
+    try {
+      const url = new URL(pathname, window.location.origin);
+      return url.origin !== window.location.origin && (url.protocol === 'http:' || url.protocol === 'https:');
+    } catch {
+      return false;
+    }
   }
 
   /**
