@@ -249,9 +249,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
   try {
     const credential = await signInWithEmailAndPassword(auth, email, password);
 
-    // Block sign-in until the user's email address has been verified.
     if (!credential.user.emailVerified) {
-      // Sign out the user since they can't proceed without verification.
       await auth.signOut();
       throw new AuthError(AuthErrorCode.EmailNotVerified);
     }

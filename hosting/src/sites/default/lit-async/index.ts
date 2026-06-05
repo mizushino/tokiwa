@@ -10,17 +10,14 @@ import pageMetadata from './page.json';
 export class DefaultLitAsync extends PageElement {
   protected pageMetadata = pageMetadata;
 
-  // Track Demo: Promise state
   @state()
   private promise!: Promise<string>;
 
-  // Track Demo: Generator state
   private counterGenerator: AsyncGenerator<number, void, unknown> | null = null;
 
   @state()
   private isGeneratorRunning = false;
 
-  // Track Demo: Loading state
   @state()
   private slowPromise!: Promise<string>;
 
@@ -36,7 +33,6 @@ export class DefaultLitAsync extends PageElement {
     this.stopGenerator();
   }
 
-  // Promise helper
   private async delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -63,7 +59,6 @@ export class DefaultLitAsync extends PageElement {
     })();
   }
 
-  // Generator helper
   private async *createCounterGenerator(): AsyncGenerator<number, void, unknown> {
     let count = 0;
     while (this.isGeneratorRunning) {
@@ -76,7 +71,6 @@ export class DefaultLitAsync extends PageElement {
     if (this.isGeneratorRunning) return;
     this.isGeneratorRunning = true;
     this.counterGenerator = this.createCounterGenerator();
-    // Force a requestUpdate so lit-async renders the new generator
     this.requestUpdate();
   }
 

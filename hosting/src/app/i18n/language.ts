@@ -94,12 +94,9 @@ if (typeof window !== 'undefined') {
     }
   });
 
-  // Safari bfcache 対策: pageshow イベントで状態を強制リフレッシュ
-  // bfcache から復元された場合（persisted: true）、localStorage を再読み込みして
-  // モジュール変数とUIの整合性を保つ
+  // Safari bfcache から復元された際にモジュール変数と localStorage の整合性が崩れるため
   window.addEventListener('pageshow', (event: PageTransitionEvent) => {
     if (event.persisted) {
-      // bfcache から復元された場合、localStorage を再読み込み
       const stored = readFromStorage();
       if (stored && stored !== cachedLanguage) {
         cachedLanguage = stored;

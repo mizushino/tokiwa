@@ -122,7 +122,6 @@ async function prompt(
 
     const handleInputChange = (e: CustomEvent): void => {
       inputValue = e.detail.value;
-      // Clear the current validation message as soon as the user edits the value.
       if (inputError) {
         inputError = '';
         renderModal();
@@ -132,7 +131,6 @@ async function prompt(
     const handleConfirm = (): void => {
       if (isResolved) return;
 
-      // Keep the dialog open when validation fails.
       if (validator) {
         const validationError = validator(inputValue);
         if (validationError) {
@@ -219,20 +217,17 @@ async function confirmWithInput(
   keyword: string,
   variant: 'danger' | 'success' = 'danger'
 ): Promise<boolean> {
-  // Normalize variant forms of the same kanji so either input is accepted.
   const normalizeKeyword = (text: string): string => {
     return text.replace(/[剥剝]/g, '剥');
   };
 
   const normalizedKeyword = normalizeKeyword(keyword);
 
-  // Match the emphasis color to the requested action.
   const keywordClass =
     variant === 'success'
       ? 'font-semibold text-success-600 dark:text-success-400'
       : 'font-semibold text-danger-600 dark:text-danger-400';
   const keywordHtml = `<span class="${keywordClass}">${keyword}</span>`;
-  // Use <br> in HTML mode to avoid oversized gaps from pre-wrap line breaks.
   const fullMessage = `${message}<br><br>確認のため${keywordHtml}と入力してください。`;
 
   const icon = variant === 'success' ? 'warning' : 'danger';

@@ -95,7 +95,6 @@ export class Navigate extends Directive {
         page_location: window.location.href,
       });
     } catch (error) {
-      // Silently fail if analytics is not available
       console.warn('Failed to track page view:', error);
     }
   }

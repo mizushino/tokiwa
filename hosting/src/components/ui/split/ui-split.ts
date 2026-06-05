@@ -36,7 +36,6 @@ export class UiSplit extends LitElement {
   @property({ type: Number }) min?: number;
   @property({ type: Number }) max?: number;
 
-  // Track drag state without triggering Lit re-renders.
   protected isDragging = false;
   protected parentRect: DOMRect | undefined;
   protected startPrevSize = 0;
@@ -50,7 +49,6 @@ export class UiSplit extends LitElement {
   protected override render(): TemplateResult {
     const isVertical = this.direction === 'vertical';
 
-    // Extend the hit area without affecting layout.
     return html`
       <div class="${isVertical ? 'h-4 w-full' : 'h-full w-4'} relative">
         <div
@@ -135,18 +133,14 @@ export class UiSplit extends LitElement {
     this.startPrevSize = this.direction === 'vertical' ? prevRect.height : prevRect.width;
     this.startMousePos = this.direction === 'vertical' ? clientY : clientX;
 
-    // Freeze the current bounds for the full drag interaction.
     this.startMin = this.min;
     this.startMax = this.max;
 
-    // Prevent nested iframes from stealing pointer events while dragging.
     this.showDragOverlay();
 
-    // Dim the handle to indicate that a drag is in progress.
     handleElement.style.opacity = '0.75';
   }
 
-  // Transparent overlay used to keep drag events flowing across iframes.
   protected dragOverlay: HTMLDivElement | null = null;
 
   protected showDragOverlay(): void {
@@ -230,11 +224,9 @@ export class UiSplit extends LitElement {
     if (!handleElement || !this.parentRect) return;
 
     if (this.direction === 'vertical') {
-      // Base the next size on the initial measurement to avoid reflow-driven drift.
       const mouseDelta = clientY - this.startMousePos;
       let height = this.startPrevSize + mouseDelta;
 
-      // Clamp using the bounds captured at drag start.
       if (this.startMin !== undefined && height < this.startMin) height = this.startMin;
       if (this.startMax !== undefined && height > this.startMax) height = this.startMax;
 
@@ -249,11 +241,9 @@ export class UiSplit extends LitElement {
       handleElement.style.transform = `translateY(${offset}px)`;
       this.pendingSize = height;
     } else {
-      // Base the next size on the initial measurement to avoid reflow-driven drift.
       const mouseDelta = clientX - this.startMousePos;
       let width = this.startPrevSize + mouseDelta;
 
-      // Clamp using the bounds captured at drag start.
       if (this.startMin !== undefined && width < this.startMin) width = this.startMin;
       if (this.startMax !== undefined && width > this.startMax) width = this.startMax;
 

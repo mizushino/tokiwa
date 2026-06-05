@@ -55,7 +55,6 @@ export class UiDialog extends LitElement {
       if (this.open) {
         this.dialog.showModal();
       } else {
-        // Delay closing so the exit transition can finish first.
         setTimeout(() => {
           this.dialog?.close();
         }, 200);
@@ -78,7 +77,6 @@ export class UiDialog extends LitElement {
   }
 
   private handleBackdropClick(e: MouseEvent): void {
-    // Only close when both pointer events occur on the backdrop.
     if (e.target === this.dialog && this.mouseDownTarget === this.dialog) {
       this.handleDialogClose();
     }

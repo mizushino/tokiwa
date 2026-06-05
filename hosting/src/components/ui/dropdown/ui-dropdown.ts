@@ -185,7 +185,6 @@ export class UiDropdown extends LitElement {
       'top-end': 'mb-2 bottom-full right-0',
     };
 
-    // Keep the menu mounted so transitions can manage visibility.
     const visibilityClass = !this.isOpen ? 'hidden' : '';
 
     return [baseClasses, sizeClasses[this.size], placementClasses[this.placement], visibilityClass]

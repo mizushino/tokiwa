@@ -111,7 +111,6 @@ export class UiModal extends LitElement {
     if (changedProperties.has('open') && this.dialogRef.value) {
       if (this.open) {
         this.dialogRef.value?.showModal();
-        // Focus the prompt input after the dialog becomes visible.
         if (this.showInput) {
           requestAnimationFrame(() => {
             this.inputRef.value?.focus();
@@ -134,7 +133,6 @@ export class UiModal extends LitElement {
 
   private handleInputKeyDown(e: KeyboardEvent): void {
     if (e.key === 'Enter') {
-      // Let the owner validate and decide whether the modal should close.
       this.dispatchEvent(
         new CustomEvent('confirm', {
           bubbles: true,
@@ -145,7 +143,6 @@ export class UiModal extends LitElement {
   }
 
   private handleButtonClick(button: ModalButton): void {
-    // Let the owner decide whether clicking a custom action should close the modal.
     this.dispatchEvent(
       new CustomEvent('button-click', {
         detail: { value: button.value || button.label, label: button.label },
@@ -156,7 +153,6 @@ export class UiModal extends LitElement {
   }
 
   private handleConfirm(): void {
-    // Emit first so validation can block closing when needed.
     this.dispatchEvent(
       new CustomEvent('confirm', {
         bubbles: true,
@@ -166,7 +162,6 @@ export class UiModal extends LitElement {
   }
 
   private handleCancel(): void {
-    // Let the owner decide whether cancellation should close the modal.
     this.dispatchEvent(
       new CustomEvent('cancel', {
         bubbles: true,
@@ -176,18 +171,14 @@ export class UiModal extends LitElement {
   }
 
   private handleDialogClose(): void {
-    // The owner controls the open state, so no local action is needed here.
   }
 
   private handleDialogCancel(e: Event): void {
-    // Prevent the native Escape behavior so the owner can decide.
     e.preventDefault();
-    // Reuse the same cancel path as other close requests.
     this.handleCancel();
   }
 
   private handleBackdropClick(e: MouseEvent): void {
-    // Treat direct backdrop clicks as cancellation.
     if (e.target === this.dialogRef.value) {
       this.handleCancel();
     }
@@ -215,7 +206,6 @@ export class UiModal extends LitElement {
   }
 
   private renderButtons(): TemplateResult {
-    // Prefer the custom button set when one is supplied.
     if (this.buttons && this.buttons.length > 0) {
       return html`
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse sm:gap-2">
@@ -234,7 +224,6 @@ export class UiModal extends LitElement {
       `;
     }
 
-    // Fall back to the standard confirm and cancel actions.
     return html`
       <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
         <button

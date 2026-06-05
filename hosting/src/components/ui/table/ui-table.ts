@@ -114,7 +114,6 @@ export class UiTable extends LitElement {
         const value = this.getNestedValue(row, column.key);
         if (value == null) return false;
 
-        // Match against the string form so primitive values behave consistently.
         return String(value).toLowerCase().includes(searchTerm);
       });
     });
