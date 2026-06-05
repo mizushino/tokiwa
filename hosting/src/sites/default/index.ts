@@ -8,6 +8,7 @@ import pageMetadata from './page.json';
 
 import './helloworld';
 import './counter';
+import './lit-async';
 import './firestore';
 import './functions';
 
@@ -21,6 +22,7 @@ export class DefaultIndex extends PageElement {
       { path: '', render: () => html`<default-helloworld></default-helloworld>` },
       { path: 'helloworld/', render: () => html`<default-helloworld></default-helloworld>` },
       { path: 'counter/', render: () => html`<default-counter></default-counter>` },
+      { path: 'lit-async/', render: () => html`<default-lit-async></default-lit-async>` },
       { path: 'firestore/', render: () => html`<default-firestore></default-firestore>` },
       { path: 'functions/', render: () => html`<default-functions></default-functions>` },
     ],
@@ -37,6 +39,7 @@ export class DefaultIndex extends PageElement {
           <button ${navigate('/')}>[Top]</button>
           <button ${navigate('/helloworld/')}>[HelloWorld]</button>
           <button ${navigate('/counter/')}>[Counter]</button>
+          <button ${navigate('/lit-async/')}>[Lit-Async]</button>
           <button ${navigate('/firestore/')}>[Firestore]</button>
           <button ${navigate('/functions/')}>[Functions]</button>
         </div>
