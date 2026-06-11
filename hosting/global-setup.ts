@@ -18,7 +18,7 @@ async function globalSetup(): Promise<void> {
         console.log('Firebase Emulator is ready!');
         break;
       }
-    } catch (_error) {
+    } catch (_error: unknown) {
       // Emulator not ready yet
     }
 

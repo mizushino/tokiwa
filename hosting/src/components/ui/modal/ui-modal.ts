@@ -171,6 +171,7 @@ export class UiModal extends LitElement {
   }
 
   private handleDialogClose(): void {
+    this.open = false;
   }
 
   private handleDialogCancel(e: Event): void {
