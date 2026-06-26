@@ -36,6 +36,7 @@
     "build:hosting:admin": "npm run build:admin"
   },
   "devDependencies": {
-    "firebase-tools": "^15.20.0"
+    "firebase-tools": "^15.22.3",
+    "typescript": "^7.0.1-rc"
   }
 }
