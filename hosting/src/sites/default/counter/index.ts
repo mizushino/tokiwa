@@ -12,7 +12,7 @@ export class DefaultCounter extends PageElement {
   @state()
   private count = 0;
 
-  protected override render(): TemplateResult {
+  protected override renderContents(): TemplateResult {
     return html`
       <div class="mx-auto max-w-4xl space-y-6 p-4">
         <div

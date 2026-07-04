@@ -18,7 +18,7 @@ export class DefaultFirestore extends PageElement {
   protected readonly inputRef = createRef<HTMLInputElement>();
   protected readonly sampleDocument = new SampleDocument({ id: 'sample' });
 
-  protected override render(): TemplateResult {
+  protected override renderContents(): TemplateResult {
     return html`
       <div class="mx-auto max-w-4xl space-y-6 p-4">
         <div

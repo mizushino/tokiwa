@@ -67,14 +67,14 @@ export class UiSplit extends LitElement {
           ${ref(this.handleRef)}
           class="${isVertical
             ? 'z-10 flex h-full w-full cursor-ns-resize items-center justify-center border-t border-b'
-            : 'z-10 flex h-full w-full cursor-ew-resize items-center justify-center border-l border-r'} border-neutral-800 bg-neutral-900 hover:bg-neutral-800"
+            : 'z-10 flex h-full w-full cursor-ew-resize items-center justify-center border-l border-r'} border-gray-800 bg-gray-900 hover:bg-gray-800"
           @mousedown=${this.onMouseDown}
           @touchstart=${this.onTouchStart}
         >
           ${isVertical
             ? html`
                 <svg
-                  class="pointer-events-none size-4 text-neutral-400"
+                  class="pointer-events-none size-4 text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
@@ -87,7 +87,7 @@ export class UiSplit extends LitElement {
               `
             : html`
                 <svg
-                  class="pointer-events-none size-4 text-neutral-400"
+                  class="pointer-events-none size-4 text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"

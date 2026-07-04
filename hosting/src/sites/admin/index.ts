@@ -99,7 +99,7 @@ export class AdminIndex extends PageElement {
       },
     ],
     {
-      fallback: { render: () => html`<div class="text-white">Not Found</div>` },
+      fallback: { render: () => html`<div class="text-gray-900 dark:text-white">Not Found</div>` },
     }
   );
 
@@ -131,15 +131,15 @@ export class AdminIndex extends PageElement {
    */
   protected renderAccessDenied(): TemplateResult {
     return html`
-      <div class="flex min-h-screen items-center justify-center bg-gray-900">
+      <div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
         <div class="text-center">
-          <h1 class="text-2xl font-bold text-white">アクセス権限がありません</h1>
-          <p class="mt-2 text-gray-400">このページは管理者のみアクセス可能です。</p>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">アクセス権限がありません</h1>
+          <p class="mt-2 text-gray-500 dark:text-gray-400">このページは管理者のみアクセス可能です。</p>
           <button
             @click=${this.handleUserClick}
-            class="bg-indio-600 mt-4 rounded-md px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500"
+            class="bg-primary-600 hover:bg-primary-500 mt-4 rounded-md px-4 py-2 text-sm font-semibold text-white shadow-xs"
           >
-            g ログアウト
+            ログアウト
           </button>
         </div>
       </div>
@@ -165,8 +165,8 @@ export class AdminIndex extends PageElement {
   protected override render(): TemplateResult {
     return html`${track(this.user, (user) => {
       if (user === undefined) {
-        return html`<div class="flex min-h-screen items-center justify-center bg-gray-900">
-          <div class="text-white">Loading...</div>
+        return html`<div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
+          <div class="text-gray-500 dark:text-gray-400">Loading...</div>
         </div>`;
       }
 
@@ -181,8 +181,8 @@ export class AdminIndex extends PageElement {
       this.startUserDocSubscription(user.uid);
 
       if (this.isAdmin === undefined) {
-        return html`<div class="flex min-h-screen items-center justify-center bg-gray-900">
-          <div class="text-white">権限を確認中...</div>
+        return html`<div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
+          <div class="text-gray-500 dark:text-gray-400">権限を確認中...</div>
         </div>`;
       }
 

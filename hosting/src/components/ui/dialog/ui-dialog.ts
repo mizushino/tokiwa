@@ -131,7 +131,7 @@ export class UiDialog extends LitElement {
               <button
                 type="button"
                 @click=${this.handleDialogClose}
-                class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-600 dark:bg-gray-800 dark:hover:text-gray-300 dark:focus:outline-white"
+                class="focus:outline-primary-600 rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-2 focus:outline-offset-2 dark:bg-gray-800 dark:hover:text-gray-300 dark:focus:outline-white"
               >
                 <span class="sr-only">Close</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6">

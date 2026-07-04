@@ -216,7 +216,7 @@ export class UiModal extends LitElement {
                 type="button"
                 variant=${button.variant || 'secondary'}
                 @click=${() => this.handleButtonClick(button)}
-                class="${index > 0 ? 'mt-3 sm:mt-0' : ''} sm:w-auto w-full"
+                class="${index > 0 ? 'mt-3 sm:mt-0' : ''} w-full sm:w-auto"
               >
                 ${button.label}
               </ui-button>
@@ -228,20 +228,10 @@ export class UiModal extends LitElement {
 
     return html`
       <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse sm:gap-2">
-        <ui-button
-          type="button"
-          variant="primary"
-          @click=${this.handleConfirm}
-          class="sm:ml-2 sm:w-auto w-full"
-        >
+        <ui-button type="button" variant="primary" @click=${this.handleConfirm} class="w-full sm:ml-2 sm:w-auto">
           ${this.confirmText}
         </ui-button>
-        <ui-button
-          type="button"
-          variant="secondary"
-          @click=${this.handleCancel}
-          class="mt-3 sm:mt-0 sm:w-auto w-full"
-        >
+        <ui-button type="button" variant="secondary" @click=${this.handleCancel} class="mt-3 w-full sm:mt-0 sm:w-auto">
           ${this.cancelText}
         </ui-button>
       </div>
@@ -398,17 +388,17 @@ export class UiModal extends LitElement {
                           @input=${this.handleInputChange}
                           @keydown=${this.handleInputKeyDown}
                           class="${this.inputError
-                            ? 'ring-red-500'
-                            : 'ring-gray-300'} block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-xs ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 focus:ring-inset sm:text-sm dark:bg-white/5 dark:text-white dark:ring-white/10 dark:focus:ring-indigo-500"
+                            ? 'ring-danger-500'
+                            : 'ring-gray-300'} focus:ring-primary-600 dark:focus:ring-primary-500 block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-xs ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm dark:bg-white/5 dark:text-white dark:ring-white/10"
                         />
                         ${this.inputError
-                          ? html`<p class="mt-2 text-sm text-red-600 dark:text-red-400">
+                          ? html`<p class="text-danger-600 dark:text-danger-400 mt-2 text-sm">
                               <i class="fa-solid fa-circle-exclamation mr-1"></i>${this.inputError}
                             </p>`
                           : ''}
                       </div>
                     `
-                  : ''}}
+                  : ''}
                 <slot name="content"></slot>
               </div>
             </div>
