@@ -1,4 +1,34 @@
 {
   "title": "Login - Admin Panel",
-  "description": "Access the admin panel by logging in here."
+  "description": "Access the admin panel by logging in here.",
+  "translations": {
+    "en": {
+      "sign_in_title": "Sign in to your account",
+      "logging_in": "Signing in…",
+      "login": "Sign in",
+      "or_continue_with": "Or continue with",
+      "err_email_required": "Please enter your email address.",
+      "err_password_required": "Please enter your password.",
+      "err_invalid_credentials": "The email address or password is incorrect.",
+      "err_login_failed": "Sign-in failed. Please try again.",
+      "err_generic": "An error occurred.",
+      "err_google_login": "Google sign-in failed. Please try again.",
+      "err_twitter_login": "Twitter sign-in failed. Please try again."
+    },
+    "ja": {
+      "title": "ログイン - 管理パネル",
+      "description": "こちらからログインして管理パネルにアクセスします。",
+      "sign_in_title": "アカウントにログイン",
+      "logging_in": "ログイン中...",
+      "login": "ログイン",
+      "or_continue_with": "または次の方法でログイン",
+      "err_email_required": "メールアドレスを入力してください。",
+      "err_password_required": "パスワードを入力してください。",
+      "err_invalid_credentials": "メールアドレスまたはパスワードが正しくありません。",
+      "err_login_failed": "ログインに失敗しました。もう一度お試しください。",
+      "err_generic": "エラーが発生しました。",
+      "err_google_login": "Googleログインに失敗しました。もう一度お試しください。",
+      "err_twitter_login": "Twitterログインに失敗しました。もう一度お試しください。"
+    }
+  }
 }

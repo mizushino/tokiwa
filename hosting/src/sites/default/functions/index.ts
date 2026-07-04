@@ -7,6 +7,7 @@ import { sample } from '@services/sample';
 import pageMetadata from './page.json';
 
 import '@components/ui/button/ui-button';
+import '@components/ui/input/ui-input';
 
 @customElement('default-functions')
 export class DefaultFunctions extends PageElement {
@@ -27,20 +28,17 @@ export class DefaultFunctions extends PageElement {
   @state()
   private error = '';
 
-  private readonly inputClass =
-    'w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white';
-
   protected override renderContents(): TemplateResult {
     return pageContainer(html`
       ${pageHero({
-        title: 'Functions',
-        description: 'A sample of calling Callable Functions.',
+        title: this.trans('hero_title'),
+        description: this.trans('hero_desc'),
         accent: 'danger',
       })}
       ${pageCard(html`
         ${cardHeading({
-          title: 'Callable Function',
-          description: 'Calls a Firebase Cloud Functions Callable Function to update the Sample document.',
+          title: this.trans('card_title'),
+          description: this.trans('card_desc'),
           accent: 'danger',
           icon: html`
             <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,30 +52,24 @@ export class DefaultFunctions extends PageElement {
           `,
         })}
         <div class="space-y-4">
-          <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">ID</label>
-            <input
-              class=${this.inputClass}
-              .value=${this.sampleId}
-              @input=${(event: Event) => {
-                this.sampleId = (event.target as HTMLInputElement).value;
-              }}
-            />
-          </div>
+          <ui-input
+            label="ID"
+            .value=${this.sampleId}
+            @input=${(event: CustomEvent<{ value: string }>) => {
+              this.sampleId = event.detail.value;
+            }}
+          ></ui-input>
 
-          <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-            <input
-              class=${this.inputClass}
-              .value=${this.name}
-              @input=${(event: Event) => {
-                this.name = (event.target as HTMLInputElement).value;
-              }}
-            />
-          </div>
+          <ui-input
+            label=${this.trans('name')}
+            .value=${this.name}
+            @input=${(event: CustomEvent<{ value: string }>) => {
+              this.name = event.detail.value;
+            }}
+          ></ui-input>
 
           <ui-button variant="primary" ?loading=${this.isSubmitting} @click=${this.runSample}>
-            ${this.isSubmitting ? 'Running...' : 'Run Sample Function'}
+            ${this.isSubmitting ? this.trans('running') : this.trans('run_sample')}
           </ui-button>
 
           <div
@@ -86,8 +78,10 @@ export class DefaultFunctions extends PageElement {
             ${this.result
               ? html`<span class="font-medium text-success-600 dark:text-success-400">${this.result}</span>`
               : this.error
-                ? html`<span class="font-medium text-danger-600 dark:text-danger-400">Error: ${this.error}</span>`
-                : html`<span class="text-sm text-gray-400">Result will appear here...</span>`}
+                ? html`<span class="font-medium text-danger-600 dark:text-danger-400"
+                    >${this.trans('error')}: ${this.error}</span
+                  >`
+                : html`<span class="text-sm text-gray-400">${this.trans('result_placeholder')}</span>`}
           </div>
         </div>
       `)}
@@ -104,7 +98,7 @@ export class DefaultFunctions extends PageElement {
     this.isSubmitting = false;
 
     if (!response) {
-      this.error = 'Function call failed';
+      this.error = this.trans('function_call_failed');
       return;
     }
 

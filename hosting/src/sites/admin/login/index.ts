@@ -3,6 +3,7 @@ import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 import { AuthError, signInWithEmail, signInWithProvider, type AuthErrorCode } from '@app/auth';
+import { getPreferredLanguage, setPreferredLanguage, type SupportedLanguage } from '@app/i18n';
 import { PageElement } from '@app/page';
 
 import pageMetadata from './page.json';
@@ -50,7 +51,7 @@ export class AdminLogin extends PageElement {
       if (error instanceof AuthError) {
         this.errorMessage = this.getErrorMessage(error.code);
       } else {
-        this.errorMessage = 'ログインに失敗しました。もう一度お試しください。';
+        this.errorMessage = this.trans('err_login_failed');
       }
     } finally {
       this.isLoading = false;
@@ -69,7 +70,7 @@ export class AdminLogin extends PageElement {
       if (error instanceof AuthError) {
         this.errorMessage = this.getErrorMessage(error.code);
       } else {
-        this.errorMessage = 'Googleログインに失敗しました。もう一度お試しください。';
+        this.errorMessage = this.trans('err_google_login');
       }
     } finally {
       this.isLoading = false;
@@ -88,7 +89,7 @@ export class AdminLogin extends PageElement {
       if (error instanceof AuthError) {
         this.errorMessage = this.getErrorMessage(error.code);
       } else {
-        this.errorMessage = 'Twitterログインに失敗しました。もう一度お試しください。';
+        this.errorMessage = this.trans('err_twitter_login');
       }
     } finally {
       this.isLoading = false;
@@ -98,15 +99,15 @@ export class AdminLogin extends PageElement {
   private getErrorMessage(code: AuthErrorCode): string {
     switch (code) {
       case 'EMAIL_REQUIRED':
-        return 'メールアドレスを入力してください。';
+        return this.trans('err_email_required');
       case 'PASSWORD_REQUIRED':
-        return 'パスワードを入力してください。';
+        return this.trans('err_password_required');
       case 'INVALID_CREDENTIALS':
-        return 'メールアドレスまたはパスワードが正しくありません。';
+        return this.trans('err_invalid_credentials');
       case 'LOGIN_FAILED':
-        return 'ログインに失敗しました。もう一度お試しください。';
+        return this.trans('err_login_failed');
       default:
-        return 'エラーが発生しました。';
+        return this.trans('err_generic');
     }
   }
 
@@ -117,8 +118,18 @@ export class AdminLogin extends PageElement {
           <i class="fa-solid fa-cube dark:text-primary-400 text-primary-800 text-5xl"></i>
         </div>
         <h2 class="mt-6 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">
-          アカウントにログイン
+          ${this.trans('sign_in_title')}
         </h2>
+      </div>
+    `;
+  }
+
+  private renderLanguageSwitcher(): TemplateResult {
+    const target: SupportedLanguage = getPreferredLanguage() === 'en' ? 'ja' : 'en';
+    const label = target === 'ja' ? '日本語' : 'English';
+    return html`
+      <div class="flex justify-end">
+        <ui-button size="sm" variant="secondary" @click=${() => setPreferredLanguage(target)}>${label}</ui-button>
       </div>
     `;
   }
@@ -126,7 +137,7 @@ export class AdminLogin extends PageElement {
   protected renderEmailField(): TemplateResult {
     return html`
       <div>
-        <label for="email" class="block text-sm/6 font-medium text-gray-900 dark:text-white">メールアドレス</label>
+        <label for="email" class="block text-sm/6 font-medium text-gray-900 dark:text-white">${this.trans('email')}</label>
         <div class="mt-2">
           <input id="email" type="email" name="email" required autocomplete="email" class=${this.inputClass} />
         </div>
@@ -137,7 +148,7 @@ export class AdminLogin extends PageElement {
   protected renderPasswordField(): TemplateResult {
     return html`
       <div>
-        <label for="password" class="block text-sm/6 font-medium text-gray-900 dark:text-white">パスワード</label>
+        <label for="password" class="block text-sm/6 font-medium text-gray-900 dark:text-white">${this.trans('password')}</label>
         <div class="mt-2">
           <input
             id="password"
@@ -192,7 +203,7 @@ export class AdminLogin extends PageElement {
           ?disabled=${this.isLoading}
           class="bg-primary-600 hover:bg-primary-500 focus-visible:outline-primary-600 dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus-visible:outline-primary-500 flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-none"
         >
-          ${this.isLoading ? 'ログイン中...' : 'ログイン'}
+          ${this.isLoading ? this.trans('logging_in') : this.trans('login')}
         </button>
       </form>
     `;
@@ -203,7 +214,7 @@ export class AdminLogin extends PageElement {
       <div>
         <div class="mt-10 flex items-center gap-x-6">
           <div class="w-full flex-1 border-t border-gray-200 dark:border-white/10"></div>
-          <p class="text-sm/6 font-medium text-nowrap text-gray-900 dark:text-white">または次の方法でログイン</p>
+          <p class="text-sm/6 font-medium text-nowrap text-gray-900 dark:text-white">${this.trans('or_continue_with')}</p>
           <div class="w-full flex-1 border-t border-gray-200 dark:border-white/10"></div>
         </div>
 
@@ -254,8 +265,9 @@ export class AdminLogin extends PageElement {
         ${this.renderHeader()}
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-120">
+          ${this.renderLanguageSwitcher()}
           <div
-            class="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12 dark:bg-gray-800/50 dark:shadow-none dark:outline dark:-outline-offset-1 dark:outline-white/10"
+            class="mt-3 bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12 dark:bg-gray-800/50 dark:shadow-none dark:outline dark:-outline-offset-1 dark:outline-white/10"
           >
             ${this.renderForm()} ${this.renderSocialLogin()}
           </div>

@@ -106,6 +106,22 @@ if (typeof window !== 'undefined') {
   });
 }
 
+/**
+ * Seed a default language for a site when the visitor has no stored preference yet.
+ *
+ * Unlike {@link setPreferredLanguage} this does not persist to storage, so it acts as a
+ * soft per-site default: a public site can seed `'en'` while the module default stays `'ja'`.
+ * Once the visitor explicitly picks a language (which persists), this becomes a no-op.
+ */
+export function seedPreferredLanguageIfUnset(lang: SupportedLanguage): void {
+  ensureInitialized();
+  if (hasStoredValue || cachedLanguage === lang) {
+    return;
+  }
+  cachedLanguage = lang;
+  notifyListeners(lang);
+}
+
 export function seedPreferredLanguageFromUser(user: User | null): void {
   if (hasStoredValue || !user?.displayName) {
     return;

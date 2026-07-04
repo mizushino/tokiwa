@@ -27,12 +27,12 @@ export class DefaultDropdown extends PageElement {
     return html`
       <div class="flex flex-wrap gap-4">
         <ui-dropdown size="md">
-          <ui-button slot="trigger" variant="primary">Options ▾</ui-button>
+          <ui-button slot="trigger" variant="primary">${this.trans('options')} ▾</ui-button>
           <div slot="menu">
-            ${this.menuItem('#edit', 'Edit')} ${this.menuItem('#duplicate', 'Duplicate')}
-            ${this.menuItem('#archive', 'Archive')}
+            ${this.menuItem('#edit', this.trans('edit'))} ${this.menuItem('#duplicate', this.trans('duplicate'))}
+            ${this.menuItem('#archive', this.trans('archive'))}
             <hr class="my-1 border-gray-200 dark:border-white/10" />
-            ${this.menuItem('#delete', 'Delete', { danger: true })}
+            ${this.menuItem('#delete', this.trans('delete'), { danger: true })}
           </div>
         </ui-dropdown>
       </div>
@@ -90,19 +90,23 @@ export class DefaultDropdown extends PageElement {
       <div class="flex flex-wrap items-start gap-4">
         <ui-dropdown>
           <ui-button slot="trigger" variant="primary">Primary ▾</ui-button>
-          <div slot="menu">${this.menuItem('#save', 'Save')} ${this.menuItem('#save-as', 'Save As...')}</div>
+          <div slot="menu">
+            ${this.menuItem('#save', this.trans('save'))} ${this.menuItem('#save-as', this.trans('save_as'))}
+          </div>
         </ui-dropdown>
 
         <ui-dropdown>
           <ui-button slot="trigger" variant="success">Success ▾</ui-button>
-          <div slot="menu">${this.menuItem('#approve', 'Approve')} ${this.menuItem('#publish', 'Publish')}</div>
+          <div slot="menu">
+            ${this.menuItem('#approve', this.trans('approve'))} ${this.menuItem('#publish', this.trans('publish'))}
+          </div>
         </ui-dropdown>
 
         <ui-dropdown>
           <ui-button slot="trigger" variant="danger">Danger ▾</ui-button>
           <div slot="menu">
-            ${this.menuItem('#delete', 'Delete', { danger: true })}
-            ${this.menuItem('#remove', 'Remove', { danger: true })}
+            ${this.menuItem('#delete', this.trans('delete'), { danger: true })}
+            ${this.menuItem('#remove', this.trans('remove'), { danger: true })}
           </div>
         </ui-dropdown>
 
@@ -118,14 +122,14 @@ export class DefaultDropdown extends PageElement {
     const kbd = 'rounded bg-info-100 px-1.5 py-0.5 font-mono text-xs dark:bg-info-800';
     return html`
       <div class="rounded-lg bg-info-50 p-4 dark:bg-info-900/20">
-        <h3 class="mb-2 text-lg font-medium text-info-900 dark:text-info-200">Features</h3>
+        <h3 class="mb-2 text-lg font-medium text-info-900 dark:text-info-200">${this.trans('features')}</h3>
         <ul class="list-inside list-disc space-y-1 text-sm text-info-800 dark:text-info-300">
-          <li>Click outside to close</li>
-          <li>Press <kbd class="${kbd}">Escape</kbd> to close</li>
-          <li>Use <kbd class="${kbd}">↑</kbd> and <kbd class="${kbd}">↓</kbd> arrow keys to navigate menu items</li>
-          <li>Use <kbd class="${kbd}">Home</kbd> and <kbd class="${kbd}">End</kbd> to jump to first/last item</li>
-          <li>Smooth transition animations</li>
-          <li>Accessible with ARIA attributes</li>
+          <li>${this.trans('feature_click_outside')}</li>
+          <li>${this.trans('feature_escape_prefix')} <kbd class="${kbd}">Escape</kbd> ${this.trans('feature_escape_suffix')}</li>
+          <li>${this.trans('feature_arrows_prefix')} <kbd class="${kbd}">↑</kbd> ${this.trans('feature_and')} <kbd class="${kbd}">↓</kbd> ${this.trans('feature_arrows_suffix')}</li>
+          <li>${this.trans('feature_homeend_prefix')} <kbd class="${kbd}">Home</kbd> ${this.trans('feature_and')} <kbd class="${kbd}">End</kbd> ${this.trans('feature_homeend_suffix')}</li>
+          <li>${this.trans('feature_transitions')}</li>
+          <li>${this.trans('feature_aria')}</li>
         </ul>
       </div>
     `;
@@ -134,21 +138,27 @@ export class DefaultDropdown extends PageElement {
   protected override renderContents(): TemplateResult {
     return pageContainer(html`
       ${pageHero({
-        title: 'Dropdown',
-        description: 'A showcase of dropdown menu components with various configurations.',
+        title: this.trans('hero_title'),
+        description: this.trans('hero_desc'),
         accent: 'info',
       })}
-      ${pageSection({ title: 'Basic', description: 'Standard dropdown menu with actions' }, this.renderBasic())}
+      ${pageSection({ title: this.trans('basic_title'), description: this.trans('basic_desc') }, this.renderBasic())}
       ${pageSection(
-        { title: 'Sizes', description: 'Three dropdown sizes: small, medium, and large' },
+        { title: this.trans('sizes_title'), description: this.trans('sizes_desc') },
         this.renderSizes()
       )}
-      ${pageSection({ title: 'Placements', description: 'Control dropdown menu alignment' }, this.renderPlacements())}
       ${pageSection(
-        { title: 'Button Variants', description: 'Dropdowns with different button styles' },
+        { title: this.trans('placements_title'), description: this.trans('placements_desc') },
+        this.renderPlacements()
+      )}
+      ${pageSection(
+        { title: this.trans('variants_title'), description: this.trans('variants_desc') },
         this.renderVariants()
       )}
-      ${pageSection({ title: 'Features', description: 'Keyboard navigation and accessibility' }, this.renderFeatures())}
+      ${pageSection(
+        { title: this.trans('features_title'), description: this.trans('features_desc') },
+        this.renderFeatures()
+      )}
     `);
   }
 }

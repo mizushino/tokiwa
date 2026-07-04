@@ -62,7 +62,7 @@ export class DefaultButtons extends PageElement {
         </div>
 
         <div>
-          <h3 class="mb-4 text-sm font-medium text-gray-900 dark:text-white">Full Width</h3>
+          <h3 class="mb-4 text-sm font-medium text-gray-900 dark:text-white">${this.trans('full_width')}</h3>
           <div class="space-y-4">
             <ui-button variant="primary" size="md" fullWidth>Full Width Primary</ui-button>
             <ui-button variant="danger" size="md" fullWidth>Full Width Danger</ui-button>
@@ -122,32 +122,30 @@ export class DefaultButtons extends PageElement {
     return html`
       <div class="space-y-6">
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Form Actions</h3>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('form_actions')}</h3>
           <div class="flex justify-end gap-3">
-            <ui-button variant="soft">Cancel</ui-button>
-            <ui-button variant="primary">Save Changes</ui-button>
+            <ui-button variant="soft">${this.trans('cancel')}</ui-button>
+            <ui-button variant="primary">${this.trans('save_changes')}</ui-button>
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Confirmation Dialog</h3>
-          <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-            Are you sure you want to delete this item? This action cannot be undone.
-          </div>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('confirmation_dialog')}</h3>
+          <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">${this.trans('confirmation_message')}</div>
           <div class="flex gap-3">
-            <ui-button variant="soft" fullWidth>Cancel</ui-button>
-            <ui-button variant="danger" fullWidth>Delete</ui-button>
+            <ui-button variant="soft" fullWidth>${this.trans('cancel')}</ui-button>
+            <ui-button variant="danger" fullWidth>${this.trans('delete')}</ui-button>
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Button Group</h3>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('button_group')}</h3>
           <div class="flex gap-2">
-            <ui-button variant="soft" size="sm">View</ui-button>
-            <ui-button variant="info" size="sm">Edit</ui-button>
-            <ui-button variant="danger" size="sm">Delete</ui-button>
+            <ui-button variant="soft" size="sm">${this.trans('view')}</ui-button>
+            <ui-button variant="info" size="sm">${this.trans('edit')}</ui-button>
+            <ui-button variant="danger" size="sm">${this.trans('delete')}</ui-button>
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Rounded Buttons</h3>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('rounded_buttons')}</h3>
           <div class="flex gap-3">
             <ui-button variant="primary" size="md" rounded>Primary</ui-button>
             <ui-button variant="success" size="md" rounded>Success</ui-button>
@@ -161,21 +159,24 @@ export class DefaultButtons extends PageElement {
   protected override renderContents(): TemplateResult {
     return pageContainer(html`
       ${pageHero({
-        title: 'Buttons',
-        description: 'A showcase of button variants, sizes, and states.',
+        title: this.trans('hero_title'),
+        description: this.trans('hero_desc'),
         accent: 'primary',
       })}
-      ${pageSection({ title: 'Variants', description: 'All available button color variants' }, this.renderVariants())}
       ${pageSection(
-        { title: 'Sizes', description: 'Five button sizes from XS to XL with full-width option' },
-        this.renderSizes()
+        { title: this.trans('variants_title'), description: this.trans('variants_desc') },
+        this.renderVariants()
       )}
-      ${pageSection({ title: 'Rounded', description: 'Full rounded buttons for all sizes' }, this.renderRounded())}
+      ${pageSection({ title: this.trans('sizes_title'), description: this.trans('sizes_desc') }, this.renderSizes())}
       ${pageSection(
-        { title: 'States', description: 'Button states including disabled and loading' },
-        this.renderStates()
+        { title: this.trans('rounded_title'), description: this.trans('rounded_desc') },
+        this.renderRounded()
       )}
-      ${pageSection({ title: 'Usage Examples', description: 'Common button usage patterns' }, this.renderUsageExamples())}
+      ${pageSection({ title: this.trans('states_title'), description: this.trans('states_desc') }, this.renderStates())}
+      ${pageSection(
+        { title: this.trans('usage_title'), description: this.trans('usage_desc') },
+        this.renderUsageExamples()
+      )}
     `);
   }
 }

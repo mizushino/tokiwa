@@ -1,6 +1,6 @@
 import { LitElement, css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 
-import { globalTranslations, getPreferredLanguage } from '@app/i18n';
+import { globalTranslations, getPreferredLanguage, subscribePreferredLanguage } from '@app/i18n';
 import { tailwindCSS } from '@app/styles';
 
 import { Navigate } from './navigate';
@@ -50,8 +50,12 @@ export class PageElement extends LitElement {
    */
   protected pageMetadata?: PageMetadata;
 
+  /** Unsubscribe handle for the preferred-language subscription. */
+  private unsubscribeLanguage?: () => void;
+
   /**
-   * Automatically set page metadata when component is connected to DOM.
+   * Automatically set page metadata when component is connected to DOM and
+   * keep it (and the rendered content) in sync with the preferred language.
    */
   public override connectedCallback(): void {
     super.connectedCallback();
@@ -59,16 +63,37 @@ export class PageElement extends LitElement {
     if (this.pageMetadata) {
       this.setPageMetadata(this.pageMetadata);
     }
+
+    this.unsubscribeLanguage = subscribePreferredLanguage(() => {
+      if (this.pageMetadata) {
+        this.setPageMetadata(this.pageMetadata);
+      }
+      this.requestUpdate();
+    });
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.unsubscribeLanguage?.();
+    this.unsubscribeLanguage = undefined;
   }
 
   /**
-   * Set page metadata (title, description, OG tags).
+   * Set page metadata (title, description, OG tags), localized to the preferred
+   * language when the page provides `title`/`description` translation keys.
    */
   protected setPageMetadata(metadata: PageMetadata): void {
-    document.title = metadata.title ?? '';
-    document.querySelector('meta[name="description"]')?.setAttribute('content', metadata.description ?? '');
-    document.querySelector('meta[property="og:title"]')?.setAttribute('content', metadata.title ?? '');
-    document.querySelector('meta[property="og:description"]')?.setAttribute('content', metadata.description ?? '');
+    const lang = getPreferredLanguage();
+    const localized = (key: 'title' | 'description'): string =>
+      metadata.translations?.[lang]?.[key] ?? metadata[key] ?? '';
+
+    const title = localized('title');
+    const description = localized('description');
+
+    document.title = title;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', description);
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
   }
 
   /**

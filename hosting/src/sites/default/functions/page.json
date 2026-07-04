@@ -1,4 +1,28 @@
 {
   "title": "Functions - Sample Site",
-  "description": "Callable Functions integration example for the sample framework."
+  "description": "Callable Functions integration example for the sample framework.",
+  "translations": {
+    "en": {
+      "hero_title": "Functions",
+      "hero_desc": "A sample of calling Callable Functions.",
+      "card_title": "Callable Function",
+      "card_desc": "Calls a Firebase Cloud Functions Callable Function to update the Sample document.",
+      "running": "Running…",
+      "run_sample": "Run Sample Function",
+      "result_placeholder": "Result will appear here…",
+      "function_call_failed": "Function call failed"
+    },
+    "ja": {
+      "title": "Functions - サンプルサイト",
+      "description": "サンプルフレームワークにおける Callable Functions 連携の例です。",
+      "hero_title": "Functions",
+      "hero_desc": "Callable Function を呼び出すサンプルです。",
+      "card_title": "Callable Function",
+      "card_desc": "Firebase Cloud Functions の Callable Function を呼び出して Sample ドキュメントを更新します。",
+      "running": "実行中…",
+      "run_sample": "サンプル関数を実行",
+      "result_placeholder": "ここに結果が表示されます…",
+      "function_call_failed": "関数の呼び出しに失敗しました"
+    }
+  }
 }

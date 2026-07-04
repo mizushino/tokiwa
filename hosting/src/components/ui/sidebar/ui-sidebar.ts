@@ -35,6 +35,7 @@ export interface SidebarNavItem {
  * ```
  *
  * @slot logo - Branded content shown at the top of the sidebar.
+ * @slot actions - Extra controls rendered in the footer above the user profile.
  * @fires user-click - Fired when the current user profile section is pressed.
  */
 @customElement('ui-sidebar')
@@ -129,7 +130,10 @@ export class UiSidebar extends LitElement {
             </li>
           </ul>
         </nav>
-        <div class="shrink-0">${this.renderProfile()}</div>
+        <div class="shrink-0">
+          <slot name="actions"></slot>
+          ${this.renderProfile()}
+        </div>
       </div>
     `;
   }

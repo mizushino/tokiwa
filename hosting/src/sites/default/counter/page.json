@@ -1,4 +1,26 @@
 {
   "title": "Counter - Sample Site",
-  "description": "An interactive counter example showcasing state management in Lit."
+  "description": "An interactive counter example showcasing state management in Lit.",
+  "translations": {
+    "en": {
+      "hero_title": "Counter",
+      "hero_desc": "A sample of a reactive counter component.",
+      "card_title": "Counter",
+      "card_desc": "Uses Lit's @state() decorator to reactively render state changes.",
+      "decrement": "Decrement [-]",
+      "reset": "Reset",
+      "increment": "Increment [+]"
+    },
+    "ja": {
+      "title": "カウンター - サンプルサイト",
+      "description": "Lit のステート管理を示すインタラクティブなカウンターの例です。",
+      "hero_title": "カウンター",
+      "hero_desc": "リアクティブなカウンターコンポーネントのサンプルです。",
+      "card_title": "カウンター",
+      "card_desc": "Lit の @state() デコレーターを使い、ステートの変更をリアクティブに描画します。",
+      "decrement": "デクリメント [-]",
+      "reset": "リセット",
+      "increment": "インクリメント [+]"
+    }
+  }
 }

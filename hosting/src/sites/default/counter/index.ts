@@ -17,14 +17,14 @@ export class DefaultCounter extends PageElement {
   protected override renderContents(): TemplateResult {
     return pageContainer(html`
       ${pageHero({
-        title: 'Counter',
-        description: 'A sample of a reactive counter component.',
+        title: this.trans('hero_title'),
+        description: this.trans('hero_desc'),
         accent: 'primary',
       })}
       ${pageCard(html`
         ${cardHeading({
-          title: 'Counter',
-          description: "Uses Lit's @state() decorator to reactively render state changes.",
+          title: this.trans('card_title'),
+          description: this.trans('card_desc'),
           accent: 'primary',
           icon: html`
             <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,9 +41,9 @@ export class DefaultCounter extends PageElement {
         </div>
 
         <div class="mt-6 flex justify-center gap-3">
-          <ui-button variant="danger" @click=${this.decrement}>Decrement [-]</ui-button>
-          <ui-button variant="secondary" @click=${this.reset}>Reset</ui-button>
-          <ui-button variant="success" @click=${this.increment}>Increment [+]</ui-button>
+          <ui-button variant="danger" @click=${this.decrement}>${this.trans('decrement')}</ui-button>
+          <ui-button variant="secondary" @click=${this.reset}>${this.trans('reset')}</ui-button>
+          <ui-button variant="success" @click=${this.increment}>${this.trans('increment')}</ui-button>
         </div>
       `)}
     `);

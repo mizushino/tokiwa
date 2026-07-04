@@ -6,6 +6,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { track } from 'lit-async';
 
 import { signOut, userSnapshot } from '@app/auth';
+import { getPreferredLanguage, setPreferredLanguage, type SupportedLanguage } from '@app/i18n';
 import { PageElement } from '@app/page';
 import type { SidebarNavItem } from '@components/ui/sidebar/ui-sidebar';
 import { subscribeToUserDocument } from '@models/user';
@@ -100,24 +101,32 @@ export class AdminIndex extends PageElement {
       },
     ],
     {
-      fallback: { render: () => html`<div class="text-gray-900 dark:text-white">Not Found</div>` },
+      fallback: { render: () => html`<div class="text-gray-900 dark:text-white">${this.trans('not_found')}</div>` },
     }
   );
 
   protected get navItems(): SidebarNavItem[] {
     return [
       {
-        label: 'Dashboard',
+        label: this.trans('nav_dashboard'),
         href: '/dashboard/',
         icon: html`<i class="fa-solid fa-gauge-high py-0.5 text-xl"></i>`,
         badge: 5,
       },
       {
-        label: 'Hello World',
+        label: this.trans('nav_helloworld'),
         href: '/helloworld/',
         icon: html`<i class="fa-solid fa-globe py-0.5 text-xl"></i>`,
       },
     ];
+  }
+
+  private renderLanguageSwitcher(): TemplateResult {
+    const target: SupportedLanguage = getPreferredLanguage() === 'en' ? 'ja' : 'en';
+    const label = target === 'ja' ? '日本語' : 'English';
+    return html`<ui-button size="sm" variant="secondary" fullWidth @click=${() => setPreferredLanguage(target)}
+      >${label}</ui-button
+    >`;
   }
 
   private async handleUserClick(): Promise<void> {
@@ -134,9 +143,9 @@ export class AdminIndex extends PageElement {
     return html`
       <div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
         <div class="text-center">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">アクセス権限がありません</h1>
-          <p class="mt-2 text-gray-500 dark:text-gray-400">このページは管理者のみアクセス可能です。</p>
-          <ui-button class="mt-4" variant="primary" @click=${this.handleUserClick}>ログアウト</ui-button>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">${this.trans('access_denied_title')}</h1>
+          <p class="mt-2 text-gray-500 dark:text-gray-400">${this.trans('access_denied_message')}</p>
+          <ui-button class="mt-4" variant="primary" @click=${this.handleUserClick}>${this.trans('logout')}</ui-button>
         </div>
       </div>
     `;
@@ -151,6 +160,7 @@ export class AdminIndex extends PageElement {
           .navItems=${this.navItems}
           @user-click=${this.handleUserClick}
         >
+          <div slot="actions" class="px-3 pb-3">${this.renderLanguageSwitcher()}</div>
           <svg
             slot="logo"
             class="size-8 text-primary-500 dark:text-primary-400"
@@ -175,7 +185,7 @@ export class AdminIndex extends PageElement {
     return html`${track(this.user, (user) => {
       if (user === undefined) {
         return html`<div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
-          <div class="text-gray-500 dark:text-gray-400">Loading...</div>
+          <div class="text-gray-500 dark:text-gray-400">${this.trans('loading')}</div>
         </div>`;
       }
 
@@ -191,7 +201,7 @@ export class AdminIndex extends PageElement {
 
       if (this.isAdmin === undefined) {
         return html`<div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
-          <div class="text-gray-500 dark:text-gray-400">権限を確認中...</div>
+          <div class="text-gray-500 dark:text-gray-400">${this.trans('checking_permission')}</div>
         </div>`;
       }
 

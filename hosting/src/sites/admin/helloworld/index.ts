@@ -15,7 +15,7 @@ export class AdminHelloWorld extends PageElement {
     return pageContainer(html`
       ${pageHero({
         title: `Hello, ${this.name}!`,
-        description: 'Admin panel sample page.',
+        description: this.trans('hero_desc'),
         accent: 'primary',
       })}
     `);

@@ -18,6 +18,7 @@ import { URLPattern } from 'urlpattern-polyfill';
 import { initializeAuth, type FirebaseAuthSettings } from '@app/auth';
 import { getFirebaseConfig } from '@app/firebase-config';
 import { type FunctionsSettings, initializeFunctions } from '@app/functions';
+import { seedPreferredLanguageIfUnset } from '@app/i18n';
 import { tailwindCSS } from '@app/styles';
 
 import './index';
@@ -86,6 +87,10 @@ export class DefaultApp extends LitElement {
 
   public override connectedCallback(): void {
     super.connectedCallback();
+
+    // The public site defaults to English; the module-level default stays Japanese.
+    // A soft seed (no persistence) so an explicit user choice still wins.
+    seedPreferredLanguageIfUnset('en');
 
     this.firebaseApp = initializeApp(this.firebaseConfig);
     const firestore = initializeFirestore(this.firebaseApp, this.firestoreSetting);

@@ -26,21 +26,21 @@ export class DefaultCheckboxes extends PageElement {
       <div class="space-y-4">
         <div class="flex items-center gap-4">
           <span class="w-20 text-sm text-gray-600 dark:text-gray-400">SM:</span>
-          <ui-checkbox size="sm">Small checkbox</ui-checkbox>
-          <ui-checkbox size="sm" checked>Small checked</ui-checkbox>
-          <ui-checkbox size="sm" disabled>Small disabled</ui-checkbox>
+          <ui-checkbox size="sm">${this.trans('small_checkbox')}</ui-checkbox>
+          <ui-checkbox size="sm" checked>${this.trans('small_checked')}</ui-checkbox>
+          <ui-checkbox size="sm" disabled>${this.trans('small_disabled')}</ui-checkbox>
         </div>
         <div class="flex items-center gap-4">
           <span class="w-20 text-sm text-gray-600 dark:text-gray-400">MD:</span>
-          <ui-checkbox size="md">Medium checkbox</ui-checkbox>
-          <ui-checkbox size="md" checked>Medium checked</ui-checkbox>
-          <ui-checkbox size="md" disabled>Medium disabled</ui-checkbox>
+          <ui-checkbox size="md">${this.trans('medium_checkbox')}</ui-checkbox>
+          <ui-checkbox size="md" checked>${this.trans('medium_checked')}</ui-checkbox>
+          <ui-checkbox size="md" disabled>${this.trans('medium_disabled')}</ui-checkbox>
         </div>
         <div class="flex items-center gap-4">
           <span class="w-20 text-sm text-gray-600 dark:text-gray-400">LG:</span>
-          <ui-checkbox size="lg">Large checkbox</ui-checkbox>
-          <ui-checkbox size="lg" checked>Large checked</ui-checkbox>
-          <ui-checkbox size="lg" disabled>Large disabled</ui-checkbox>
+          <ui-checkbox size="lg">${this.trans('large_checkbox')}</ui-checkbox>
+          <ui-checkbox size="lg" checked>${this.trans('large_checked')}</ui-checkbox>
+          <ui-checkbox size="lg" disabled>${this.trans('large_disabled')}</ui-checkbox>
         </div>
       </div>
     `;
@@ -49,12 +49,12 @@ export class DefaultCheckboxes extends PageElement {
   private renderStates(): TemplateResult {
     return html`
       <div class="space-y-4">
-        <ui-checkbox>Normal checkbox</ui-checkbox>
-        <ui-checkbox checked>Checked checkbox</ui-checkbox>
-        <ui-checkbox indeterminate>Indeterminate checkbox</ui-checkbox>
-        <ui-checkbox disabled>Disabled checkbox</ui-checkbox>
-        <ui-checkbox checked disabled>Checked & disabled</ui-checkbox>
-        <ui-checkbox indeterminate disabled>Indeterminate & disabled</ui-checkbox>
+        <ui-checkbox>${this.trans('normal_checkbox')}</ui-checkbox>
+        <ui-checkbox checked>${this.trans('checked_checkbox')}</ui-checkbox>
+        <ui-checkbox indeterminate>${this.trans('indeterminate_checkbox')}</ui-checkbox>
+        <ui-checkbox disabled>${this.trans('disabled_checkbox')}</ui-checkbox>
+        <ui-checkbox checked disabled>${this.trans('checked_disabled')}</ui-checkbox>
+        <ui-checkbox indeterminate disabled>${this.trans('indeterminate_disabled')}</ui-checkbox>
       </div>
     `;
   }
@@ -71,19 +71,19 @@ export class DefaultCheckboxes extends PageElement {
             @change=${(e: CustomEvent) => this.handleCheckboxChange('interactive-1', e)}
             .checked=${isChecked1}
           >
-            Option 1
+            ${this.trans('option_1')}
           </ui-checkbox>
           <ui-checkbox
             @change=${(e: CustomEvent) => this.handleCheckboxChange('interactive-2', e)}
             .checked=${isChecked2}
           >
-            Option 2
+            ${this.trans('option_2')}
           </ui-checkbox>
           <ui-checkbox
             @change=${(e: CustomEvent) => this.handleCheckboxChange('interactive-3', e)}
             .checked=${isChecked3}
           >
-            Option 3
+            ${this.trans('option_3')}
           </ui-checkbox>
         </div>
 
@@ -91,11 +91,12 @@ export class DefaultCheckboxes extends PageElement {
           class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
         >
           <div class="text-sm text-gray-900 dark:text-white">
-            <p class="font-semibold">Selected Options:</p>
+            <p class="font-semibold">${this.trans('selected_options')}</p>
             <ul class="mt-2 list-inside list-disc space-y-1 text-gray-600 dark:text-gray-400">
-              ${isChecked1 ? html`<li>Option 1</li>` : ''} ${isChecked2 ? html`<li>Option 2</li>` : ''}
-              ${isChecked3 ? html`<li>Option 3</li>` : ''}
-              ${!isChecked1 && !isChecked2 && !isChecked3 ? html`<li>None selected</li>` : ''}
+              ${isChecked1 ? html`<li>${this.trans('option_1')}</li>` : ''}
+              ${isChecked2 ? html`<li>${this.trans('option_2')}</li>` : ''}
+              ${isChecked3 ? html`<li>${this.trans('option_3')}</li>` : ''}
+              ${!isChecked1 && !isChecked2 && !isChecked3 ? html`<li>${this.trans('none_selected')}</li>` : ''}
             </ul>
           </div>
         </div>
@@ -107,32 +108,32 @@ export class DefaultCheckboxes extends PageElement {
     return html`
       <div class="space-y-6">
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Terms and Conditions</h3>
-          <ui-checkbox>I agree to the terms and conditions</ui-checkbox>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('terms_title')}</h3>
+          <ui-checkbox>${this.trans('terms_agree')}</ui-checkbox>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Notification Preferences</h3>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('notifications_title')}</h3>
           <div class="space-y-3">
-            <ui-checkbox checked>Email notifications</ui-checkbox>
-            <ui-checkbox>Push notifications</ui-checkbox>
-            <ui-checkbox checked>SMS notifications</ui-checkbox>
-            <ui-checkbox>Weekly digest</ui-checkbox>
+            <ui-checkbox checked>${this.trans('email_notifications')}</ui-checkbox>
+            <ui-checkbox>${this.trans('push_notifications')}</ui-checkbox>
+            <ui-checkbox checked>${this.trans('sms_notifications')}</ui-checkbox>
+            <ui-checkbox>${this.trans('weekly_digest')}</ui-checkbox>
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Select Features</h3>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('features_title')}</h3>
           <div class="space-y-3">
-            <ui-checkbox size="lg" checked>Enable advanced features</ui-checkbox>
-            <ui-checkbox size="lg">Enable beta features</ui-checkbox>
-            <ui-checkbox size="lg">Enable experimental features</ui-checkbox>
+            <ui-checkbox size="lg" checked>${this.trans('feature_advanced')}</ui-checkbox>
+            <ui-checkbox size="lg">${this.trans('feature_beta')}</ui-checkbox>
+            <ui-checkbox size="lg">${this.trans('feature_experimental')}</ui-checkbox>
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Small Checkboxes</h3>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('small_checkboxes_title')}</h3>
           <div class="space-y-2">
-            <ui-checkbox size="sm">Remember me</ui-checkbox>
-            <ui-checkbox size="sm">Keep me logged in</ui-checkbox>
-            <ui-checkbox size="sm">Save my preferences</ui-checkbox>
+            <ui-checkbox size="sm">${this.trans('remember_me')}</ui-checkbox>
+            <ui-checkbox size="sm">${this.trans('keep_logged_in')}</ui-checkbox>
+            <ui-checkbox size="sm">${this.trans('save_preferences')}</ui-checkbox>
           </div>
         `)}
       </div>
@@ -142,20 +143,23 @@ export class DefaultCheckboxes extends PageElement {
   protected override renderContents(): TemplateResult {
     return pageContainer(html`
       ${pageHero({
-        title: 'Checkboxes',
-        description: 'A showcase of checkbox sizes, states, and interactive examples.',
+        title: this.trans('hero_title'),
+        description: this.trans('hero_desc'),
         accent: 'success',
       })}
       ${pageSection(
-        { title: 'Sizes', description: 'Three checkbox sizes: small, medium, and large' },
+        { title: this.trans('sizes_title'), description: this.trans('sizes_desc') },
         this.renderSizes()
       )}
-      ${pageSection({ title: 'States', description: 'All available checkbox states' }, this.renderStates())}
+      ${pageSection({ title: this.trans('states_title'), description: this.trans('states_desc') }, this.renderStates())}
       ${pageSection(
-        { title: 'Interactive Example', description: 'Click checkboxes to see state updates' },
+        { title: this.trans('interactive_title'), description: this.trans('interactive_desc') },
         this.renderInteractive()
       )}
-      ${pageSection({ title: 'Usage Examples', description: 'Common checkbox usage patterns' }, this.renderUsageExamples())}
+      ${pageSection(
+        { title: this.trans('usage_title'), description: this.trans('usage_desc') },
+        this.renderUsageExamples()
+      )}
     `);
   }
 }

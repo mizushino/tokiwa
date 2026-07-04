@@ -12,13 +12,13 @@ export class DefaultHelloWorld extends PageElement {
   protected override renderContents(): TemplateResult {
     return pageContainer(html`
       ${pageHero({
-        title: 'Hello, World!',
-        description: 'A simple Lit component sample.',
+        title: this.trans('hero_title'),
+        description: this.trans('hero_desc'),
         accent: 'success',
       })}
       ${pageCard(html`
         ${cardHeading({
-          title: 'Welcome',
+          title: this.trans('welcome'),
           accent: 'success',
           icon: html`
             <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,10 +31,7 @@ export class DefaultHelloWorld extends PageElement {
             </svg>
           `,
         })}
-        <p class="text-gray-600 dark:text-gray-300">
-          This is a simple "Hello, World!" sample page built with Lit. Components are composed using custom elements and
-          Shadow DOM.
-        </p>
+        <p class="text-gray-600 dark:text-gray-300">${this.trans('welcome_body')}</p>
       `)}
     `);
   }

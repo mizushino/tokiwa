@@ -3,6 +3,7 @@ export {
   getPreferredLanguage,
   setPreferredLanguage,
   subscribePreferredLanguage,
+  seedPreferredLanguageIfUnset,
   seedPreferredLanguageFromUser,
   parseDisplayNameWithLanguage,
   clearPreferredLanguageCache,

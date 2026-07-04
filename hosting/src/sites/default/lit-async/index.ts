@@ -88,8 +88,7 @@ export class DefaultLitAsync extends PageElement {
         <div>
           ${cardHeading({
             title: 'track(Promise)',
-            description:
-              'Binds a Promise directly in the template. The template automatically updates when the Promise resolves.',
+            description: this.trans('promise_desc'),
             accent: 'info',
             icon: html`
               <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,11 +99,11 @@ export class DefaultLitAsync extends PageElement {
           <div
             class="flex min-h-20 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 text-center font-medium italic dark:border-gray-800 dark:bg-gray-900/50"
           >
-            ${track(loading(this.promise, html`<span class="text-gray-400">Loading promise...</span>`))}
+            ${track(loading(this.promise, html`<span class="text-gray-400">${this.trans('loading_promise')}</span>`))}
           </div>
         </div>
         <div class="mt-6 flex justify-end">
-          <ui-button id="btn-reload-quote" variant="info" @click=${this.reloadPromise}>Fetch Next Quote</ui-button>
+          <ui-button id="btn-reload-quote" variant="info" @click=${this.reloadPromise}>${this.trans('fetch_quote')}</ui-button>
         </div>
       </div>
     `);
@@ -116,7 +115,7 @@ export class DefaultLitAsync extends PageElement {
         <div>
           ${cardHeading({
             title: 'track(AsyncGenerator)',
-            description: 'Binds an async generator. Re-renders reactively whenever a new value is yielded.',
+            description: this.trans('generator_desc'),
             accent: 'success',
             icon: html`
               <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,16 +136,18 @@ export class DefaultLitAsync extends PageElement {
                   <span id="generator-counter" class="text-3xl font-extrabold text-success-600 dark:text-success-400">
                     ${track(this.counterGenerator)}
                   </span>
-                  <span class="mt-1 text-xs text-gray-400">seconds elapsed</span>
+                  <span class="mt-1 text-xs text-gray-400">${this.trans('seconds_elapsed')}</span>
                 `
-              : html`<span id="generator-stopped" class="text-gray-400">Generator Stopped</span>`}
+              : html`<span id="generator-stopped" class="text-gray-400">${this.trans('generator_stopped')}</span>`}
           </div>
         </div>
         <div class="mt-6 flex justify-end gap-2">
           ${this.isGeneratorRunning
-            ? html`<ui-button id="btn-pause-generator" variant="danger" @click=${this.stopGenerator}>Pause</ui-button>`
+            ? html`<ui-button id="btn-pause-generator" variant="danger" @click=${this.stopGenerator}
+                >${this.trans('pause')}</ui-button
+              >`
             : html`<ui-button id="btn-resume-generator" variant="success" @click=${this.startGenerator}>
-                Resume
+                ${this.trans('resume')}
               </ui-button>`}
         </div>
       </div>
@@ -160,7 +161,7 @@ export class DefaultLitAsync extends PageElement {
           <div>
             ${cardHeading({
               title: 'loading() Helper',
-              description: 'The loading helper yields a placeholder value (like a spinner or text) until the promise resolves.',
+              description: this.trans('loading_helper_desc'),
               accent: 'primary',
               icon: html`
                 <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +193,7 @@ export class DefaultLitAsync extends PageElement {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      <span>Simulating slow network request (2s)...</span>
+                      <span>${this.trans('simulating_slow')}</span>
                     </div>
                   `
                 )
@@ -201,7 +202,7 @@ export class DefaultLitAsync extends PageElement {
           </div>
           <div class="mt-6 flex justify-end">
             <ui-button id="btn-trigger-slow" variant="primary" @click=${this.reloadSlowPromise}>
-              Trigger Slow Request
+              ${this.trans('trigger_slow')}
             </ui-button>
           </div>
         </div>

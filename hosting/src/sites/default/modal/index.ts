@@ -32,7 +32,7 @@ export class DefaultModal extends PageElement {
   private renderSingleArgAPI(): TemplateResult {
     return html`
       <div class="flex flex-wrap gap-3">
-        <ui-button variant="secondary" @click=${() => this.testSingleArg()}>Single Argument (message only)</ui-button>
+        <ui-button variant="secondary" @click=${() => this.testSingleArg()}>${this.trans('single_arg_button')}</ui-button>
       </div>
     `;
   }
@@ -40,27 +40,27 @@ export class DefaultModal extends PageElement {
   protected override renderContents(): TemplateResult {
     return pageContainer(html`
       ${pageHero({
-        title: 'Modal API',
-        description: 'Demonstrates the Modal API with semantic methods: success(), info(), error(), and confirm().',
+        title: this.trans('hero_title'),
+        description: this.trans('hero_desc'),
         accent: 'warning',
       })}
       ${pageSection(
         {
-          title: 'Semantic API (Recommended)',
-          description: 'Use Modal.success(), Modal.info(), Modal.error(), or Modal.confirm() for common use cases',
+          title: this.trans('semantic_title'),
+          description: this.trans('semantic_desc'),
         },
         this.renderSemanticAPI()
       )}
       ${pageSection(
         {
-          title: 'Single Argument API',
-          description: 'When only one argument is provided, it is treated as the message (title becomes empty)',
+          title: this.trans('single_arg_title'),
+          description: this.trans('single_arg_desc'),
         },
         this.renderSingleArgAPI()
       )}
       ${this.lastAction
         ? html`<div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-gray-900">
-            <h3 class="font-semibold text-gray-900 dark:text-white">Last Action:</h3>
+            <h3 class="font-semibold text-gray-900 dark:text-white">${this.trans('last_action')}</h3>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">${this.lastAction}</p>
           </div>`
         : ''}
@@ -68,45 +68,37 @@ export class DefaultModal extends PageElement {
   }
 
   private async testSuccess(): Promise<void> {
-    await Modal.success('Success', 'Your operation completed successfully!');
+    await Modal.success(this.trans('success'), this.trans('success_message'));
     this.lastAction = 'Modal.success(): Acknowledged';
   }
 
   private async testInfo(): Promise<void> {
-    await Modal.info('Information', 'This is some important information for you.');
+    await Modal.info(this.trans('information'), this.trans('info_message'));
     this.lastAction = 'Modal.info(): Acknowledged';
   }
 
   private async testError(): Promise<void> {
-    await Modal.error('Error', 'Something went wrong. Please try again.');
+    await Modal.error(this.trans('error'), this.trans('error_message'));
     this.lastAction = 'Modal.error(): Acknowledged';
   }
 
   private async testConfirm(): Promise<void> {
-    const confirmed = await Modal.confirm('Confirm Action', 'Are you sure you want to proceed?');
+    const confirmed = await Modal.confirm(this.trans('confirm_title'), this.trans('confirm_message'));
     this.lastAction = confirmed ? 'Modal.confirm(): Confirmed' : 'Modal.confirm(): Cancelled';
   }
 
   private async testConfirmDanger(): Promise<void> {
-    const confirmed = await Modal.confirm(
-      'Delete Item',
-      'Are you sure you want to delete this item? This action cannot be undone.',
-      'danger'
-    );
+    const confirmed = await Modal.confirm(this.trans('delete_title'), this.trans('delete_message'), 'danger');
     this.lastAction = confirmed ? 'Modal.confirm(danger): Confirmed' : 'Modal.confirm(danger): Cancelled';
   }
 
   private async testConfirmWarning(): Promise<void> {
-    const confirmed = await Modal.confirm(
-      'Unsaved Changes',
-      'You have unsaved changes. Do you want to discard them?',
-      'warning'
-    );
+    const confirmed = await Modal.confirm(this.trans('unsaved_title'), this.trans('unsaved_message'), 'warning');
     this.lastAction = confirmed ? 'Modal.confirm(warning): Confirmed' : 'Modal.confirm(warning): Cancelled';
   }
 
   private async testSingleArg(): Promise<void> {
-    await Modal.info('This message has no title');
+    await Modal.info(this.trans('single_arg_message'));
     this.lastAction = 'Single argument API: Acknowledged';
   }
 }

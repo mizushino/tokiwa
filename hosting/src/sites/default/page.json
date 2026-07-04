@@ -1,4 +1,34 @@
 {
   "title": "Home - Sample Site",
-  "description": "Welcome to the sample site. Explore various examples and demos."
+  "description": "Welcome to the sample site. Explore various examples and demos.",
+  "translations": {
+    "en": {
+      "site_title": "Sample Site",
+      "nav_home": "Home",
+      "nav_helloworld": "Hello World",
+      "nav_counter": "Counter",
+      "nav_lit_async": "Lit-Async",
+      "nav_firestore": "Firestore",
+      "nav_functions": "Functions",
+      "nav_buttons": "Buttons",
+      "nav_checkboxes": "Checkboxes",
+      "nav_dropdown": "Dropdown",
+      "nav_modal": "Modal"
+    },
+    "ja": {
+      "title": "ホーム - サンプルサイト",
+      "description": "サンプルサイトへようこそ。さまざまな実装例とデモをご覧いただけます。",
+      "site_title": "サンプルサイト",
+      "nav_home": "ホーム",
+      "nav_helloworld": "Hello World",
+      "nav_counter": "カウンター",
+      "nav_lit_async": "Lit-Async",
+      "nav_firestore": "Firestore",
+      "nav_functions": "Functions",
+      "nav_buttons": "ボタン",
+      "nav_checkboxes": "チェックボックス",
+      "nav_dropdown": "ドロップダウン",
+      "nav_modal": "モーダル"
+    }
+  }
 }

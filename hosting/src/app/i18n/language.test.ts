@@ -5,6 +5,7 @@ import {
   getPreferredLanguage,
   parseDisplayNameWithLanguage,
   seedPreferredLanguageFromUser,
+  seedPreferredLanguageIfUnset,
   setPreferredLanguage,
   subscribePreferredLanguage,
   tGlobal,
@@ -82,6 +83,26 @@ describe('language preferences', () => {
     setPreferredLanguage('ja');
 
     seedPreferredLanguageFromUser({ displayName: 'Alice [en]' } as never);
+
+    expect(getPreferredLanguage()).toBe('ja');
+  });
+
+  it('soft-seeds a site default without persisting when nothing is stored', () => {
+    const listener = vi.fn();
+    subscribePreferredLanguage(listener);
+
+    seedPreferredLanguageIfUnset('en');
+
+    expect(getPreferredLanguage()).toBe('en');
+    // Soft seed must not persist, so an explicit choice can still win later.
+    expect(window.localStorage.getItem('preferredLanguage')).toBeNull();
+    expect(listener).toHaveBeenCalledWith('en');
+  });
+
+  it('does not override an explicit stored language when soft-seeding', () => {
+    setPreferredLanguage('ja');
+
+    seedPreferredLanguageIfUnset('en');
 
     expect(getPreferredLanguage()).toBe('ja');
   });

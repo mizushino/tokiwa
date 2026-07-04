@@ -1,6 +1,5 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { createRef, ref } from 'lit/directives/ref.js';
 import { track } from 'lit-async';
 
 import { cardHeading, PageElement, pageCard, pageContainer, pageHero } from '@app/page';
@@ -9,6 +8,7 @@ import { SampleDocument } from '@models/sample';
 import pageMetadata from './page.json';
 
 import '@components/ui/button/ui-button';
+import '@components/ui/input/ui-input';
 
 @customElement('default-firestore')
 export class DefaultFirestore extends PageElement {
@@ -17,20 +17,22 @@ export class DefaultFirestore extends PageElement {
   @state()
   private loadResult = '';
 
-  protected readonly inputRef = createRef<HTMLInputElement>();
+  @state()
+  private nameInput = '';
+
   protected readonly sampleDocument = new SampleDocument({ id: 'sample' });
 
   protected override renderContents(): TemplateResult {
     return pageContainer(html`
       ${pageHero({
-        title: 'Firestore',
-        description: 'A sample of real-time data synchronization and direct access.',
+        title: this.trans('hero_title'),
+        description: this.trans('hero_desc'),
         accent: 'warning',
       })}
       ${pageCard(html`
         ${cardHeading({
-          title: 'Firestore Operations',
-          description: 'Access Firestore directly from the client to save and load data.',
+          title: this.trans('operations_title'),
+          description: this.trans('operations_desc'),
           accent: 'warning',
           icon: html`
             <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,19 +46,19 @@ export class DefaultFirestore extends PageElement {
           `,
         })}
         <div class="space-y-4">
-          <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-            <input
-              ${ref(this.inputRef)}
-              id="name-input"
-              placeholder="Enter a name..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
+          <ui-input
+            inputId="name-input"
+            label=${this.trans('name')}
+            placeholder=${this.trans('name_placeholder')}
+            .value=${this.nameInput}
+            @input=${(event: CustomEvent<{ value: string }>) => {
+              this.nameInput = event.detail.value;
+            }}
+          ></ui-input>
 
           <div class="flex gap-2">
-            <ui-button variant="primary" @click=${this.save}>Save</ui-button>
-            <ui-button variant="secondary" @click=${this.load}>Load</ui-button>
+            <ui-button variant="primary" @click=${this.save}>${this.trans('save')}</ui-button>
+            <ui-button variant="secondary" @click=${this.load}>${this.trans('load')}</ui-button>
           </div>
 
           ${this.loadResult
@@ -64,7 +66,9 @@ export class DefaultFirestore extends PageElement {
                 <div
                   class="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
                 >
-                  <span class="text-sm text-gray-600 dark:text-gray-300">Load result: ${this.loadResult}</span>
+                  <span class="text-sm text-gray-600 dark:text-gray-300"
+                    >${this.trans('load_result')}: ${this.loadResult}</span
+                  >
                 </div>
               `
             : ''}
@@ -72,8 +76,8 @@ export class DefaultFirestore extends PageElement {
       `)}
       ${pageCard(html`
         ${cardHeading({
-          title: 'Realtime Snapshot',
-          description: "Using lit-async's track() to reactively monitor Firestore snapshots.",
+          title: this.trans('snapshot_title'),
+          description: this.trans('snapshot_desc'),
           accent: 'success',
           icon: html`
             <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +89,7 @@ export class DefaultFirestore extends PageElement {
           class="flex min-h-20 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
         >
           <span class="font-medium text-success-600 dark:text-success-400">
-            ${track(this.sampleDocument.snapshot, (sample) => (sample ? sample.data.name : 'No data'))}
+            ${track(this.sampleDocument.snapshot, (sample) => (sample ? sample.data.name : this.trans('no_data')))}
           </span>
         </div>
       `)}
@@ -93,24 +97,21 @@ export class DefaultFirestore extends PageElement {
   }
 
   private async load(): Promise<void> {
-    this.loadResult = 'loading...';
+    this.loadResult = this.trans('loading');
     await this.sampleDocument.get();
     this.loadResult = this.sampleDocument.data.name;
   }
 
   private async save(): Promise<void> {
-    const inputElement = this.inputRef.value;
-    if (inputElement !== undefined) {
-      const updatedDocument = new SampleDocument(
-        { id: 'sample' },
-        {
-          ...(this.sampleDocument.exists ? this.sampleDocument.data : SampleDocument.defaultData),
-          name: inputElement.value,
-        }
-      );
-      await updatedDocument.save();
-      await this.sampleDocument.get();
-    }
+    const updatedDocument = new SampleDocument(
+      { id: 'sample' },
+      {
+        ...(this.sampleDocument.exists ? this.sampleDocument.data : SampleDocument.defaultData),
+        name: this.nameInput,
+      }
+    );
+    await updatedDocument.save();
+    await this.sampleDocument.get();
   }
 }
 
