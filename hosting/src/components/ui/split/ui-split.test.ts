@@ -95,4 +95,17 @@ describe('UiSplit', () => {
     expect(previousPanel.style.width).toBe('360px');
     expect(changes).toEqual([{ width: 360 }]);
   });
+
+  it('removes the fixed drag overlay if disconnected mid-drag', async () => {
+    await element.updateComplete;
+
+    const split = element as unknown as { startDrag: (x: number, y: number) => void };
+    const overlayCount = (): number => document.body.querySelectorAll('div[style*="9999"]').length;
+
+    split.startDrag(10, 10);
+    expect(overlayCount()).toBe(1);
+
+    element.remove();
+    expect(overlayCount()).toBe(0);
+  });
 });

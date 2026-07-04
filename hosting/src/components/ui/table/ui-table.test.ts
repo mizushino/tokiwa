@@ -79,6 +79,17 @@ describe('UiTable', () => {
     expect(cells?.[3].textContent?.trim()).toBe('Admin');
   });
 
+  it('applies defaultSort before the first render without a header click', async () => {
+    element.columns = sampleColumns as TableColumn[];
+    element.data = sampleData;
+    element.defaultSort = { key: 'id', direction: 'desc' };
+    await element.updateComplete;
+
+    // id desc → rows ordered 3, 2, 1.
+    const firstCell = element.querySelector('tbody tr td');
+    expect(firstCell?.textContent?.trim()).toBe('3');
+  });
+
   it('renders sortable column headers with sort indicator', async () => {
     element.columns = sampleColumns as TableColumn[];
     element.data = sampleData;

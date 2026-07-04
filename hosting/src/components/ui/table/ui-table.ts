@@ -1,4 +1,4 @@
-import { LitElement, css, html, type CSSResultGroup, type TemplateResult } from 'lit';
+import { LitElement, css, html, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
 import { tailwindCSS } from '@app/styles';
@@ -94,7 +94,12 @@ export class UiTable extends LitElement {
     }, obj);
   }
 
-  private applyDefaultSortIfNeeded(): void {
+  /**
+   * Apply the default sort before rendering. Doing this in willUpdate (rather
+   * than lazily inside a render-path getter) avoids mutating reactive state
+   * during render, which would schedule an extra update cycle.
+   */
+  protected override willUpdate(_changedProperties: PropertyValues): void {
     if (!this.defaultSortApplied && this.defaultSort && !this.sort) {
       this.sort = { ...this.defaultSort };
       this.defaultSortApplied = true;
@@ -102,7 +107,6 @@ export class UiTable extends LitElement {
   }
 
   private get filteredData(): unknown[] {
-    this.applyDefaultSortIfNeeded();
     if (!this.filter) return this.data;
 
     const searchTerm = this.filter.toLowerCase();
