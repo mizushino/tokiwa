@@ -53,6 +53,12 @@ describe('UiSidebar', () => {
     expect(customLogo.src).toBe('https://example.com/logo.png');
   });
 
+  it('exposes a footer actions slot for extra controls', async () => {
+    await element.updateComplete;
+    const actionsSlot = element.querySelector('slot[name="actions"]');
+    expect(actionsSlot).toBeTruthy();
+  });
+
   it('renders navigation items', async () => {
     const navItems: SidebarNavItem[] = [
       { label: 'Dashboard', href: '/dashboard', active: true },

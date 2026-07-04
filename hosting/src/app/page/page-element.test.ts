@@ -68,4 +68,14 @@ describe('PageElement i18n', () => {
 
     expect(greeting()).toBe('こんにちは');
   });
+
+  it('resolves trans() through page → global → code fallback', async () => {
+    await element.updateComplete;
+    const trans = (code: string): string => (element as unknown as { trans(code: string): string }).trans(code);
+
+    // Default language here is ja.
+    expect(trans('greeting')).toBe('こんにちは'); // page-level translation
+    expect(trans('cancel')).toBe('キャンセル'); // falls back to globalTranslations
+    expect(trans('__does_not_exist__')).toBe('__does_not_exist__'); // falls back to the code itself
+  });
 });
