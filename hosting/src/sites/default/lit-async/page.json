@@ -5,7 +5,7 @@
     "en": {
       "hero_desc": "lit-async is a lightweight collection of directives and decorators for handling asynchronous operations directly in your Lit templates without boilerplate.",
       "promise_desc": "Binds a Promise directly in the template. The template automatically updates when the Promise resolves.",
-      "loading_promise": "Loading promise…",
+      "loading_promise": "Loading promise...",
       "fetch_quote": "Fetch Next Quote",
       "generator_desc": "Binds an async generator. Re-renders reactively whenever a new value is yielded.",
       "seconds_elapsed": "seconds elapsed",
