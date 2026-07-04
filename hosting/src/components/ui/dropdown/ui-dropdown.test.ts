@@ -353,3 +353,120 @@ describe('UiDropdown', () => {
     spy.mockRestore();
   });
 });
+
+describe('UiDropdown keyboard navigation nested in a shadow root', () => {
+  // Mirrors real usage: the dropdown and its menu items live inside a host's
+  // shadow root, so document.activeElement resolves to the shadow host — not
+  // the focused menu item. The component must pierce shadow boundaries to know
+  // which item is focused, otherwise ArrowDown always snaps back to the first item.
+  let host: HTMLElement;
+  let dropdown: UiDropdown;
+
+  beforeEach(() => {
+    host = document.createElement('div');
+    document.body.appendChild(host);
+    const shadow = host.attachShadow({ mode: 'open' });
+
+    dropdown = document.createElement('ui-dropdown') as UiDropdown;
+
+    const trigger = document.createElement('button');
+    trigger.setAttribute('slot', 'trigger');
+    trigger.textContent = 'Options';
+    dropdown.appendChild(trigger);
+
+    const menu = document.createElement('div');
+    menu.setAttribute('slot', 'menu');
+    for (const label of ['Item 1', 'Item 2', 'Item 3']) {
+      const link = document.createElement('a');
+      link.href = '#';
+      link.textContent = label;
+      link.className = 'block px-4 py-2 text-sm';
+      menu.appendChild(link);
+    }
+    dropdown.appendChild(menu);
+
+    shadow.appendChild(dropdown);
+  });
+
+  afterEach(() => {
+    host.remove();
+  });
+
+  function items(): HTMLAnchorElement[] {
+    return Array.from(dropdown.querySelectorAll('a'));
+  }
+
+  function deepActiveElement(): Element | null {
+    let active: Element | null = document.activeElement;
+    while (active?.shadowRoot?.activeElement) {
+      active = active.shadowRoot.activeElement;
+    }
+    return active;
+  }
+
+  async function open(): Promise<void> {
+    await dropdown.updateComplete;
+    (dropdown.shadowRoot?.querySelector('[data-dropdown-trigger]') as HTMLElement).click();
+    await dropdown.updateComplete;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+
+  function pressArrowDown(): void {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+  }
+
+  it('advances one item on each ArrowDown (not stuck on the first)', async () => {
+    await open();
+    const [first, second, third] = items();
+    first.focus();
+    expect(deepActiveElement()).toBe(first);
+
+    pressArrowDown();
+    expect(deepActiveElement()).toBe(second);
+
+    pressArrowDown();
+    expect(deepActiveElement()).toBe(third);
+  });
+
+  it('wraps to the first item after the last on ArrowDown', async () => {
+    await open();
+    const [first, , third] = items();
+    third.focus();
+
+    pressArrowDown();
+    expect(deepActiveElement()).toBe(first);
+  });
+
+  it('moves backwards on ArrowUp', async () => {
+    await open();
+    const [, second, third] = items();
+    third.focus();
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true }));
+    expect(deepActiveElement()).toBe(second);
+  });
+
+  function menu(): HTMLElement {
+    return dropdown.shadowRoot?.querySelector('[data-dropdown-menu]') as HTMLElement;
+  }
+
+  it('stays open when clicking an item inside the menu (inside click not treated as outside)', async () => {
+    await open();
+    expect(menu().classList.contains('hidden')).toBe(false);
+
+    items()[0].click();
+    await dropdown.updateComplete;
+
+    expect(menu().classList.contains('hidden')).toBe(false);
+  });
+
+  it('closes when clicking truly outside the shadow-nested dropdown', async () => {
+    await open();
+    expect(menu().classList.contains('hidden')).toBe(false);
+
+    document.body.click();
+    await dropdown.updateComplete;
+
+    expect(menu().classList.contains('hidden')).toBe(true);
+  });
+});
