@@ -32,19 +32,24 @@ export class UiSplit extends LitElement {
     `,
   ];
 
-  @property({ type: String }) direction: 'horizontal' | 'vertical' = 'horizontal';
-  @property({ type: Number }) min?: number;
-  @property({ type: Number }) max?: number;
+  @property({ type: String })
+  direction: 'horizontal' | 'vertical' = 'horizontal';
 
-  protected isDragging = false;
-  protected parentRect: DOMRect | undefined;
-  protected startPrevSize = 0;
-  protected startMousePos = 0;
-  protected startMin?: number;
-  protected startMax?: number;
-  protected pendingSize: number | null = null;
+  @property({ type: Number })
+  min?: number;
 
-  protected readonly handleRef: Ref<HTMLDivElement> = createRef();
+  @property({ type: Number })
+  max?: number;
+
+  private isDragging = false;
+  private parentRect: DOMRect | undefined;
+  private startPrevSize = 0;
+  private startMousePos = 0;
+  private startMin?: number;
+  private startMax?: number;
+  private pendingSize: number | null = null;
+
+  private readonly handleRef: Ref<HTMLDivElement> = createRef();
 
   protected override render(): TemplateResult {
     const isVertical = this.direction === 'vertical';
@@ -105,7 +110,7 @@ export class UiSplit extends LitElement {
     `;
   }
 
-  protected onMouseDown(e: MouseEvent): void {
+  private onMouseDown(e: MouseEvent): void {
     if (e.buttons === 1) {
       this.startDrag(e.clientX, e.clientY);
       e.stopPropagation();
@@ -113,14 +118,14 @@ export class UiSplit extends LitElement {
     }
   }
 
-  protected onTouchStart = (e: TouchEvent): void => {
+  private onTouchStart = (e: TouchEvent): void => {
     const touch = e.touches[0];
     this.startDrag(touch.clientX, touch.clientY);
     e.stopPropagation();
     e.preventDefault();
   };
 
-  protected startDrag(clientX: number, clientY: number): void {
+  private startDrag(clientX: number, clientY: number): void {
     const handleElement = this.handleRef.value;
     const prevElement = this.previousElementSibling as HTMLElement;
     if (!handleElement || !prevElement) return;
@@ -141,9 +146,9 @@ export class UiSplit extends LitElement {
     handleElement.style.opacity = '0.75';
   }
 
-  protected dragOverlay: HTMLDivElement | null = null;
+  private dragOverlay: HTMLDivElement | null = null;
 
-  protected showDragOverlay(): void {
+  private showDragOverlay(): void {
     if (this.dragOverlay) return;
     this.dragOverlay = document.createElement('div');
     this.dragOverlay.style.cssText = `
@@ -155,20 +160,20 @@ export class UiSplit extends LitElement {
     document.body.appendChild(this.dragOverlay);
   }
 
-  protected hideDragOverlay(): void {
+  private hideDragOverlay(): void {
     if (this.dragOverlay) {
       this.dragOverlay.remove();
       this.dragOverlay = null;
     }
   }
 
-  protected onPointerUp = (): void => {
+  private onPointerUp = (): void => {
     if (this.isDragging) {
       this.finalizeDrag();
     }
   };
 
-  protected finalizeDrag(): void {
+  private finalizeDrag(): void {
     const handleElement = this.handleRef.value;
     const prevElement = this.previousElementSibling as HTMLElement;
 
@@ -196,7 +201,7 @@ export class UiSplit extends LitElement {
     }
   }
 
-  protected onDrag = (e: MouseEvent | TouchEvent | DragEvent): void => {
+  private onDrag = (e: MouseEvent | TouchEvent | DragEvent): void => {
     if (!this.isDragging) return;
 
     let clientX: number;

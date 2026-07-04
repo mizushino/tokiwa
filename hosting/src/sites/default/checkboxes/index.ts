@@ -7,8 +7,8 @@ import pageMetadata from './page.json';
 
 import '@components/ui/checkbox/ui-checkbox';
 
-@customElement('admin-checkboxes')
-export class AdminCheckboxes extends PageElement {
+@customElement('default-checkboxes')
+export class DefaultCheckboxes extends PageElement {
   protected pageMetadata = pageMetadata;
 
   @state()
@@ -105,8 +105,7 @@ export class AdminCheckboxes extends PageElement {
           <div class="text-sm text-gray-900 dark:text-white">
             <p class="font-semibold">Selected Options:</p>
             <ul class="mt-2 list-inside list-disc space-y-1 text-gray-600 dark:text-gray-400">
-              ${isChecked1 ? html`<li>Option 1</li>` : ''}
-              ${isChecked2 ? html`<li>Option 2</li>` : ''}
+              ${isChecked1 ? html`<li>Option 1</li>` : ''} ${isChecked2 ? html`<li>Option 2</li>` : ''}
               ${isChecked3 ? html`<li>Option 3</li>` : ''}
               ${!isChecked1 && !isChecked2 && !isChecked3 ? html`<li>None selected</li>` : ''}
             </ul>
@@ -184,6 +183,6 @@ export class AdminCheckboxes extends PageElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'admin-checkboxes': AdminCheckboxes;
+    'default-checkboxes': DefaultCheckboxes;
   }
 }

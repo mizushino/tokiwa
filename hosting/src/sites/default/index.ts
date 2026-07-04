@@ -11,6 +11,10 @@ import './counter';
 import './lit-async';
 import './firestore';
 import './functions';
+import './buttons';
+import './checkboxes';
+import './dropdown';
+import './modal';
 
 @customElement('default-index')
 export class DefaultIndex extends PageElement {
@@ -25,6 +29,10 @@ export class DefaultIndex extends PageElement {
       { path: 'lit-async/', render: () => html`<default-lit-async></default-lit-async>` },
       { path: 'firestore/', render: () => html`<default-firestore></default-firestore>` },
       { path: 'functions/', render: () => html`<default-functions></default-functions>` },
+      { path: 'buttons/', render: () => html`<default-buttons></default-buttons>` },
+      { path: 'checkboxes/', render: () => html`<default-checkboxes></default-checkboxes>` },
+      { path: 'dropdown/', render: () => html`<default-dropdown></default-dropdown>` },
+      { path: 'modal/', render: () => html`<default-modal></default-modal>` },
     ],
     { fallback: { render: () => html`` } }
   );
@@ -35,13 +43,17 @@ export class DefaultIndex extends PageElement {
         <h1 class="p-2">Example</h1>
         <div class="m-2 rounded border border-gray-300 p-4 dark:border-white/15">${this.routes.outlet()}</div>
         <hr class="border-gray-300 dark:border-white/15" />
-        <div class="p-2">
+        <div class="p-2 flex flex-wrap gap-2">
           <button ${navigate('/')}>[Top]</button>
           <button ${navigate('/helloworld/')}>[HelloWorld]</button>
           <button ${navigate('/counter/')}>[Counter]</button>
           <button ${navigate('/lit-async/')}>[Lit-Async]</button>
           <button ${navigate('/firestore/')}>[Firestore]</button>
           <button ${navigate('/functions/')}>[Functions]</button>
+          <button ${navigate('/buttons/')}>[Buttons]</button>
+          <button ${navigate('/checkboxes/')}>[Checkboxes]</button>
+          <button ${navigate('/dropdown/')}>[Dropdown]</button>
+          <button ${navigate('/modal/')}>[Modal]</button>
         </div>
       </div>
     `;

@@ -17,7 +17,6 @@ test.describe('Admin Site - Dashboard', () => {
     await waitForAdminShell(page);
     await expect(page.locator('a[href="/dashboard/"]')).toBeVisible();
     await expect(page.locator('a[href="/helloworld/"]')).toBeVisible();
-    await expect(page.locator('a[href="/buttons/"]')).toBeVisible();
   });
 
   test('displays user profile in sidebar', async ({ page }) => {
@@ -29,8 +28,8 @@ test.describe('Admin Site - Dashboard', () => {
   test('navigation between pages works', async ({ page }) => {
     await waitForAdminShell(page);
 
-    await page.click('a[href="/buttons/"]');
-    await expect(page).toHaveURL(/\/buttons\//);
+    await page.click('a[href="/helloworld/"]');
+    await expect(page).toHaveURL(/\/helloworld\//);
 
     await page.click('a[href="/dashboard/"]');
     await expect(page).toHaveURL(/\/dashboard\//);

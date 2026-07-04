@@ -1,4 +1,4 @@
-import { LitElement, type CSSResultGroup, html, type TemplateResult } from 'lit';
+import { LitElement, css, type CSSResultGroup, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 import { tailwindCSS } from '@app/styles';
@@ -23,12 +23,19 @@ export type CheckboxSize = 'sm' | 'md' | 'lg';
  */
 @customElement('ui-checkbox')
 export class UiCheckbox extends LitElement {
-  static override styles: CSSResultGroup = [tailwindCSS];
+  static override styles: CSSResultGroup = [
+    tailwindCSS,
+    css`
+      :host([disabled]) {
+        pointer-events: none;
+      }
+    `,
+  ];
 
   @property({ type: Boolean })
   checked = false;
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, reflect: true })
   disabled = false;
 
   @property({ type: Boolean })

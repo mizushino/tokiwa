@@ -67,7 +67,7 @@ describe('UiModal', () => {
     const confirmHandler = vi.fn();
     element.addEventListener('confirm', confirmHandler);
 
-    const buttons = element.querySelectorAll('button');
+    const buttons = element.querySelectorAll('ui-button');
     const confirmButton = Array.from(buttons).find((btn) => btn.textContent?.includes('Confirm'));
     confirmButton?.click();
     await element.updateComplete;
@@ -85,7 +85,7 @@ describe('UiModal', () => {
     const cancelHandler = vi.fn();
     element.addEventListener('cancel', cancelHandler);
 
-    const buttons = element.querySelectorAll('button');
+    const buttons = element.querySelectorAll('ui-button');
     const cancelButton = Array.from(buttons).find((btn) => btn.textContent?.includes('Cancel'));
     cancelButton?.click();
     await element.updateComplete;
@@ -100,7 +100,7 @@ describe('UiModal', () => {
     element.open = true;
     await element.updateComplete;
 
-    const buttons = element.querySelectorAll('button');
+    const buttons = element.querySelectorAll('ui-button');
     const buttonTexts = Array.from(buttons).map((btn) => btn.textContent?.trim());
 
     expect(buttonTexts).toContain('Delete');
@@ -167,6 +167,7 @@ describe('UiModal', () => {
     element.addEventListener('cancel', cancelHandler);
 
     const dialog = element.querySelector('dialog');
+    dialog?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
     dialog?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await element.updateComplete;
 
@@ -181,7 +182,7 @@ describe('UiModal', () => {
     const buttonClickHandler = vi.fn();
     element.addEventListener('button-click', buttonClickHandler);
 
-    const customButton = element.querySelector('button');
+    const customButton = element.querySelector('ui-button');
     customButton?.click();
 
     expect(buttonClickHandler).toHaveBeenCalledWith(

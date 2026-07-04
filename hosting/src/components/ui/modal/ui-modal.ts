@@ -6,6 +6,8 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { tailwindCSS } from '@app/styles';
 import { transition } from '@app/transition';
 
+import '../button/ui-button';
+
 /**
  * Icon type for modal
  */
@@ -106,6 +108,7 @@ export class UiModal extends LitElement {
 
   private readonly dialogRef = createRef<HTMLDialogElement>();
   private readonly inputRef = createRef<HTMLInputElement>();
+  private mouseDownTarget: EventTarget | null = null;
 
   protected override updated(changedProperties: Map<string, unknown>): void {
     if (changedProperties.has('open') && this.dialogRef.value) {
@@ -116,6 +119,10 @@ export class UiModal extends LitElement {
             this.inputRef.value?.focus();
           });
         }
+      } else {
+        setTimeout(() => {
+          this.dialogRef.value?.close();
+        }, 200);
       }
     }
   }
@@ -179,10 +186,15 @@ export class UiModal extends LitElement {
     this.handleCancel();
   }
 
+  private handleMouseDown(e: MouseEvent): void {
+    this.mouseDownTarget = e.target;
+  }
+
   private handleBackdropClick(e: MouseEvent): void {
-    if (e.target === this.dialogRef.value) {
+    if (e.target === this.dialogRef.value && this.mouseDownTarget === this.dialogRef.value) {
       this.handleCancel();
     }
+    this.mouseDownTarget = null;
   }
 
   private getSizeClasses(): string {
@@ -194,31 +206,20 @@ export class UiModal extends LitElement {
     return sizes[this.size];
   }
 
-  private getButtonVariantClasses(variant: 'primary' | 'secondary' | 'danger' = 'secondary'): string {
-    const variants = {
-      primary:
-        'inline-flex w-full justify-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-primary-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 sm:w-auto dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus-visible:outline-primary-500',
-      secondary:
-        'inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 sm:w-auto dark:bg-white/10 dark:text-white dark:inset-ring-white/10 dark:hover:bg-white/20',
-      danger:
-        'inline-flex w-full justify-center rounded-md bg-danger-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-danger-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger-600 sm:w-auto dark:bg-danger-500 dark:hover:bg-danger-400 dark:focus-visible:outline-danger-500',
-    };
-    return variants[variant];
-  }
-
   private renderButtons(): TemplateResult {
     if (this.buttons && this.buttons.length > 0) {
       return html`
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse sm:gap-2">
           ${this.buttons.map(
             (button, index) => html`
-              <button
+              <ui-button
                 type="button"
+                variant=${button.variant || 'secondary'}
                 @click=${() => this.handleButtonClick(button)}
-                class="${this.getButtonVariantClasses(button.variant)} ${index > 0 ? 'mt-3 sm:mt-0' : ''}"
+                class="${index > 0 ? 'mt-3 sm:mt-0' : ''} sm:w-auto w-full"
               >
                 ${button.label}
-              </button>
+              </ui-button>
             `
           )}
         </div>
@@ -226,21 +227,23 @@ export class UiModal extends LitElement {
     }
 
     return html`
-      <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-        <button
+      <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse sm:gap-2">
+        <ui-button
           type="button"
+          variant="primary"
           @click=${this.handleConfirm}
-          class="bg-primary-600 hover:bg-primary-500 focus-visible:outline-primary-600 dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus-visible:outline-primary-500 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 sm:ml-2 sm:w-auto"
+          class="sm:ml-2 sm:w-auto w-full"
         >
           ${this.confirmText}
-        </button>
-        <button
+        </ui-button>
+        <ui-button
           type="button"
+          variant="secondary"
           @click=${this.handleCancel}
-          class="focus-visible:outline-primary-600 mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-0 sm:w-auto dark:bg-white/10 dark:text-white dark:inset-ring-white/10 dark:hover:bg-white/20"
+          class="mt-3 sm:mt-0 sm:w-auto w-full"
         >
           ${this.cancelText}
-        </button>
+        </ui-button>
       </div>
     `;
   }
@@ -345,6 +348,7 @@ export class UiModal extends LitElement {
         ${ref(this.dialogRef)}
         @close=${this.handleDialogClose}
         @cancel=${this.handleDialogCancel}
+        @mousedown=${this.handleMouseDown}
         @click=${this.handleBackdropClick}
         class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto border-0 bg-transparent p-0"
       >

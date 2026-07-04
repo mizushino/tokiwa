@@ -8,8 +8,8 @@ import '@components/ui/modal/ui-modal';
 
 import pageMetadata from './page.json';
 
-@customElement('admin-modal')
-export class AdminModal extends PageElement {
+@customElement('default-modal')
+export class DefaultModal extends PageElement {
   protected pageMetadata = pageMetadata;
 
   @state()
@@ -157,6 +157,6 @@ export class AdminModal extends PageElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'admin-modal': AdminModal;
+    'default-modal': DefaultModal;
   }
 }

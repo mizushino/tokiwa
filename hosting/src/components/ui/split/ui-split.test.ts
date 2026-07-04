@@ -6,12 +6,6 @@ import { type UiSplit } from './ui-split';
 
 import './ui-split';
 
-type TestableUiSplit = UiSplit & {
-  isDragging: boolean;
-  pendingSize: number | null;
-  finalizeDrag(): void;
-};
-
 describe('UiSplit', () => {
   let container: HTMLDivElement;
   let parent: HTMLDivElement;
@@ -83,7 +77,11 @@ describe('UiSplit', () => {
   it('commits the pending width and emits a change event on finalize', async () => {
     await element.updateComplete;
 
-    const split = element as TestableUiSplit;
+    const split = element as unknown as {
+      isDragging: boolean;
+      pendingSize: number | null;
+      finalizeDrag: () => void;
+    };
     const changes: { width?: number; height?: number }[] = [];
 
     element.addEventListener('change', (event) => {

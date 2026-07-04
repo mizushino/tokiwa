@@ -8,8 +8,8 @@ import '@components/ui/button/ui-button';
 
 import pageMetadata from './page.json';
 
-@customElement('admin-dropdown')
-export class AdminDropdown extends PageElement {
+@customElement('default-dropdown')
+export class DefaultDropdown extends PageElement {
   protected pageMetadata = pageMetadata;
 
   private renderSection(title: string, description: string, content: TemplateResult): TemplateResult {
@@ -281,6 +281,6 @@ export class AdminDropdown extends PageElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'admin-dropdown': AdminDropdown;
+    'default-dropdown': DefaultDropdown;
   }
 }

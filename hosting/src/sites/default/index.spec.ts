@@ -37,6 +37,10 @@ test.describe('Default Site - Index', () => {
     await expect(page.locator('button:has-text("[Counter]")')).toBeVisible();
     await expect(page.locator('button:has-text("[Firestore]")')).toBeVisible();
     await expect(page.locator('button:has-text("[Functions]")')).toBeVisible();
+    await expect(page.locator('button:has-text("[Buttons]")')).toBeVisible();
+    await expect(page.locator('button:has-text("[Checkboxes]")')).toBeVisible();
+    await expect(page.locator('button:has-text("[Dropdown]")')).toBeVisible();
+    await expect(page.locator('button:has-text("[Modal]")')).toBeVisible();
   });
 
   test('navigation to HelloWorld works', async ({ page }) => {
@@ -65,6 +69,34 @@ test.describe('Default Site - Index', () => {
 
     await page.click('button:has-text("[Functions]")');
     await expect(page).toHaveURL(/\/functions\//);
+  });
+
+  test('navigation to Buttons works', async ({ page }) => {
+    await openIndex(page);
+
+    await page.click('button:has-text("[Buttons]")');
+    await expect(page).toHaveURL(/\/buttons\//);
+  });
+
+  test('navigation to Checkboxes works', async ({ page }) => {
+    await openIndex(page);
+
+    await page.click('button:has-text("[Checkboxes]")');
+    await expect(page).toHaveURL(/\/checkboxes\//);
+  });
+
+  test('navigation to Dropdown works', async ({ page }) => {
+    await openIndex(page);
+
+    await page.click('button:has-text("[Dropdown]")');
+    await expect(page).toHaveURL(/\/dropdown\//);
+  });
+
+  test('navigation to Modal works', async ({ page }) => {
+    await openIndex(page);
+
+    await page.click('button:has-text("[Modal]")');
+    await expect(page).toHaveURL(/\/modal\//);
   });
 
   test('navigation back to Top works', async ({ page }) => {

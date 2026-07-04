@@ -7,8 +7,8 @@ import pageMetadata from './page.json';
 
 import '@components/ui/button/ui-button';
 
-@customElement('admin-buttons')
-export class AdminButtons extends PageElement {
+@customElement('default-buttons')
+export class DefaultButtons extends PageElement {
   protected pageMetadata = pageMetadata;
 
   private renderSection(title: string, description: string, content: TemplateResult): TemplateResult {
@@ -201,6 +201,6 @@ export class AdminButtons extends PageElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'admin-buttons': AdminButtons;
+    'default-buttons': DefaultButtons;
   }
 }

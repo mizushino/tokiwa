@@ -15,10 +15,6 @@ import pageMetadata from './page.json';
 import '@components/ui/sidebar/ui-sidebar';
 import './login';
 import './helloworld';
-import './buttons';
-import './modal';
-import './checkboxes';
-import './dropdown';
 
 @customElement('admin-index')
 export class AdminIndex extends PageElement {
@@ -101,30 +97,6 @@ export class AdminIndex extends PageElement {
           return html`<admin-helloworld name="World"></admin-helloworld>`;
         },
       },
-      {
-        path: 'buttons/',
-        render: () => {
-          return html`<admin-buttons></admin-buttons>`;
-        },
-      },
-      {
-        path: 'modal/',
-        render: () => {
-          return html`<admin-modal></admin-modal>`;
-        },
-      },
-      {
-        path: 'checkboxes/',
-        render: () => {
-          return html`<admin-checkboxes></admin-checkboxes>`;
-        },
-      },
-      {
-        path: 'dropdown/',
-        render: () => {
-          return html`<admin-dropdown></admin-dropdown>`;
-        },
-      },
     ],
     {
       fallback: { render: () => html`<div class="text-white">Not Found</div>` },
@@ -133,10 +105,6 @@ export class AdminIndex extends PageElement {
 
   protected get navItems(): SidebarNavItem[] {
     return [
-      {
-        label: 'Samples',
-        divider: true,
-      },
       {
         label: 'Dashboard',
         href: '/dashboard/',
@@ -147,26 +115,6 @@ export class AdminIndex extends PageElement {
         label: 'Hello World',
         href: '/helloworld/',
         icon: html`<i class="fa-solid fa-globe py-0.5 text-xl"></i>`,
-      },
-      {
-        label: 'Buttons',
-        href: '/buttons/',
-        icon: html`<i class="fa-solid fa-cube py-0.5 text-xl"></i>`,
-      },
-      {
-        label: 'Modal',
-        href: '/modal/',
-        icon: html`<i class="fa-regular fa-window-restore py-0.5 text-xl"></i>`,
-      },
-      {
-        label: 'Checkboxes',
-        href: '/checkboxes/',
-        icon: html`<i class="fa-solid fa-check-square py-0.5 text-xl"></i>`,
-      },
-      {
-        label: 'Dropdown',
-        href: '/dropdown/',
-        icon: html`<i class="fa-solid fa-chevron-down py-0.5 text-xl"></i>`,
       },
     ];
   }

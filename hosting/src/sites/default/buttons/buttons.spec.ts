@@ -1,13 +1,7 @@
 import { expect, test } from '@playwright/test';
 
-import { loginAsAdmin } from '../test-utils';
-
-test.describe('Admin Site - Buttons', () => {
-  test.use({ baseURL: 'http://localhost:5174' });
-
-  test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
-  });
+test.describe('Default Site - Buttons', () => {
+  test.use({ baseURL: 'http://localhost:5173' });
 
   test('page loads successfully', async ({ page }) => {
     await page.goto('/buttons/', { waitUntil: 'domcontentloaded' });
@@ -49,11 +43,11 @@ test.describe('Admin Site - Buttons', () => {
     await expect(page.locator('text=XL:').first()).toBeVisible();
   });
 
-  test('navigation from sidebar works', async ({ page }) => {
+  test('navigation from footer works', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    await page.click('a[href="/buttons/"]');
+    await page.click('button:has-text("[Buttons]")');
 
     await expect(page).toHaveURL(/\/buttons\//);
     const heading = page.locator('h1:has-text("Button Components")');

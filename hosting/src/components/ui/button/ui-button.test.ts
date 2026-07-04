@@ -50,7 +50,7 @@ describe('UiButton', () => {
     element.variant = 'secondary';
     await element.updateComplete;
     const button = element.querySelector('button');
-    expect(button?.className).toContain('bg-secondary-600');
+    expect(button?.className).toContain('bg-white');
   });
 
   it('applies success variant classes', async () => {

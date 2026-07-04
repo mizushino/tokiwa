@@ -33,8 +33,15 @@ export class UiButton extends LitElement {
       :host {
         display: inline-flex;
       }
+      :host([disabled]),
+      :host([loading]) {
+        pointer-events: none;
+      }
       :host([fullwidth]) {
-        display: block;
+        display: flex;
+        width: 100%;
+      }
+      button {
         width: 100%;
       }
     `,
@@ -49,10 +56,10 @@ export class UiButton extends LitElement {
   @property({ type: String })
   type: 'button' | 'submit' | 'reset' = 'button';
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, reflect: true })
   disabled = false;
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, reflect: true })
   loading = false;
 
   @property({ type: Boolean, reflect: true })
@@ -69,7 +76,7 @@ export class UiButton extends LitElement {
       primary:
         'bg-primary-600 text-white hover:bg-primary-500 focus-visible:outline-primary-600 dark:bg-primary-500 dark:shadow-none dark:hover:bg-primary-400 dark:focus-visible:outline-primary-500',
       secondary:
-        'bg-secondary-600 text-white hover:bg-secondary-500 focus-visible:outline-secondary-600 dark:bg-secondary-500 dark:shadow-none dark:hover:bg-secondary-400 dark:focus-visible:outline-secondary-500',
+        'bg-white text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 focus-visible:outline-primary-600 dark:bg-white/10 dark:text-white dark:inset-ring-white/10 dark:hover:bg-white/20',
       success:
         'bg-success-600 text-white hover:bg-success-500 focus-visible:outline-success-600 dark:bg-success-500 dark:shadow-none dark:hover:bg-success-400 dark:focus-visible:outline-success-500',
       danger:
