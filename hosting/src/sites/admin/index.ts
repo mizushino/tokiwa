@@ -149,7 +149,7 @@ export class AdminIndex extends PageElement {
           class="block h-full w-72"
           .currentUser=${this.currentUser}
           .navItems=${this.navItems}
-          @userclick=${this.handleUserClick}
+          @user-click=${this.handleUserClick}
         >
           <svg
             slot="logo"

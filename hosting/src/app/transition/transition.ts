@@ -21,7 +21,7 @@ import type { ElementPart } from 'lit/directive.js';
  * ```
  */
 
-interface TransitionOptions {
+export interface TransitionOptions {
   enter?: string;
   enterFrom?: string;
   enterTo?: string;
@@ -29,6 +29,28 @@ interface TransitionOptions {
   leaveFrom?: string;
   leaveTo?: string;
 }
+
+/**
+ * Shared overlay transition presets used by the modal and dialog components
+ * so their open/close animations stay consistent.
+ */
+export const overlayBackdropTransition: TransitionOptions = {
+  enter: 'transition-opacity duration-300 ease-out',
+  enterFrom: 'opacity-0',
+  enterTo: 'opacity-100',
+  leave: 'transition-opacity duration-200 ease-in',
+  leaveFrom: 'opacity-100',
+  leaveTo: 'opacity-0',
+};
+
+export const overlayPanelTransition: TransitionOptions = {
+  enter: 'transition-all duration-300 ease-out',
+  enterFrom: 'translate-y-4 opacity-0 sm:scale-95',
+  enterTo: 'translate-y-0 opacity-100 sm:scale-100',
+  leave: 'transition-all duration-200 ease-in',
+  leaveFrom: 'translate-y-0 opacity-100 sm:scale-100',
+  leaveTo: 'translate-y-4 opacity-0 sm:scale-95',
+};
 
 export class TransitionDirective extends AsyncDirective {
   private element?: HTMLElement;

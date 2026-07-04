@@ -128,7 +128,7 @@ describe('UiSidebar', () => {
     expect(avatar.src).toContain('gravatar.com');
   });
 
-  it('emits userclick event when profile is clicked', async () => {
+  it('emits user-click event when profile is clicked', async () => {
     const mockUser = {
       displayName: 'Test User',
       email: 'test@example.com',
@@ -138,7 +138,7 @@ describe('UiSidebar', () => {
     await element.updateComplete;
 
     const eventHandler = vi.fn();
-    element.addEventListener('userclick', eventHandler);
+    element.addEventListener('user-click', eventHandler);
 
     const profileLink = element.querySelector('a[href="#"]') as HTMLAnchorElement;
     profileLink.click();

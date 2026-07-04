@@ -4,7 +4,7 @@ import { createRef, ref } from 'lit/directives/ref.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import { tailwindCSS } from '@app/styles';
-import { transition } from '@app/transition';
+import { overlayBackdropTransition, overlayPanelTransition, transition } from '@app/transition';
 
 import '../button/ui-button';
 
@@ -12,6 +12,11 @@ import '../button/ui-button';
  * Icon type for modal
  */
 export type ModalIcon = 'warning' | 'danger' | 'success' | 'info' | 'question';
+
+/**
+ * Size variant for modal
+ */
+export type ModalSize = 'sm' | 'md' | 'lg';
 
 /**
  * Button configuration for modal
@@ -88,7 +93,7 @@ export class UiModal extends LitElement {
   open = false;
 
   @property({ type: String })
-  size: 'sm' | 'md' | 'lg' = 'sm';
+  size: ModalSize = 'sm';
 
   /** Show input field for prompt dialogs */
   @property({ type: Boolean })
@@ -198,7 +203,7 @@ export class UiModal extends LitElement {
   }
 
   private getSizeClasses(): string {
-    const sizes: Record<typeof this.size, string> = {
+    const sizes: Record<ModalSize, string> = {
       sm: 'max-w-sm',
       md: 'max-w-md',
       lg: 'max-w-lg',
@@ -239,97 +244,46 @@ export class UiModal extends LitElement {
   }
 
   private getIconElement(): TemplateResult {
-    const iconClasses = 'mx-auto flex size-12 shrink-0 items-center justify-center rounded-full';
+    const wrapperClasses = 'mx-auto flex size-12 shrink-0 items-center justify-center rounded-full';
 
-    const icons: Record<ModalIcon, TemplateResult> = {
-      danger: html`
-        <div class="${iconClasses} bg-danger-100 dark:bg-danger-500/20">
-          <svg
-            class="text-danger-600 dark:text-danger-400 size-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-            />
-          </svg>
-        </div>
-      `,
-      warning: html`
-        <div class="${iconClasses} bg-warning-100 dark:bg-warning-500/20">
-          <svg
-            class="text-warning-600 dark:text-warning-400 size-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-            />
-          </svg>
-        </div>
-      `,
-      success: html`
-        <div class="${iconClasses} bg-success-100 dark:bg-success-500/20">
-          <svg
-            class="text-success-600 dark:text-success-400 size-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-            />
-          </svg>
-        </div>
-      `,
-      info: html`
-        <div class="${iconClasses} bg-primary-100 dark:bg-primary-500/20">
-          <svg
-            class="text-primary-600 dark:text-primary-400 size-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
-            />
-          </svg>
-        </div>
-      `,
-      question: html`
-        <div class="${iconClasses} bg-primary-100 dark:bg-primary-500/20">
-          <svg
-            class="text-primary-600 dark:text-primary-400 size-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"
-            />
-          </svg>
-        </div>
-      `,
+    // The danger and warning icons intentionally share the same triangle-exclamation glyph.
+    const alertPath =
+      'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z';
+
+    // Color classes are kept as complete literals so Tailwind's compiler can detect them.
+    const icons: Record<ModalIcon, { bg: string; text: string; path: string }> = {
+      danger: { bg: 'bg-danger-100 dark:bg-danger-500/20', text: 'text-danger-600 dark:text-danger-400', path: alertPath },
+      warning: {
+        bg: 'bg-warning-100 dark:bg-warning-500/20',
+        text: 'text-warning-600 dark:text-warning-400',
+        path: alertPath,
+      },
+      success: {
+        bg: 'bg-success-100 dark:bg-success-500/20',
+        text: 'text-success-600 dark:text-success-400',
+        path: 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+      },
+      info: {
+        bg: 'bg-primary-100 dark:bg-primary-500/20',
+        text: 'text-primary-600 dark:text-primary-400',
+        path: 'm11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z',
+      },
+      question: {
+        bg: 'bg-primary-100 dark:bg-primary-500/20',
+        text: 'text-primary-600 dark:text-primary-400',
+        path: 'M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z',
+      },
     };
 
-    return icons[this.icon];
+    const { bg, text, path } = icons[this.icon];
+
+    return html`
+      <div class="${wrapperClasses} ${bg}">
+        <svg class="${text} size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="${path}" />
+        </svg>
+      </div>
+    `;
   }
 
   protected override render(): TemplateResult {
@@ -343,27 +297,13 @@ export class UiModal extends LitElement {
         class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto border-0 bg-transparent p-0"
       >
         <div
-          ${transition(this.open ? 'enter' : 'leave', {
-            enter: 'transition-opacity duration-300 ease-out',
-            enterFrom: 'opacity-0',
-            enterTo: 'opacity-100',
-            leave: 'transition-opacity duration-200 ease-in',
-            leaveFrom: 'opacity-100',
-            leaveTo: 'opacity-0',
-          })}
+          ${transition(this.open ? 'enter' : 'leave', overlayBackdropTransition)}
           class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/50"
         ></div>
 
         <div class="flex min-h-full items-center justify-center p-4 text-center focus:outline-none sm:p-0">
           <div
-            ${transition(this.open ? 'enter' : 'leave', {
-              enter: 'transition-all duration-300 ease-out',
-              enterFrom: 'translate-y-4 opacity-0 sm:scale-95',
-              enterTo: 'translate-y-0 opacity-100 sm:scale-100',
-              leave: 'transition-all duration-200 ease-in',
-              leaveFrom: 'translate-y-0 opacity-100 sm:scale-100',
-              leaveTo: 'translate-y-4 opacity-0 sm:scale-95',
-            })}
+            ${transition(this.open ? 'enter' : 'leave', overlayPanelTransition)}
             class="${this.getSizeClasses()} relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10"
           >
             <div class="sm:flex sm:items-start">

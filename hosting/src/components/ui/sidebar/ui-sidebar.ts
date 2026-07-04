@@ -27,7 +27,7 @@ export interface SidebarNavItem {
  *   <ui-sidebar
  *     .currentUser=${user}
  *     .navItems=${items}
- *     @userclick=${this.handleUserClick}
+ *     @user-click=${this.handleUserClick}
  *   >
  *     <img slot="logo" src="/logo.svg" alt="Tokiwa" class="h-8" />
  *   </ui-sidebar>
@@ -35,7 +35,7 @@ export interface SidebarNavItem {
  * ```
  *
  * @slot logo - Branded content shown at the top of the sidebar.
- * @fires userclick - Fired when the current user profile section is pressed.
+ * @fires user-click - Fired when the current user profile section is pressed.
  */
 @customElement('ui-sidebar')
 export class UiSidebar extends LitElement {
@@ -49,7 +49,7 @@ export class UiSidebar extends LitElement {
 
   private handleUserClick(e: Event): void {
     e.preventDefault();
-    this.dispatchEvent(new CustomEvent('userclick', { bubbles: true, composed: true }));
+    this.dispatchEvent(new CustomEvent('user-click', { bubbles: true, composed: true }));
   }
 
   private async handleNavClick(e: Event, item: SidebarNavItem): Promise<void> {

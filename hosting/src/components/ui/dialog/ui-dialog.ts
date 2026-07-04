@@ -3,7 +3,12 @@ import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 
 import { tailwindCSS } from '@app/styles';
-import { transition } from '@app/transition';
+import { overlayBackdropTransition, overlayPanelTransition, transition } from '@app/transition';
+
+/**
+ * Size variant for dialog
+ */
+export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 /**
  * Dialog component using native HTML dialog element.
@@ -40,7 +45,7 @@ export class UiDialog extends LitElement {
   open = false;
 
   @property({ type: String })
-  size: 'sm' | 'md' | 'lg' | 'xl' | 'full' = 'md';
+  size: DialogSize = 'md';
 
   private readonly dialogRef = createRef<HTMLDialogElement>();
 
@@ -84,7 +89,7 @@ export class UiDialog extends LitElement {
   }
 
   private getSizeClasses(): string {
-    const sizes: Record<typeof this.size, string> = {
+    const sizes: Record<DialogSize, string> = {
       sm: 'max-w-sm',
       md: 'max-w-md',
       lg: 'max-w-lg',
@@ -104,27 +109,13 @@ export class UiDialog extends LitElement {
         class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto border-0 bg-transparent p-0"
       >
         <div
-          ${transition(this.open ? 'enter' : 'leave', {
-            enter: 'transition-opacity duration-300 ease-out',
-            enterFrom: 'opacity-0',
-            enterTo: 'opacity-100',
-            leave: 'transition-opacity duration-200 ease-in',
-            leaveFrom: 'opacity-100',
-            leaveTo: 'opacity-0',
-          })}
+          ${transition(this.open ? 'enter' : 'leave', overlayBackdropTransition)}
           class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/50"
         ></div>
 
         <div class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
           <div
-            ${transition(this.open ? 'enter' : 'leave', {
-              enter: 'transition-all duration-300 ease-out',
-              enterFrom: 'translate-y-4 opacity-0 sm:scale-95',
-              enterTo: 'translate-y-0 opacity-100 sm:scale-100',
-              leave: 'transition-all duration-200 ease-in',
-              leaveFrom: 'translate-y-0 opacity-100 sm:scale-100',
-              leaveTo: 'translate-y-4 opacity-0 sm:scale-95',
-            })}
+            ${transition(this.open ? 'enter' : 'leave', overlayPanelTransition)}
             class="${this.getSizeClasses()} relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10"
           >
             <div class="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
