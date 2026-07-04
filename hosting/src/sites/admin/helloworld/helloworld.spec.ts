@@ -13,7 +13,7 @@ test.describe('Admin Site - Hello World', () => {
     await page.goto('/helloworld/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    await expect(page).toHaveTitle('Hello, World!');
+    await expect(page).toHaveTitle(/Hello World/);
   });
 
   test('displays hello world message', async ({ page }) => {

@@ -1,10 +1,12 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { PageElement } from '@app/page';
+import { cardHeading, PageElement, pageCard, pageContainer, pageHero } from '@app/page';
 import { sample } from '@services/sample';
 
 import pageMetadata from './page.json';
+
+import '@components/ui/button/ui-button';
 
 @customElement('default-functions')
 export class DefaultFunctions extends PageElement {
@@ -25,87 +27,71 @@ export class DefaultFunctions extends PageElement {
   @state()
   private error = '';
 
+  private readonly inputClass =
+    'w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white';
+
   protected override renderContents(): TemplateResult {
-    return html`
-      <div class="mx-auto max-w-4xl space-y-6 p-4">
-        <div
-          class="relative overflow-hidden rounded-2xl bg-linear-to-r from-pink-600 to-rose-600 p-6 text-white shadow-xl"
-        >
-          <div class="absolute top-0 right-12 -translate-y-12 transform opacity-10">
-            <svg width="300" height="300" viewBox="0 0 100 100" fill="currentColor">
-              <polygon points="50,10 90,40 80,90 20,90 10,40" />
+    return pageContainer(html`
+      ${pageHero({
+        title: 'Functions',
+        description: 'A sample of calling Callable Functions.',
+        accent: 'danger',
+      })}
+      ${pageCard(html`
+        ${cardHeading({
+          title: 'Callable Function',
+          description: 'Calls a Firebase Cloud Functions Callable Function to update the Sample document.',
+          accent: 'danger',
+          icon: html`
+            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
-          </div>
-          <h1 class="text-3xl font-bold">Functions</h1>
-          <p class="mt-2 text-sm opacity-90">A sample of calling Callable Functions.</p>
-        </div>
-
-        <div
-          class="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
-        >
+          `,
+        })}
+        <div class="space-y-4">
           <div>
-            <div class="mb-3 flex items-center space-x-2">
-              <span class="rounded-lg bg-pink-100 p-2 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </span>
-              <h2 class="text-xl font-bold">Callable Function</h2>
-            </div>
-            <p class="mb-6 text-sm text-slate-500 dark:text-slate-400">
-              Calls a Firebase Cloud Functions Callable Function to update the Sample document.
-            </p>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">ID</label>
+            <input
+              class=${this.inputClass}
+              .value=${this.sampleId}
+              @input=${(event: Event) => {
+                this.sampleId = (event.target as HTMLInputElement).value;
+              }}
+            />
+          </div>
 
-            <div class="space-y-4">
-              <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">ID</label>
-                <input
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 transition-colors focus:border-pink-500 focus:ring-1 focus:ring-pink-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                  .value=${this.sampleId}
-                  @input=${(event: Event) => {
-                    this.sampleId = (event.target as HTMLInputElement).value;
-                  }}
-                />
-              </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+            <input
+              class=${this.inputClass}
+              .value=${this.name}
+              @input=${(event: Event) => {
+                this.name = (event.target as HTMLInputElement).value;
+              }}
+            />
+          </div>
 
-              <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Name</label>
-                <input
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 transition-colors focus:border-pink-500 focus:ring-1 focus:ring-pink-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                  .value=${this.name}
-                  @input=${(event: Event) => {
-                    this.name = (event.target as HTMLInputElement).value;
-                  }}
-                />
-              </div>
+          <ui-button variant="primary" ?loading=${this.isSubmitting} @click=${this.runSample}>
+            ${this.isSubmitting ? 'Running...' : 'Run Sample Function'}
+          </ui-button>
 
-              <button
-                class="cursor-pointer rounded-lg bg-pink-600 px-4 py-2 text-sm font-semibold text-white shadow transition-colors duration-150 hover:bg-pink-700 disabled:opacity-50"
-                ?disabled=${this.isSubmitting}
-                @click=${this.runSample}
-              >
-                ${this.isSubmitting ? 'Running...' : 'Run Sample Function'}
-              </button>
-
-              <div
-                class="flex min-h-20 items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/50"
-              >
-                ${this.result
-                  ? html`<span class="font-medium text-green-600 dark:text-green-400">${this.result}</span>`
-                  : this.error
-                    ? html`<span class="font-medium text-red-600 dark:text-red-400">Error: ${this.error}</span>`
-                    : html`<span class="text-sm text-slate-400">Result will appear here...</span>`}
-              </div>
-            </div>
+          <div
+            class="flex min-h-20 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
+          >
+            ${this.result
+              ? html`<span class="font-medium text-success-600 dark:text-success-400">${this.result}</span>`
+              : this.error
+                ? html`<span class="font-medium text-danger-600 dark:text-danger-400">Error: ${this.error}</span>`
+                : html`<span class="text-sm text-gray-400">Result will appear here...</span>`}
           </div>
         </div>
-      </div>
-    `;
+      `)}
+    `);
   }
 
   private async runSample(): Promise<void> {

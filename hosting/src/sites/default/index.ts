@@ -16,9 +16,29 @@ import './checkboxes';
 import './dropdown';
 import './modal';
 
+import '@components/ui/button/ui-button';
+
+interface NavItem {
+  label: string;
+  path: string;
+}
+
 @customElement('default-index')
 export class DefaultIndex extends PageElement {
   protected pageMetadata = pageMetadata;
+
+  private readonly navItems: NavItem[] = [
+    { label: 'Home', path: '/' },
+    { label: 'Hello World', path: '/helloworld/' },
+    { label: 'Counter', path: '/counter/' },
+    { label: 'Lit-Async', path: '/lit-async/' },
+    { label: 'Firestore', path: '/firestore/' },
+    { label: 'Functions', path: '/functions/' },
+    { label: 'Buttons', path: '/buttons/' },
+    { label: 'Checkboxes', path: '/checkboxes/' },
+    { label: 'Dropdown', path: '/dropdown/' },
+    { label: 'Modal', path: '/modal/' },
+  ];
 
   protected routes = new Routes(
     this,
@@ -37,24 +57,20 @@ export class DefaultIndex extends PageElement {
     { fallback: { render: () => html`` } }
   );
 
-  protected override render(): TemplateResult {
+  protected override renderContents(): TemplateResult {
     return html`
-      <div class="min-h-full w-full bg-white text-gray-900 dark:bg-gray-900 dark:text-white dark:scheme-dark">
-        <h1 class="p-2">Example</h1>
-        <div class="m-2 rounded border border-gray-300 p-4 dark:border-white/15">${this.routes.outlet()}</div>
-        <hr class="border-gray-300 dark:border-white/15" />
-        <div class="p-2 flex flex-wrap gap-2">
-          <button ${navigate('/')}>[Top]</button>
-          <button ${navigate('/helloworld/')}>[HelloWorld]</button>
-          <button ${navigate('/counter/')}>[Counter]</button>
-          <button ${navigate('/lit-async/')}>[Lit-Async]</button>
-          <button ${navigate('/firestore/')}>[Firestore]</button>
-          <button ${navigate('/functions/')}>[Functions]</button>
-          <button ${navigate('/buttons/')}>[Buttons]</button>
-          <button ${navigate('/checkboxes/')}>[Checkboxes]</button>
-          <button ${navigate('/dropdown/')}>[Dropdown]</button>
-          <button ${navigate('/modal/')}>[Modal]</button>
-        </div>
+      <div class="min-h-full w-full bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white dark:scheme-dark">
+        <header class="border-b border-gray-200 bg-white dark:border-white/10 dark:bg-gray-900">
+          <div class="mx-auto max-w-4xl px-4 py-4">
+            <h1 class="text-xl font-bold">Sample Site</h1>
+            <nav class="mt-3 flex flex-wrap gap-2">
+              ${this.navItems.map(
+                (item) => html`<ui-button size="sm" variant="soft" ${navigate(item.path)}>${item.label}</ui-button>`
+              )}
+            </nav>
+          </div>
+        </header>
+        <main>${this.routes.outlet()}</main>
       </div>
     `;
   }

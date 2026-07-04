@@ -22,8 +22,8 @@ test.describe('Admin Site - Login', () => {
   test('displays social login buttons', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.locator('button:has-text("Google")')).toBeVisible();
-    await expect(page.locator('button:has-text("X (Twitter)")')).toBeVisible();
+    await expect(page.locator('ui-button:has-text("Google")')).toBeVisible();
+    await expect(page.locator('ui-button:has-text("X (Twitter)")')).toBeVisible();
   });
 
   test('can login with email and password', async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe('Admin Site - Login', () => {
 
     await page.click('button[type="submit"]');
 
-    const errorMessage = page.locator('.bg-red-50, .dark\\:bg-red-900\\/20');
+    const errorMessage = page.locator('.bg-danger-50, .dark\\:bg-danger-900\\/20');
     await expect(errorMessage).toBeVisible();
     await expect(errorMessage).toContainText('メールアドレスまたはパスワードが正しくありません。');
   });
@@ -59,7 +59,7 @@ test.describe('Admin Site - Login', () => {
     const submitButton = page.locator('button[type="submit"]');
     await submitButton.click();
 
-    await expect(page.locator('.bg-red-50, .dark\\:bg-red-900\\/20')).toBeVisible();
+    await expect(page.locator('.bg-danger-50, .dark\\:bg-danger-900\\/20')).toBeVisible();
     await expect(submitButton).toBeEnabled();
     await expect(submitButton).toContainText('ログイン');
   });

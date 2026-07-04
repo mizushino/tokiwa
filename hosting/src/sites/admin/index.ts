@@ -13,6 +13,7 @@ import { subscribeToUserDocument } from '@models/user';
 import pageMetadata from './page.json';
 
 import '@components/ui/sidebar/ui-sidebar';
+import '@components/ui/button/ui-button';
 import './login';
 import './helloworld';
 
@@ -135,12 +136,7 @@ export class AdminIndex extends PageElement {
         <div class="text-center">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">アクセス権限がありません</h1>
           <p class="mt-2 text-gray-500 dark:text-gray-400">このページは管理者のみアクセス可能です。</p>
-          <button
-            @click=${this.handleUserClick}
-            class="bg-primary-600 hover:bg-primary-500 mt-4 rounded-md px-4 py-2 text-sm font-semibold text-white shadow-xs"
-          >
-            ログアウト
-          </button>
+          <ui-button class="mt-4" variant="primary" @click=${this.handleUserClick}>ログアウト</ui-button>
         </div>
       </div>
     `;

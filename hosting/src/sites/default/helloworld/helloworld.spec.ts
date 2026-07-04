@@ -18,9 +18,9 @@ test.describe('Default Site - Hello World', () => {
 
   test('navigation buttons work', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('button:has-text("[HelloWorld]")')).toBeVisible();
+    await expect(page.locator('ui-button:has-text("Hello World")')).toBeVisible();
 
-    await page.click('button:has-text("[HelloWorld]")');
+    await page.click('ui-button:has-text("Hello World")');
 
     await expect(page).toHaveURL(/\/helloworld\//);
     const heading = page.locator('h1:has-text("Hello, World!")');

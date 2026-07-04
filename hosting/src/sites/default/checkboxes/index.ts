@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { PageElement } from '@app/page';
+import { PageElement, pageCard, pageContainer, pageHero, pageSection } from '@app/page';
 
 import pageMetadata from './page.json';
 
@@ -21,38 +21,26 @@ export class DefaultCheckboxes extends PageElement {
     };
   }
 
-  private renderSection(title: string, description: string, content: TemplateResult): TemplateResult {
-    return html`
-      <div class="mb-12">
-        <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">${title}</h2>
-        <p class="mb-6 text-sm text-gray-600 dark:text-gray-400">${description}</p>
-        ${content}
-      </div>
-    `;
-  }
-
   private renderSizes(): TemplateResult {
     return html`
-      <div class="space-y-6">
-        <div class="space-y-4">
-          <div class="flex items-center gap-4">
-            <span class="w-20 text-sm text-gray-600 dark:text-gray-400">SM:</span>
-            <ui-checkbox size="sm">Small checkbox</ui-checkbox>
-            <ui-checkbox size="sm" checked>Small checked</ui-checkbox>
-            <ui-checkbox size="sm" disabled>Small disabled</ui-checkbox>
-          </div>
-          <div class="flex items-center gap-4">
-            <span class="w-20 text-sm text-gray-600 dark:text-gray-400">MD:</span>
-            <ui-checkbox size="md">Medium checkbox</ui-checkbox>
-            <ui-checkbox size="md" checked>Medium checked</ui-checkbox>
-            <ui-checkbox size="md" disabled>Medium disabled</ui-checkbox>
-          </div>
-          <div class="flex items-center gap-4">
-            <span class="w-20 text-sm text-gray-600 dark:text-gray-400">LG:</span>
-            <ui-checkbox size="lg">Large checkbox</ui-checkbox>
-            <ui-checkbox size="lg" checked>Large checked</ui-checkbox>
-            <ui-checkbox size="lg" disabled>Large disabled</ui-checkbox>
-          </div>
+      <div class="space-y-4">
+        <div class="flex items-center gap-4">
+          <span class="w-20 text-sm text-gray-600 dark:text-gray-400">SM:</span>
+          <ui-checkbox size="sm">Small checkbox</ui-checkbox>
+          <ui-checkbox size="sm" checked>Small checked</ui-checkbox>
+          <ui-checkbox size="sm" disabled>Small disabled</ui-checkbox>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="w-20 text-sm text-gray-600 dark:text-gray-400">MD:</span>
+          <ui-checkbox size="md">Medium checkbox</ui-checkbox>
+          <ui-checkbox size="md" checked>Medium checked</ui-checkbox>
+          <ui-checkbox size="md" disabled>Medium disabled</ui-checkbox>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="w-20 text-sm text-gray-600 dark:text-gray-400">LG:</span>
+          <ui-checkbox size="lg">Large checkbox</ui-checkbox>
+          <ui-checkbox size="lg" checked>Large checked</ui-checkbox>
+          <ui-checkbox size="lg" disabled>Large disabled</ui-checkbox>
         </div>
       </div>
     `;
@@ -118,16 +106,11 @@ export class DefaultCheckboxes extends PageElement {
   private renderUsageExamples(): TemplateResult {
     return html`
       <div class="space-y-6">
-        <div
-          class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
-        >
+        ${pageCard(html`
           <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Terms and Conditions</h3>
           <ui-checkbox>I agree to the terms and conditions</ui-checkbox>
-        </div>
-
-        <div
-          class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
-        >
+        `)}
+        ${pageCard(html`
           <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Notification Preferences</h3>
           <div class="space-y-3">
             <ui-checkbox checked>Email notifications</ui-checkbox>
@@ -135,49 +118,45 @@ export class DefaultCheckboxes extends PageElement {
             <ui-checkbox checked>SMS notifications</ui-checkbox>
             <ui-checkbox>Weekly digest</ui-checkbox>
           </div>
-        </div>
-
-        <div
-          class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
-        >
+        `)}
+        ${pageCard(html`
           <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Select Features</h3>
           <div class="space-y-3">
             <ui-checkbox size="lg" checked>Enable advanced features</ui-checkbox>
             <ui-checkbox size="lg">Enable beta features</ui-checkbox>
             <ui-checkbox size="lg">Enable experimental features</ui-checkbox>
           </div>
-        </div>
-
-        <div
-          class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
-        >
+        `)}
+        ${pageCard(html`
           <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Small Checkboxes</h3>
           <div class="space-y-2">
             <ui-checkbox size="sm">Remember me</ui-checkbox>
             <ui-checkbox size="sm">Keep me logged in</ui-checkbox>
             <ui-checkbox size="sm">Save my preferences</ui-checkbox>
           </div>
-        </div>
+        `)}
       </div>
     `;
   }
 
   protected override renderContents(): TemplateResult {
-    return html`
-      <div class="px-4 py-8 sm:px-6 lg:px-8">
-        <div class="mb-8">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Checkbox Components</h1>
-          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            A comprehensive showcase of checkbox sizes, states, and interactive examples.
-          </p>
-        </div>
-
-        ${this.renderSection('Sizes', 'Three checkbox sizes: small, medium, and large', this.renderSizes())}
-        ${this.renderSection('States', 'All available checkbox states', this.renderStates())}
-        ${this.renderSection('Interactive Example', 'Click checkboxes to see state updates', this.renderInteractive())}
-        ${this.renderSection('Usage Examples', 'Common checkbox usage patterns', this.renderUsageExamples())}
-      </div>
-    `;
+    return pageContainer(html`
+      ${pageHero({
+        title: 'Checkboxes',
+        description: 'A showcase of checkbox sizes, states, and interactive examples.',
+        accent: 'success',
+      })}
+      ${pageSection(
+        { title: 'Sizes', description: 'Three checkbox sizes: small, medium, and large' },
+        this.renderSizes()
+      )}
+      ${pageSection({ title: 'States', description: 'All available checkbox states' }, this.renderStates())}
+      ${pageSection(
+        { title: 'Interactive Example', description: 'Click checkboxes to see state updates' },
+        this.renderInteractive()
+      )}
+      ${pageSection({ title: 'Usage Examples', description: 'Common checkbox usage patterns' }, this.renderUsageExamples())}
+    `);
   }
 }
 

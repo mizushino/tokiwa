@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import { PageElement } from '@app/page';
+import { PageElement, pageCard, pageContainer, pageHero, pageSection } from '@app/page';
 
 import pageMetadata from './page.json';
 
@@ -10,16 +10,6 @@ import '@components/ui/button/ui-button';
 @customElement('default-buttons')
 export class DefaultButtons extends PageElement {
   protected pageMetadata = pageMetadata;
-
-  private renderSection(title: string, description: string, content: TemplateResult): TemplateResult {
-    return html`
-      <div class="mb-12">
-        <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">${title}</h2>
-        <p class="mb-6 text-sm text-gray-600 dark:text-gray-400">${description}</p>
-        ${content}
-      </div>
-    `;
-  }
 
   private renderVariants(): TemplateResult {
     return html`
@@ -131,19 +121,14 @@ export class DefaultButtons extends PageElement {
   private renderUsageExamples(): TemplateResult {
     return html`
       <div class="space-y-6">
-        <div
-          class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
-        >
+        ${pageCard(html`
           <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Form Actions</h3>
           <div class="flex justify-end gap-3">
             <ui-button variant="soft">Cancel</ui-button>
             <ui-button variant="primary">Save Changes</ui-button>
           </div>
-        </div>
-
-        <div
-          class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
-        >
+        `)}
+        ${pageCard(html`
           <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Confirmation Dialog</h3>
           <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Are you sure you want to delete this item? This action cannot be undone.
@@ -152,50 +137,46 @@ export class DefaultButtons extends PageElement {
             <ui-button variant="soft" fullWidth>Cancel</ui-button>
             <ui-button variant="danger" fullWidth>Delete</ui-button>
           </div>
-        </div>
-
-        <div
-          class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
-        >
+        `)}
+        ${pageCard(html`
           <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Button Group</h3>
           <div class="flex gap-2">
             <ui-button variant="soft" size="sm">View</ui-button>
             <ui-button variant="info" size="sm">Edit</ui-button>
             <ui-button variant="danger" size="sm">Delete</ui-button>
           </div>
-        </div>
-
-        <div
-          class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
-        >
+        `)}
+        ${pageCard(html`
           <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">Rounded Buttons</h3>
           <div class="flex gap-3">
             <ui-button variant="primary" size="md" rounded>Primary</ui-button>
             <ui-button variant="success" size="md" rounded>Success</ui-button>
             <ui-button variant="soft" size="md" rounded>Soft</ui-button>
           </div>
-        </div>
+        `)}
       </div>
     `;
   }
 
   protected override renderContents(): TemplateResult {
-    return html`
-      <div class="px-4 py-8 sm:px-6 lg:px-8">
-        <div class="mb-8">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Button Components</h1>
-          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            A comprehensive showcase of button variants, sizes, and states.
-          </p>
-        </div>
-
-        ${this.renderSection('Variants', 'All available button color variants', this.renderVariants())}
-        ${this.renderSection('Sizes', 'Five button sizes from XS to XL with full-width option', this.renderSizes())}
-        ${this.renderSection('Rounded', 'Full rounded buttons for all sizes', this.renderRounded())}
-        ${this.renderSection('States', 'Button states including disabled and loading', this.renderStates())}
-        ${this.renderSection('Usage Examples', 'Common button usage patterns', this.renderUsageExamples())}
-      </div>
-    `;
+    return pageContainer(html`
+      ${pageHero({
+        title: 'Buttons',
+        description: 'A showcase of button variants, sizes, and states.',
+        accent: 'primary',
+      })}
+      ${pageSection({ title: 'Variants', description: 'All available button color variants' }, this.renderVariants())}
+      ${pageSection(
+        { title: 'Sizes', description: 'Five button sizes from XS to XL with full-width option' },
+        this.renderSizes()
+      )}
+      ${pageSection({ title: 'Rounded', description: 'Full rounded buttons for all sizes' }, this.renderRounded())}
+      ${pageSection(
+        { title: 'States', description: 'Button states including disabled and loading' },
+        this.renderStates()
+      )}
+      ${pageSection({ title: 'Usage Examples', description: 'Common button usage patterns' }, this.renderUsageExamples())}
+    `);
   }
 }
 

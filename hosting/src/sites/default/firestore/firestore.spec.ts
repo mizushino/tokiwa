@@ -12,36 +12,29 @@ test.describe('Default Site - Firestore', () => {
   test('displays firestore UI elements', async ({ page }) => {
     await page.goto('/firestore/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.locator('input.border.border-black')).toBeVisible();
-    await expect(page.locator('button:has-text("[save]")')).toBeVisible();
-    await expect(page.locator('button:has-text("[load]")')).toBeVisible();
+    await expect(page.locator('#name-input')).toBeVisible();
+    await expect(page.locator('ui-button:has-text("Save")')).toBeVisible();
+    await expect(page.locator('ui-button:has-text("Load")')).toBeVisible();
   });
 
-  test('displays snapshot data', async ({ page }) => {
+  test('displays realtime snapshot section', async ({ page }) => {
     await page.goto('/firestore/', { waitUntil: 'domcontentloaded' });
 
-    await page.waitForSelector('text=snapshot(realtime)');
-
-    await expect(page.locator('text=snapshot(realtime)')).toBeVisible();
+    await expect(page.locator('h2:has-text("Realtime Snapshot")')).toBeVisible();
   });
 
-  test('load button shows loading state', async ({ page }) => {
+  test('load button shows result', async ({ page }) => {
     await page.goto('/firestore/', { waitUntil: 'domcontentloaded' });
 
-    const pageBody = page.locator('body');
-    const snapshot = page.locator('body');
-    const loadButton = page.locator('button:has-text("[load]")');
+    await page.click('ui-button:has-text("Load")');
 
-    await loadButton.click();
-
-    await expect(pageBody).toContainText('[load] => loading...');
-    await expect(snapshot).toContainText('snapshot(realtime) =>');
+    await expect(page.locator('text=Load result:')).toBeVisible();
   });
 
   test('can input text in the text field', async ({ page }) => {
     await page.goto('/firestore/', { waitUntil: 'domcontentloaded' });
 
-    const input = page.locator('input.border.border-black');
+    const input = page.locator('#name-input');
     await input.fill('Test Value');
 
     await expect(input).toHaveValue('Test Value');
@@ -50,9 +43,9 @@ test.describe('Default Site - Firestore', () => {
   test('navigation buttons work', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    await page.click('button:has-text("[Firestore]")');
+    await page.click('ui-button:has-text("Firestore")');
 
     await expect(page).toHaveURL(/\/firestore\//);
-    await expect(page.locator('button:has-text("[save]")')).toBeVisible();
+    await expect(page.locator('ui-button:has-text("Save")')).toBeVisible();
   });
 });

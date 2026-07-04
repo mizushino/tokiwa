@@ -7,7 +7,7 @@ test.describe('Default Site - Buttons', () => {
     await page.goto('/buttons/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    const heading = page.locator('h1:has-text("Button Components")');
+    const heading = page.locator('h1:has-text("Buttons")');
     await expect(heading).toBeVisible();
   });
 
@@ -47,10 +47,10 @@ test.describe('Default Site - Buttons', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
-    await page.click('button:has-text("[Buttons]")');
+    await page.click('ui-button:has-text("Buttons")');
 
     await expect(page).toHaveURL(/\/buttons\//);
-    const heading = page.locator('h1:has-text("Button Components")');
+    const heading = page.locator('h1:has-text("Buttons")');
     await expect(heading).toBeVisible();
   });
 });

@@ -55,7 +55,7 @@ test.describe('Default Site - Lit-Async', () => {
 
   test('navigation from index works', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const btnNav = page.locator('button:has-text("[Lit-Async]")');
+    const btnNav = page.locator('ui-button:has-text("Lit-Async")');
     await expect(btnNav).toBeVisible();
 
     await btnNav.click();

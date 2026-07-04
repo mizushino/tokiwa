@@ -1,25 +1,26 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import { PageElement } from '@app/page';
+import { PageElement, pageContainer, pageHero, pageSection } from '@app/page';
+
+import pageMetadata from './page.json';
 
 import '@components/ui/dropdown/ui-dropdown';
 import '@components/ui/button/ui-button';
-
-import pageMetadata from './page.json';
 
 @customElement('default-dropdown')
 export class DefaultDropdown extends PageElement {
   protected pageMetadata = pageMetadata;
 
-  private renderSection(title: string, description: string, content: TemplateResult): TemplateResult {
-    return html`
-      <div class="mb-12">
-        <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">${title}</h2>
-        <p class="mb-6 text-sm text-gray-600 dark:text-gray-400">${description}</p>
-        ${content}
-      </div>
-    `;
+  /** Renders a single dropdown menu link with consistent styling. */
+  private menuItem(
+    href: string,
+    label: string,
+    { size = 'md', danger = false }: { size?: 'sm' | 'md'; danger?: boolean } = {}
+  ): TemplateResult {
+    const padding = size === 'sm' ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm';
+    const color = danger ? 'text-danger-600 dark:text-danger-400' : 'text-gray-900 dark:text-white';
+    return html`<a href=${href} class="block ${padding} ${color} hover:bg-gray-50 dark:hover:bg-white/5">${label}</a>`;
   }
 
   private renderBasic(): TemplateResult {
@@ -28,27 +29,10 @@ export class DefaultDropdown extends PageElement {
         <ui-dropdown size="md">
           <ui-button slot="trigger" variant="primary">Options ▾</ui-button>
           <div slot="menu">
-            <a
-              href="#edit"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Edit</a
-            >
-            <a
-              href="#duplicate"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Duplicate</a
-            >
-            <a
-              href="#archive"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Archive</a
-            >
+            ${this.menuItem('#edit', 'Edit')} ${this.menuItem('#duplicate', 'Duplicate')}
+            ${this.menuItem('#archive', 'Archive')}
             <hr class="my-1 border-gray-200 dark:border-white/10" />
-            <a
-              href="#delete"
-              class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-50 dark:text-red-400 dark:hover:bg-white/5"
-              >Delete</a
-            >
+            ${this.menuItem('#delete', 'Delete', { danger: true })}
           </div>
         </ui-dropdown>
       </div>
@@ -61,63 +45,24 @@ export class DefaultDropdown extends PageElement {
         <ui-dropdown size="sm">
           <ui-button slot="trigger" variant="secondary" size="sm">Small ▾</ui-button>
           <div slot="menu">
-            <a
-              href="#item1"
-              class="block px-3 py-1.5 text-xs text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 1</a
-            >
-            <a
-              href="#item2"
-              class="block px-3 py-1.5 text-xs text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 2</a
-            >
-            <a
-              href="#item3"
-              class="block px-3 py-1.5 text-xs text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 3</a
-            >
+            ${this.menuItem('#item1', 'Item 1', { size: 'sm' })} ${this.menuItem('#item2', 'Item 2', { size: 'sm' })}
+            ${this.menuItem('#item3', 'Item 3', { size: 'sm' })}
           </div>
         </ui-dropdown>
 
         <ui-dropdown size="md">
           <ui-button slot="trigger" variant="secondary" size="md">Medium ▾</ui-button>
           <div slot="menu">
-            <a
-              href="#item1"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 1</a
-            >
-            <a
-              href="#item2"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 2</a
-            >
-            <a
-              href="#item3"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 3</a
-            >
+            ${this.menuItem('#item1', 'Item 1')} ${this.menuItem('#item2', 'Item 2')}
+            ${this.menuItem('#item3', 'Item 3')}
           </div>
         </ui-dropdown>
 
         <ui-dropdown size="lg">
           <ui-button slot="trigger" variant="secondary" size="lg">Large ▾</ui-button>
           <div slot="menu">
-            <a
-              href="#item1"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 1</a
-            >
-            <a
-              href="#item2"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 2</a
-            >
-            <a
-              href="#item3"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 3</a
-            >
+            ${this.menuItem('#item1', 'Item 1')} ${this.menuItem('#item2', 'Item 2')}
+            ${this.menuItem('#item3', 'Item 3')}
           </div>
         </ui-dropdown>
       </div>
@@ -129,34 +74,12 @@ export class DefaultDropdown extends PageElement {
       <div class="flex flex-wrap items-start gap-4">
         <ui-dropdown placement="bottom-start">
           <ui-button slot="trigger" variant="info">Bottom Start ▾</ui-button>
-          <div slot="menu">
-            <a
-              href="#item1"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 1</a
-            >
-            <a
-              href="#item2"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 2</a
-            >
-          </div>
+          <div slot="menu">${this.menuItem('#item1', 'Item 1')} ${this.menuItem('#item2', 'Item 2')}</div>
         </ui-dropdown>
 
         <ui-dropdown placement="bottom-end">
           <ui-button slot="trigger" variant="info">Bottom End ▾</ui-button>
-          <div slot="menu">
-            <a
-              href="#item1"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 1</a
-            >
-            <a
-              href="#item2"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Item 2</a
-            >
-          </div>
+          <div slot="menu">${this.menuItem('#item1', 'Item 1')} ${this.menuItem('#item2', 'Item 2')}</div>
         </ui-dropdown>
       </div>
     `;
@@ -167,91 +90,40 @@ export class DefaultDropdown extends PageElement {
       <div class="flex flex-wrap items-start gap-4">
         <ui-dropdown>
           <ui-button slot="trigger" variant="primary">Primary ▾</ui-button>
-          <div slot="menu">
-            <a
-              href="#save"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Save</a
-            >
-            <a
-              href="#save-as"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Save As...</a
-            >
-          </div>
+          <div slot="menu">${this.menuItem('#save', 'Save')} ${this.menuItem('#save-as', 'Save As...')}</div>
         </ui-dropdown>
 
         <ui-dropdown>
           <ui-button slot="trigger" variant="success">Success ▾</ui-button>
-          <div slot="menu">
-            <a
-              href="#approve"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Approve</a
-            >
-            <a
-              href="#publish"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Publish</a
-            >
-          </div>
+          <div slot="menu">${this.menuItem('#approve', 'Approve')} ${this.menuItem('#publish', 'Publish')}</div>
         </ui-dropdown>
 
         <ui-dropdown>
           <ui-button slot="trigger" variant="danger">Danger ▾</ui-button>
           <div slot="menu">
-            <a
-              href="#delete"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Delete</a
-            >
-            <a
-              href="#remove"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Remove</a
-            >
+            ${this.menuItem('#delete', 'Delete', { danger: true })}
+            ${this.menuItem('#remove', 'Remove', { danger: true })}
           </div>
         </ui-dropdown>
 
         <ui-dropdown>
           <ui-button slot="trigger" variant="soft">Soft ▾</ui-button>
-          <div slot="menu">
-            <a
-              href="#option1"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Option 1</a
-            >
-            <a
-              href="#option2"
-              class="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-white/5"
-              >Option 2</a
-            >
-          </div>
+          <div slot="menu">${this.menuItem('#option1', 'Option 1')} ${this.menuItem('#option2', 'Option 2')}</div>
         </ui-dropdown>
       </div>
     `;
   }
 
   private renderFeatures(): TemplateResult {
+    const kbd = 'rounded bg-info-100 px-1.5 py-0.5 font-mono text-xs dark:bg-info-800';
     return html`
-      <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-        <h3 class="mb-2 text-lg font-medium text-blue-900 dark:text-blue-200">Features</h3>
-        <ul class="list-inside list-disc space-y-1 text-sm text-blue-800 dark:text-blue-300">
+      <div class="rounded-lg bg-info-50 p-4 dark:bg-info-900/20">
+        <h3 class="mb-2 text-lg font-medium text-info-900 dark:text-info-200">Features</h3>
+        <ul class="list-inside list-disc space-y-1 text-sm text-info-800 dark:text-info-300">
           <li>Click outside to close</li>
-          <li>
-            Press <kbd class="rounded bg-blue-100 px-1.5 py-0.5 font-mono text-xs dark:bg-blue-800">Escape</kbd> to
-            close
-          </li>
-          <li>
-            Use <kbd class="rounded bg-blue-100 px-1.5 py-0.5 font-mono text-xs dark:bg-blue-800">↑</kbd> and
-            <kbd class="rounded bg-blue-100 px-1.5 py-0.5 font-mono text-xs dark:bg-blue-800">↓</kbd> arrow keys to
-            navigate menu items
-          </li>
-          <li>
-            Use <kbd class="rounded bg-blue-100 px-1.5 py-0.5 font-mono text-xs dark:bg-blue-800">Home</kbd> and
-            <kbd class="rounded bg-blue-100 px-1.5 py-0.5 font-mono text-xs dark:bg-blue-800">End</kbd> to jump to
-            first/last item
-          </li>
+          <li>Press <kbd class="${kbd}">Escape</kbd> to close</li>
+          <li>Use <kbd class="${kbd}">↑</kbd> and <kbd class="${kbd}">↓</kbd> arrow keys to navigate menu items</li>
+          <li>Use <kbd class="${kbd}">Home</kbd> and <kbd class="${kbd}">End</kbd> to jump to first/last item</li>
           <li>Smooth transition animations</li>
           <li>Accessible with ARIA attributes</li>
         </ul>
@@ -260,22 +132,24 @@ export class DefaultDropdown extends PageElement {
   }
 
   protected override renderContents(): TemplateResult {
-    return html`
-      <div class="px-4 py-8 sm:px-6 lg:px-8">
-        <div class="mb-8">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dropdown Components</h1>
-          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            A comprehensive showcase of dropdown menu components with various configurations.
-          </p>
-        </div>
-
-        ${this.renderSection('Basic', 'Standard dropdown menu with actions', this.renderBasic())}
-        ${this.renderSection('Sizes', 'Three dropdown sizes: small, medium, and large', this.renderSizes())}
-        ${this.renderSection('Placements', 'Control dropdown menu alignment', this.renderPlacements())}
-        ${this.renderSection('Button Variants', 'Dropdowns with different button styles', this.renderVariants())}
-        ${this.renderSection('Features', 'Keyboard navigation and accessibility', this.renderFeatures())}
-      </div>
-    `;
+    return pageContainer(html`
+      ${pageHero({
+        title: 'Dropdown',
+        description: 'A showcase of dropdown menu components with various configurations.',
+        accent: 'info',
+      })}
+      ${pageSection({ title: 'Basic', description: 'Standard dropdown menu with actions' }, this.renderBasic())}
+      ${pageSection(
+        { title: 'Sizes', description: 'Three dropdown sizes: small, medium, and large' },
+        this.renderSizes()
+      )}
+      ${pageSection({ title: 'Placements', description: 'Control dropdown menu alignment' }, this.renderPlacements())}
+      ${pageSection(
+        { title: 'Button Variants', description: 'Dropdowns with different button styles' },
+        this.renderVariants()
+      )}
+      ${pageSection({ title: 'Features', description: 'Keyboard navigation and accessibility' }, this.renderFeatures())}
+    `);
   }
 }
 
