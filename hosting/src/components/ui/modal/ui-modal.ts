@@ -314,9 +314,7 @@ export class UiModal extends LitElement {
                   <p
                     class="text-sm text-gray-500 dark:text-gray-400"
                     style="${this.useHtml ? '' : 'white-space: pre-wrap;'}"
-                  >
-                    ${this.useHtml ? unsafeHTML(this.message) : this.message}
-                  </p>
+                  >${this.useHtml ? unsafeHTML(this.message) : this.message}</p>
                 </div>
                 ${this.showInput
                   ? html`
