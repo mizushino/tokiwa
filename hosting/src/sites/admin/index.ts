@@ -150,7 +150,20 @@ export class AdminIndex extends PageElement {
           .currentUser=${this.currentUser}
           .navItems=${this.navItems}
           @userclick=${this.handleUserClick}
-        ></ui-sidebar>
+        >
+          <svg
+            slot="logo"
+            class="size-8 text-primary-500 dark:text-primary-400"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-label="Admin Panel"
+            role="img"
+          >
+            <path
+              d="M12 2 3 6.5v11L12 22l9-4.5v-11L12 2Zm0 2.3 6.5 3.25v.02L12 10.8 5.5 7.57v-.02L12 4.3ZM5 9.3l6 3v7.4l-6-3V9.3Zm14 0v7.4l-6 3v-7.4l6-3Z"
+            />
+          </svg>
+        </ui-sidebar>
         <div class="h-full w-full overflow-y-auto">${this.routes.outlet()}</div>
       </div>
     `;
