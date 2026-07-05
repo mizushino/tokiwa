@@ -12,7 +12,6 @@ import '@components/ui/button/ui-button';
 export class DefaultDropdown extends PageElement {
   protected pageMetadata = pageMetadata;
 
-  /** Renders a single dropdown menu link with consistent styling. */
   private menuItem(
     href: string,
     label: string,

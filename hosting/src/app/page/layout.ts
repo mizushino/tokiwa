@@ -1,17 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 
-/**
- * Semantic accent colors available from the Tailwind theme (see app/styles/tailwind.css).
- * Pages pick one accent to keep visual variety while staying within the design palette.
- */
 export type PageAccent = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
 
-/**
- * Full, literal Tailwind class strings per accent.
- *
- * These MUST be written out in full (not interpolated as `from-${accent}-500`) so the
- * Tailwind scanner can detect them at build time.
- */
 const HERO_GRADIENT: Record<PageAccent, string> = {
   primary: 'from-primary-500 to-primary-700',
   secondary: 'from-secondary-500 to-secondary-700',
@@ -38,13 +28,6 @@ export function pageContainer(content: unknown): TemplateResult {
   return html`<div class="mx-auto max-w-4xl space-y-6 p-4">${content}</div>`;
 }
 
-/**
- * Gradient hero header shown at the top of every page.
- *
- * @param title - Page title (rendered as the page's h1).
- * @param description - Optional supporting text.
- * @param accent - Semantic accent color for the gradient (defaults to `primary`).
- */
 export function pageHero({
   title,
   description,
@@ -62,9 +45,6 @@ export function pageHero({
   `;
 }
 
-/**
- * Card surface used to group related content on a page.
- */
 export function pageCard(content: unknown, extraClass = ''): TemplateResult {
   return html`
     <div
@@ -75,11 +55,6 @@ export function pageCard(content: unknown, extraClass = ''): TemplateResult {
   `;
 }
 
-/**
- * Standard card heading: an accent icon chip, a title, and an optional description.
- *
- * @param icon - Optional inline SVG rendered inside the accent chip.
- */
 export function cardHeading({
   title,
   description,
@@ -100,9 +75,6 @@ export function cardHeading({
   `;
 }
 
-/**
- * A labelled section used by the component-showcase pages.
- */
 export function pageSection(
   { title, description }: { title: string; description?: string },
   content: unknown

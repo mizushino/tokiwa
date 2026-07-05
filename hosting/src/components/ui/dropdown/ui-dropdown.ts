@@ -5,9 +5,6 @@ import { createRef, ref } from 'lit/directives/ref.js';
 import { tailwindCSS } from '@app/styles';
 import { transition } from '@app/transition';
 
-/**
- * Dropdown size type
- */
 export type DropdownSize = 'sm' | 'md' | 'lg';
 
 /**
@@ -47,11 +44,6 @@ export class UiDropdown extends LitElement {
   private readonly triggerSlotRef = createRef<HTMLSlotElement>();
 
   private closeOnClickOutside = (event: MouseEvent): void => {
-    // Use composedPath() rather than contains(event.target): on a document-level
-    // listener event.target is retargeted to the outermost shadow host when the
-    // dropdown is nested in another component's shadow root, so contains() would
-    // report every click as "outside". composedPath() includes this host across
-    // shadow boundaries, correctly distinguishing inside from outside clicks.
     if (!event.composedPath().includes(this)) {
       this.close();
     }
@@ -135,14 +127,6 @@ export class UiDropdown extends LitElement {
     });
   }
 
-  /**
-   * Resolves the truly focused element, piercing shadow boundaries.
-   *
-   * `document.activeElement` only reports elements in the document's own tree;
-   * when the menu items live inside a shadow root (the common case, since the
-   * dropdown is used inside other components) it returns the shadow host, so we
-   * must drill down through nested `shadowRoot.activeElement` references.
-   */
   private getActiveElement(): Element | null {
     let active: Element | null = document.activeElement;
     while (active?.shadowRoot?.activeElement) {

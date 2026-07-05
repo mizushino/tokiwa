@@ -85,7 +85,6 @@ describe('UiTable', () => {
     element.defaultSort = { key: 'id', direction: 'desc' };
     await element.updateComplete;
 
-    // id desc → rows ordered 3, 2, 1.
     const firstCell = element.querySelector('tbody tr td');
     expect(firstCell?.textContent?.trim()).toBe('3');
   });

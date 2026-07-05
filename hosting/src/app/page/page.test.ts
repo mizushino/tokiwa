@@ -348,9 +348,7 @@ describe('Page', () => {
       testDiv.style.top = '1000px';
       document.body.appendChild(testDiv);
 
-      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('#test-anchor');
 
@@ -363,9 +361,7 @@ describe('Page', () => {
     it('handles internal navigation with history API', async () => {
       const originalPathname = window.location.pathname;
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('/test-page/');
 
@@ -379,9 +375,7 @@ describe('Page', () => {
     it('passes state to history API', async () => {
       const originalPathname = window.location.pathname;
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       const state = { from: 'test' };
       await Navigate.to('/test-page/', state);
@@ -394,9 +388,7 @@ describe('Page', () => {
     it('normalizes pathname with trailing slash', async () => {
       const originalPathname = window.location.pathname;
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('/test-page');
 
@@ -408,9 +400,7 @@ describe('Page', () => {
     it('normalizes pathname with query parameters', async () => {
       const originalPathname = window.location.pathname;
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('/test-page?foo=bar');
 
@@ -422,9 +412,7 @@ describe('Page', () => {
     it('normalizes pathname with hash', async () => {
       const originalPathname = window.location.pathname;
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('/test-page#section');
 
@@ -436,9 +424,7 @@ describe('Page', () => {
     it('normalizes pathname with both query and hash', async () => {
       const originalPathname = window.location.pathname;
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('/test-page?foo=bar#section');
 
@@ -452,9 +438,7 @@ describe('Page', () => {
       history.pushState(null, '', '/parent/current/');
 
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('./sibling/');
 
@@ -468,9 +452,7 @@ describe('Page', () => {
       history.pushState(null, '', '/parent/current/');
 
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('../sibling/');
 
@@ -484,9 +466,7 @@ describe('Page', () => {
       history.pushState(null, '', '/a/b/c/d/');
 
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('../../e/');
 
@@ -508,9 +488,7 @@ describe('Page', () => {
       testDiv.style.top = '1000px';
       document.body.appendChild(testDiv);
 
-      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('/another/');
 
@@ -527,9 +505,7 @@ describe('Page', () => {
       const originalHash = location.hash;
       location.hash = '';
 
-      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('/test/');
 
@@ -545,9 +521,7 @@ describe('Page', () => {
       const originalHash = location.hash;
       location.hash = '#nonexistent';
 
-      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('/test/');
 
@@ -562,9 +536,7 @@ describe('Page', () => {
 
       const originalPathname = window.location.pathname;
       const pushStateSpy = vi.spyOn(history, 'pushState');
-      vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* Mock scrollTo to prevent actual scrolling in tests */
-      });
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('/test/');
 
@@ -578,9 +550,7 @@ describe('Page', () => {
       const originalHash = location.hash;
       location.hash = '#missing-anchor';
 
-      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {
-        /* noop */
-      });
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
       await Navigate.to('#missing-anchor');
 

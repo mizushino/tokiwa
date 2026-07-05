@@ -55,7 +55,6 @@ describe('PageElement i18n', () => {
     await element.updateComplete;
 
     expect(greeting()).toBe('Hello');
-    // en has no title override, so it falls back to the top-level metadata title.
     expect(document.title).toBe('Test - EN');
   });
 
@@ -73,9 +72,8 @@ describe('PageElement i18n', () => {
     await element.updateComplete;
     const trans = (code: string): string => (element as unknown as { trans(code: string): string }).trans(code);
 
-    // Default language here is ja.
-    expect(trans('greeting')).toBe('こんにちは'); // page-level translation
-    expect(trans('cancel')).toBe('キャンセル'); // falls back to globalTranslations
-    expect(trans('__does_not_exist__')).toBe('__does_not_exist__'); // falls back to the code itself
+    expect(trans('greeting')).toBe('こんにちは');
+    expect(trans('cancel')).toBe('キャンセル');
+    expect(trans('__does_not_exist__')).toBe('__does_not_exist__');
   });
 });

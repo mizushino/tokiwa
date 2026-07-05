@@ -138,9 +138,6 @@ export const globalTranslations: Record<'en' | 'ja', Record<string, string>> = {
   },
 };
 
-/**
- * Resolve a shared translation without going through PageElement.
- */
 export function tGlobal(code: string, lang: 'en' | 'ja'): string {
   return globalTranslations[lang]?.[code] || code;
 }

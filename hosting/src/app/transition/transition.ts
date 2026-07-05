@@ -30,10 +30,6 @@ export interface TransitionOptions {
   leaveTo?: string;
 }
 
-/**
- * Shared overlay transition presets used by the modal and dialog components
- * so their open/close animations stay consistent.
- */
 export const overlayBackdropTransition: TransitionOptions = {
   enter: 'transition-opacity duration-300 ease-out',
   enterFrom: 'opacity-0',

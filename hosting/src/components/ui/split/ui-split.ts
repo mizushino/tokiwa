@@ -304,8 +304,6 @@ export class UiSplit extends LitElement {
     document.removeEventListener('mouseup', this.onPointerUp);
     document.removeEventListener('touchend', this.onPointerUp);
     document.removeEventListener('touchcancel', this.onPointerUp);
-    // Drop the fixed overlay appended to <body> if we are removed mid-drag,
-    // otherwise it would linger and block pointer events across the page.
     this.isDragging = false;
     this.hideDragOverlay();
   }

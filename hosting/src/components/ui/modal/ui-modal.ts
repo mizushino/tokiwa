@@ -8,19 +8,10 @@ import { overlayBackdropTransition, overlayPanelTransition, transition } from '@
 
 import '../button/ui-button';
 
-/**
- * Icon type for modal
- */
 export type ModalIcon = 'warning' | 'danger' | 'success' | 'info' | 'question';
 
-/**
- * Size variant for modal
- */
 export type ModalSize = 'sm' | 'md' | 'lg';
 
-/**
- * Button configuration for modal
- */
 export interface ModalButton {
   label: string;
   value?: string;
@@ -95,19 +86,15 @@ export class UiModal extends LitElement {
   @property({ type: String })
   size: ModalSize = 'sm';
 
-  /** Show input field for prompt dialogs */
   @property({ type: Boolean })
   showInput = false;
 
-  /** Current input value (two-way binding via input-change event) */
   @property({ type: String })
   inputValue = '';
 
-  /** Error message to display below input */
   @property({ type: String })
   inputError = '';
 
-  /** Use HTML rendering for message (for emphasis styling) */
   @property({ type: Boolean })
   useHtml = false;
 
@@ -246,11 +233,9 @@ export class UiModal extends LitElement {
   private getIconElement(): TemplateResult {
     const wrapperClasses = 'mx-auto flex size-12 shrink-0 items-center justify-center rounded-full';
 
-    // The danger and warning icons intentionally share the same triangle-exclamation glyph.
     const alertPath =
       'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z';
 
-    // Color classes are kept as complete literals so Tailwind's compiler can detect them.
     const icons: Record<ModalIcon, { bg: string; text: string; path: string }> = {
       danger: { bg: 'bg-danger-100 dark:bg-danger-500/20', text: 'text-danger-600 dark:text-danger-400', path: alertPath },
       warning: {

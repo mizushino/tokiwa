@@ -50,12 +50,6 @@ export class Navigate extends Directive {
     await Navigate.to(this._pathname);
   }).bind(this);
 
-  /**
-   * Navigate to the specified pathname.
-   *
-   * @param pathname - The path to navigate to (supports absolute, relative, hash, and external URLs)
-   * @param state - Optional state object to pass to history.pushState
-   */
   public static async to(pathname: string, state?: unknown): Promise<void> {
     if (Navigate.isExternalUrl(pathname)) {
       window.open(pathname, '_blank');
@@ -99,9 +93,6 @@ export class Navigate extends Directive {
     }
   }
 
-  /**
-   * Resolve relative paths (./path or ../path) to absolute paths.
-   */
   private static resolveRelativePath(pathname: string): string {
     if (!pathname.startsWith('.')) {
       return pathname;
@@ -125,10 +116,6 @@ export class Navigate extends Directive {
     return segments.join('/') + '/' + pathname;
   }
 
-  /**
-   * Check if the pathname is an external URL (http/https).
-   * Rejects dangerous schemes like javascript: and data:.
-   */
   private static isExternalUrl(pathname: string): boolean {
     try {
       const url = new URL(pathname, window.location.origin);
@@ -138,9 +125,6 @@ export class Navigate extends Directive {
     }
   }
 
-  /**
-   * Normalize pathname by removing query parameters and hash, and ensuring trailing slash.
-   */
   private static normalizePathname(pathname: string): string {
     const queryIndex = pathname.indexOf('?');
     const hashIndex = pathname.indexOf('#');
@@ -163,10 +147,6 @@ export class Navigate extends Directive {
     return path;
   }
 
-  /**
-   * Scroll to hash target after navigation if hash is present in URL.
-   * Waits for next animation frame to ensure DOM is rendered.
-   */
   private static async scrollToHashIfNeeded(): Promise<void> {
     if (!location.hash) {
       return;

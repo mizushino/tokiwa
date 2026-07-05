@@ -3,9 +3,6 @@ import { customElement, property } from 'lit/decorators.js';
 
 import { tailwindCSS } from '@app/styles';
 
-/**
- * Checkbox size type
- */
 export type CheckboxSize = 'sm' | 'md' | 'lg';
 
 /**

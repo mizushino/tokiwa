@@ -1,17 +1,9 @@
 import type { FirebaseApp } from 'firebase/app';
 import { connectFunctionsEmulator, getFunctions, httpsCallable, type Functions } from 'firebase/functions';
 
-/**
- * Global Firebase Functions instance.
- * Initialized by initializeFunctions().
- */
 export let firebaseFunctions: Functions;
 
-/**
- * Configuration options for Firebase Functions.
- */
 export interface FunctionsSettings {
-  /** Cloud Functions region (e.g., 'asia-northeast1') */
   region?: string;
 }
 
@@ -36,21 +28,6 @@ export function initializeFunctions(app: FirebaseApp, settings?: FunctionsSettin
   return firebaseFunctions;
 }
 
-/**
- * Create a callable function client.
- *
- * Returns a function that calls the specified Firebase Callable Function.
- * Errors are logged and null is returned on failure.
- *
- * @param name - Cloud Function name
- * @returns Function that calls the Cloud Function with typed request/response
- *
- * @example
- * ```ts
- * const myFunction = callFirebaseFunction<RequestType, ResponseType>('myFunction');
- * const result = await myFunction({ foo: 'bar' });
- * ```
- */
 export function callFirebaseFunction<T, U>(name: string): (data: T) => Promise<U | null> {
   return async (data: T) => {
     try {

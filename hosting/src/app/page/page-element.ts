@@ -5,9 +5,6 @@ import { tailwindCSS } from '@app/styles';
 
 import { Navigate } from './navigate';
 
-/**
- * Metadata for a page (title, description, etc.).
- */
 export interface PageMetadata {
   title?: string;
   description?: string;
@@ -44,19 +41,10 @@ export class PageElement extends LitElement {
     `,
   ];
 
-  /**
-   * Page metadata (title, description, OG tags).
-   * Import from page.json and assign in subclass.
-   */
   protected pageMetadata?: PageMetadata;
 
-  /** Unsubscribe handle for the preferred-language subscription. */
   private unsubscribeLanguage?: () => void;
 
-  /**
-   * Automatically set page metadata when component is connected to DOM and
-   * keep it (and the rendered content) in sync with the preferred language.
-   */
   public override connectedCallback(): void {
     super.connectedCallback();
 
@@ -78,10 +66,6 @@ export class PageElement extends LitElement {
     this.unsubscribeLanguage = undefined;
   }
 
-  /**
-   * Set page metadata (title, description, OG tags), localized to the preferred
-   * language when the page provides `title`/`description` translation keys.
-   */
   protected setPageMetadata(metadata: PageMetadata): void {
     const lang = getPreferredLanguage();
     const localized = (key: 'title' | 'description'): string =>
@@ -96,12 +80,6 @@ export class PageElement extends LitElement {
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
   }
 
-  /**
-   * Translate a code to the user's language using page metadata translations.
-   *
-   * @param code - The translation code
-   * @returns The translated string or the code if not found
-   */
   protected trans(code: string): string {
     const lang = getPreferredLanguage();
     const pageValue = this.pageMetadata?.translations?.[lang]?.[code];
@@ -110,12 +88,6 @@ export class PageElement extends LitElement {
     return globalValue ?? code;
   }
 
-  /**
-   * Navigate to the specified pathname.
-   *
-   * @param pathname - The path to navigate to
-   * @param state - Optional state object to pass to history.pushState
-   */
   protected async navigateTo(pathname: string, state?: unknown): Promise<void> {
     await Navigate.to(pathname, state);
   }

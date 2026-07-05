@@ -94,7 +94,6 @@ if (typeof window !== 'undefined') {
     }
   });
 
-  // Safari bfcache から復元された際にモジュール変数と localStorage の整合性が崩れるため
   window.addEventListener('pageshow', (event: PageTransitionEvent) => {
     if (event.persisted) {
       const stored = readFromStorage();

@@ -3,14 +3,8 @@ import { customElement, property } from 'lit/decorators.js';
 
 import { tailwindCSS } from '@app/styles';
 
-/**
- * Button variant type
- */
 export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'soft';
 
-/**
- * Button size type
- */
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**

@@ -94,7 +94,6 @@ describe('language preferences', () => {
     seedPreferredLanguageIfUnset('en');
 
     expect(getPreferredLanguage()).toBe('en');
-    // Soft seed must not persist, so an explicit choice can still win later.
     expect(window.localStorage.getItem('preferredLanguage')).toBeNull();
     expect(listener).toHaveBeenCalledWith('en');
   });

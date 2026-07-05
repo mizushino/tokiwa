@@ -5,9 +5,6 @@ import { createRef, ref } from 'lit/directives/ref.js';
 import { tailwindCSS } from '@app/styles';
 import { overlayBackdropTransition, overlayPanelTransition, transition } from '@app/transition';
 
-/**
- * Size variant for dialog
- */
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 /**

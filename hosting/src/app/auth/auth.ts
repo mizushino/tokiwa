@@ -20,10 +20,6 @@ import { seedPreferredLanguageFromUser } from '@app/i18n';
 
 export type { User } from 'firebase/auth';
 
-/**
- * ID token refresh interval in milliseconds.
- * Firebase ID tokens expire after 1 hour, so refresh at 55 minutes.
- */
 const TOKEN_REFRESH_INTERVAL = 55 * 60 * 1000;
 
 export type AuthErrorCode =
@@ -58,10 +54,6 @@ export interface FirebaseAuthSettings {
   popupRedirectResolver?: PopupRedirectResolver;
 }
 
-/**
- * Internal authentication state management.
- * Tracks the current user, loading state, and auto-refresh timer.
- */
 interface AuthState {
   auth?: Auth;
   resolver?: PopupRedirectResolver;
@@ -76,15 +68,8 @@ const state: AuthState = {
   currentUserValue: undefined,
 };
 
-/**
- * Set of listeners that get notified when the user changes.
- * Used by userSnapshot() to create an async stream of user changes.
- */
 const userListeners = new Set<(user: User | null) => void>();
 
-/**
- * Notifies all registered listeners about user state changes.
- */
 function notifyUserChange(user: User | null): void {
   state.currentUserValue = user;
   userListeners.forEach((listener) => listener(user));
@@ -137,13 +122,6 @@ function getResolver(): PopupRedirectResolver {
   return state.resolver;
 }
 
-/**
- * Handles Firebase Auth errors and converts them to custom AuthError.
- *
- * @param error - The error from Firebase Auth
- * @param specificErrorCodes - Firebase error codes to map to specificAuthError
- * @param specificAuthError - Custom error code to throw for specific Firebase errors
- */
 function handleAuthError(error: unknown, specificErrorCodes?: string[], specificAuthError?: AuthErrorCode): never {
   if (error && typeof error === 'object' && 'code' in error) {
     const firebaseError = error as { code: string };
@@ -180,15 +158,6 @@ function startAutoRefreshIdToken(): void {
   state.autoRefreshIdToken = setTimeout(() => refreshToken(), TOKEN_REFRESH_INTERVAL);
 }
 
-/**
- * Initializes Firebase Authentication with the specified settings.
- *
- * Sets up:
- * - Auth persistence (IndexedDB by default)
- * - Auth state change listener to notify userSnapshot() subscribers
- * - Automatic ID token refresh
- * - Redirect result handling for popup/redirect flows
- */
 export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuthSettings): void {
   const persistence = settings?.persistence || [indexedDBLocalPersistence, browserLocalPersistence];
   const resolver = settings?.popupRedirectResolver || browserPopupRedirectResolver;
@@ -325,12 +294,6 @@ export async function resetPassword(email: string): Promise<void> {
   }
 }
 
-/**
- * Waits for the initial auth state to be resolved.
- *
- * Useful when you need to know the user's auth state before rendering,
- * but prefer using userSnapshot() with lit-async track() for reactive updates.
- */
 export async function loadUser(): Promise<User | null> {
   const auth = getAuth();
 
@@ -354,10 +317,6 @@ export async function loadUser(): Promise<User | null> {
   return auth.currentUser;
 }
 
-/**
- * Gets the user's language preference from Firestore.
- * Returns 'ja' as default if not set or if user is not signed in.
- */
 export function destroy(): void {
   state.unsubscribeAuthStateChanged?.();
   stopAutoRefresh();

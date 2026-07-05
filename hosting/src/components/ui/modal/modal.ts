@@ -27,7 +27,7 @@ function open(icon: ModalIcon, title: string, message: string, buttons?: ModalBu
       if (!isResolved) {
         isResolved = true;
         isOpen = false;
-        renderModal(); // Re-render to trigger the close transition.
+        renderModal();
         setTimeout(() => {
           resolve(value);
           cleanup();
@@ -102,14 +102,6 @@ async function confirm(title: string, message?: string, icon?: 'question' | 'dan
   return !!result;
 }
 
-/**
- * Show a prompt dialog with optional validation.
- *
- * Usage:
- * ```ts
- * const value = await Modal.prompt('Project name', 'Enter a display name', 'question');
- * ```
- */
 async function prompt(
   title: string,
   message: string,
@@ -148,7 +140,7 @@ async function prompt(
 
       isResolved = true;
       isOpen = false;
-      renderModal(); // Re-render to trigger the close transition.
+      renderModal();
       setTimeout(() => {
         resolve(inputValue);
         cleanup();
@@ -159,7 +151,7 @@ async function prompt(
       if (!isResolved) {
         isResolved = true;
         isOpen = false;
-        renderModal(); // Re-render to trigger the close transition.
+        renderModal();
         setTimeout(() => {
           resolve(null);
           cleanup();
@@ -200,26 +192,6 @@ async function prompt(
   });
 }
 
-/**
- * Confirm dialog with keyword input verification.
- * User must type the exact keyword to enable the confirm button.
- *
- * @param title - Dialog title
- * @param message - Dialog message (can include HTML for emphasis)
- * @param keyword - The keyword user must type to confirm
- * @param variant - Color variant: 'danger' for red (revoke/delete), 'success' for green (grant/add)
- * @returns true if confirmed, false if cancelled
- *
- * Usage:
- * ```ts
- * const confirmed = await Modal.confirmWithInput(
- *   'Revoke access',
- *   '<span class="font-semibold text-gray-900 dark:text-white">Jane Doe</span> will have <span class="font-semibold text-danger-600 dark:text-danger-400">access revoked</span>.',
- *   'REVOKE',
- *   'danger'
- * );
- * ```
- */
 async function confirmWithInput(
   title: string,
   message: string,
@@ -251,7 +223,7 @@ async function confirmWithInput(
       }
       return null;
     },
-    true // Render the emphasized keyword as HTML.
+    true
   );
   return result !== null && normalizeKeyword(result) === normalizedKeyword;
 }

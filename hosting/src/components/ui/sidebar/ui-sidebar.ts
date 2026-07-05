@@ -6,9 +6,6 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { Navigate } from '@app/page';
 import { tailwindCSS } from '@app/styles';
 
-/**
- * Navigation item definition for the sidebar.
- */
 export interface SidebarNavItem {
   label: string;
   href?: string;

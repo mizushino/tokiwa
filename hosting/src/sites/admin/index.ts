@@ -24,21 +24,11 @@ export class AdminIndex extends PageElement {
 
   protected currentUser: User | null = null;
 
-  /**
-   * ユーザーが admin 権限を持っているかどうか
-   * undefined: 判定中, true: admin, false: 非admin
-   */
   @state()
   protected isAdmin: boolean | undefined = undefined;
 
-  /**
-   * 現在監視中のユーザーID
-   */
   private subscribedUid: string | null = null;
 
-  /**
-   * ユーザードキュメントのリアルタイム監視を停止する関数
-   */
   private unsubscribeUserDoc: Unsubscribe | null = null;
 
   public override disconnectedCallback(): void {
@@ -46,9 +36,6 @@ export class AdminIndex extends PageElement {
     this.stopUserDocSubscription();
   }
 
-  /**
-   * ユーザードキュメントの監視を停止
-   */
   private stopUserDocSubscription(): void {
     if (this.unsubscribeUserDoc) {
       this.unsubscribeUserDoc();
@@ -57,10 +44,6 @@ export class AdminIndex extends PageElement {
     }
   }
 
-  /**
-   * ユーザードキュメントのリアルタイム監視を開始
-   * admin フラグが変更されたら自動的に isAdmin を更新
-   */
   private startUserDocSubscription(uid: string): void {
     if (this.subscribedUid === uid && this.unsubscribeUserDoc) {
       return;
@@ -136,9 +119,6 @@ export class AdminIndex extends PageElement {
     this.requestUpdate();
   }
 
-  /**
-   * 非管理者用のアクセス拒否画面
-   */
   protected renderAccessDenied(): TemplateResult {
     return html`
       <div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">

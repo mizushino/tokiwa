@@ -355,10 +355,6 @@ describe('UiDropdown', () => {
 });
 
 describe('UiDropdown keyboard navigation nested in a shadow root', () => {
-  // Mirrors real usage: the dropdown and its menu items live inside a host's
-  // shadow root, so document.activeElement resolves to the shadow host — not
-  // the focused menu item. The component must pierce shadow boundaries to know
-  // which item is focused, otherwise ArrowDown always snaps back to the first item.
   let host: HTMLElement;
   let dropdown: UiDropdown;
 

@@ -3,33 +3,18 @@ import { customElement, property, state } from 'lit/decorators.js';
 
 import { tailwindCSS } from '@app/styles';
 
-/**
- * Column definition for the table.
- */
 export interface TableColumn<T = unknown> {
-  /** Column key (used for accessing data) */
   key: string;
-  /** Column header label */
   label: string;
-  /** Whether this column is sortable */
   sortable?: boolean;
-  /** Whether this column is searchable (default: true if no render function) */
   searchable?: boolean;
-  /** Custom cell renderer (optional) */
   render?: (row: T, key: string) => TemplateResult | string;
-  /** Column width class (optional) */
   width?: string;
-  /** Text alignment (default: 'left') */
   align?: 'left' | 'center' | 'right';
 }
 
-/**
- * Sort state for the table.
- */
 export interface TableSort {
-  /** Column key being sorted */
   key: string;
-  /** Sort direction */
   direction: 'asc' | 'desc';
 }
 
@@ -69,10 +54,6 @@ export class UiTable extends LitElement {
   @property({ type: Array })
   data: unknown[] = [];
 
-  /**
-   * Default sort configuration. Applied on first render.
-   * Example: { key: 'data.createdAt', direction: 'desc' }
-   */
   @property({ type: Object })
   defaultSort?: TableSort;
 
@@ -84,21 +65,12 @@ export class UiTable extends LitElement {
   @property({ type: String })
   filter = '';
 
-  /**
-   * Get nested property value using dot notation.
-   * Example: getNestedValue(user, 'profile.name') => user.profile.name
-   */
   private getNestedValue(obj: unknown, path: string): unknown {
     return path.split('.').reduce((current, key) => {
       return current && typeof current === 'object' ? (current as Record<string, unknown>)[key] : undefined;
     }, obj);
   }
 
-  /**
-   * Apply the default sort before rendering. Doing this in willUpdate (rather
-   * than lazily inside a render-path getter) avoids mutating reactive state
-   * during render, which would schedule an extra update cycle.
-   */
   protected override willUpdate(_changedProperties: PropertyValues): void {
     if (!this.defaultSortApplied && this.defaultSort && !this.sort) {
       this.sort = { ...this.defaultSort };

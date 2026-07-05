@@ -4,14 +4,8 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 
 import { tailwindCSS } from '@app/styles';
 
-/**
- * Input size type
- */
 export type InputSize = 'sm' | 'md' | 'lg';
 
-/**
- * Supported input types
- */
 export type InputType = 'text' | 'email' | 'password' | 'number' | 'search' | 'tel' | 'url';
 
 /**
@@ -63,7 +57,6 @@ export class UiInput extends LitElement {
   @property({ type: String })
   autocomplete = '';
 
-  /** Forwarded to the internal input's id so labels and tests can target it. */
   @property({ type: String })
   inputId = '';
 
@@ -77,8 +70,6 @@ export class UiInput extends LitElement {
   required = false;
 
   private handleInput(e: Event): void {
-    // The native input event is composed, so stop it to avoid a duplicate
-    // alongside the CustomEvent this component re-dispatches with a typed detail.
     e.stopPropagation();
     this.value = (e.target as HTMLInputElement).value;
     this.dispatchEvent(

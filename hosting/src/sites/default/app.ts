@@ -88,8 +88,6 @@ export class DefaultApp extends LitElement {
   public override connectedCallback(): void {
     super.connectedCallback();
 
-    // The public site defaults to English; the module-level default stays Japanese.
-    // A soft seed (no persistence) so an explicit user choice still wins.
     seedPreferredLanguageIfUnset('en');
 
     this.firebaseApp = initializeApp(this.firebaseConfig);
