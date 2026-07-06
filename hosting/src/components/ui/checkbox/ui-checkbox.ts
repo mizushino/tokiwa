@@ -47,7 +47,7 @@ export class UiCheckbox extends LitElement {
   @property({ type: String })
   value = '';
 
-  private handleChange(e: Event): void {
+  private handleChange = (e: Event): void => {
     const target = e.target as HTMLInputElement;
     this.checked = target.checked;
     this.indeterminate = false;
@@ -59,7 +59,7 @@ export class UiCheckbox extends LitElement {
         composed: true,
       })
     );
-  }
+  };
 
   private getSizeClasses(): string {
     const sizes: Record<CheckboxSize, string> = {

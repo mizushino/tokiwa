@@ -75,13 +75,13 @@ export class UiDropdown extends LitElement {
     this.removeEventListeners();
   }
 
-  private toggle(): void {
+  private toggle = (): void => {
     if (this.isOpen) {
       this.close();
     } else {
       this.open();
     }
-  }
+  };
 
   private open(): void {
     this.isOpen = true;

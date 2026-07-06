@@ -153,9 +153,9 @@ describe('UiSidebar', () => {
   });
 
   it('highlights active navigation item based on pathname', async () => {
-    const originalPathname = window.location.pathname;
+    const originalLocation = window.location;
     Object.defineProperty(window, 'location', {
-      value: { ...window.location, pathname: '/dashboard' },
+      value: Object.create(originalLocation, { pathname: { value: '/dashboard' } }) as Location,
       writable: true,
     });
 
@@ -175,7 +175,7 @@ describe('UiSidebar', () => {
     expect(activeLink.className).not.toBe(inactiveLink.className);
 
     Object.defineProperty(window, 'location', {
-      value: { ...window.location, pathname: originalPathname },
+      value: originalLocation,
       writable: true,
     });
   });

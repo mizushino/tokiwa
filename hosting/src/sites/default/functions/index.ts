@@ -88,7 +88,7 @@ export class DefaultFunctions extends PageElement {
     `);
   }
 
-  private async runSample(): Promise<void> {
+  private runSample = async (): Promise<void> => {
     this.isSubmitting = true;
     this.result = '';
     this.error = '';
@@ -103,7 +103,7 @@ export class DefaultFunctions extends PageElement {
     }
 
     this.result = `${response.id} / ${response.name} / count=${response.count}`;
-  }
+  };
 }
 
 declare global {

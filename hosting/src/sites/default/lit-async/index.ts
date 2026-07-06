@@ -39,7 +39,7 @@ export class DefaultLitAsync extends PageElement {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private reloadPromise(): void {
+  private reloadPromise = (): void => {
     this.promise = (async () => {
       await this.delay(1000);
       const randomQuotes = [
@@ -52,14 +52,14 @@ export class DefaultLitAsync extends PageElement {
       const randomIndex = Math.floor(Math.random() * randomQuotes.length);
       return randomQuotes[randomIndex];
     })();
-  }
+  };
 
-  private reloadSlowPromise(): void {
+  private reloadSlowPromise = (): void => {
     this.slowPromise = (async () => {
       await this.delay(2000);
       return 'Successfully loaded resource from simulated network!';
     })();
-  }
+  };
 
   private async *createCounterGenerator(): AsyncGenerator<number, void, unknown> {
     let count = 0;
@@ -69,18 +69,18 @@ export class DefaultLitAsync extends PageElement {
     }
   }
 
-  private startGenerator(): void {
+  private startGenerator = (): void => {
     if (this.isGeneratorRunning) return;
     this.isGeneratorRunning = true;
     this.counterGenerator = this.createCounterGenerator();
     this.requestUpdate();
-  }
+  };
 
-  private stopGenerator(): void {
+  private stopGenerator = (): void => {
     this.isGeneratorRunning = false;
     this.counterGenerator = null;
     this.requestUpdate();
-  }
+  };
 
   private renderPromiseCard(): TemplateResult {
     return pageCard(html`

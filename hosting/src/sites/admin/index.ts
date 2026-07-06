@@ -104,12 +104,12 @@ export class AdminIndex extends PageElement {
     ];
   }
 
-  private async handleUserClick(): Promise<void> {
+  private handleUserClick = async (): Promise<void> => {
     this.stopUserDocSubscription();
     await signOut();
     this.isAdmin = undefined;
     this.requestUpdate();
-  }
+  };
 
   protected renderAccessDenied(): TemplateResult {
     return html`

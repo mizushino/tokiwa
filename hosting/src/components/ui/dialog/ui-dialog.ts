@@ -64,7 +64,7 @@ export class UiDialog extends LitElement {
     }
   }
 
-  private handleDialogClose(): void {
+  private handleDialogClose = (): void => {
     this.open = false;
     this.dispatchEvent(
       new CustomEvent('close', {
@@ -72,18 +72,18 @@ export class UiDialog extends LitElement {
         composed: true,
       })
     );
-  }
+  };
 
-  private handleMouseDown(e: MouseEvent): void {
+  private handleMouseDown = (e: MouseEvent): void => {
     this.mouseDownTarget = e.target;
-  }
+  };
 
-  private handleBackdropClick(e: MouseEvent): void {
+  private handleBackdropClick = (e: MouseEvent): void => {
     if (e.target === this.dialog && this.mouseDownTarget === this.dialog) {
       this.handleDialogClose();
     }
     this.mouseDownTarget = null;
-  }
+  };
 
   private getSizeClasses(): string {
     const sizes: Record<DialogSize, string> = {

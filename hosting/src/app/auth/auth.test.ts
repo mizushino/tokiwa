@@ -46,6 +46,8 @@ describe('Auth', () => {
   let mockUser: User;
   let authStateListeners: ((user: User | null) => void)[];
   let currentUserValue: User | null;
+  let onAuthStateChangedMock: ReturnType<typeof vi.fn>;
+  let signOutMock: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -60,15 +62,18 @@ describe('Auth', () => {
       emailVerified: true,
     } as User;
 
+    onAuthStateChangedMock = vi.fn((callback: (user: User | null) => void) => {
+      authStateListeners.push(callback);
+      return vi.fn();
+    });
+    signOutMock = vi.fn().mockResolvedValue(undefined);
+
     mockAuth = {
       get currentUser() {
         return currentUserValue;
       },
-      onAuthStateChanged: vi.fn((callback) => {
-        authStateListeners.push(callback);
-        return vi.fn();
-      }),
-      signOut: vi.fn().mockResolvedValue(undefined),
+      onAuthStateChanged: onAuthStateChangedMock,
+      signOut: signOutMock,
     } as unknown as Auth;
 
     const { initializeAuth: initializeAuthMock } = await import('firebase/auth');
@@ -89,7 +94,7 @@ describe('Auth', () => {
 
       const { initializeAuth: initializeAuthMock } = await import('firebase/auth');
       expect(initializeAuthMock).toHaveBeenCalledWith(mockApp, expect.any(Object));
-      expect(mockAuth.onAuthStateChanged).toHaveBeenCalled();
+      expect(onAuthStateChangedMock).toHaveBeenCalled();
     });
 
     it('connects to emulator when emulatorUrl is provided', async () => {
@@ -104,7 +109,7 @@ describe('Auth', () => {
       const mockApp = {} as FirebaseApp;
       initializeAuth(mockApp);
 
-      expect(mockAuth.onAuthStateChanged).toHaveBeenCalledWith(expect.any(Function));
+      expect(onAuthStateChangedMock).toHaveBeenCalledWith(expect.any(Function));
     });
 
     it('handles redirect result with user', async () => {
@@ -258,7 +263,7 @@ describe('Auth', () => {
       await expect(signInWithEmail('test@example.com', 'password')).rejects.toMatchObject({
         code: AuthErrorCode.EmailNotVerified,
       });
-      expect(mockAuth.signOut).toHaveBeenCalled();
+      expect(signOutMock).toHaveBeenCalled();
     });
   });
 
@@ -338,14 +343,14 @@ describe('Auth', () => {
 
       await signOut();
 
-      expect(mockAuth.signOut).toHaveBeenCalled();
+      expect(signOutMock).toHaveBeenCalled();
     });
 
     it('throws LoginFailed on sign out error', async () => {
       const mockApp = {} as FirebaseApp;
       initializeAuth(mockApp);
 
-      (mockAuth.signOut as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Sign out failed'));
+      signOutMock.mockRejectedValue(new Error('Sign out failed'));
 
       await expect(signOut()).rejects.toMatchObject({
         code: AuthErrorCode.LoginFailed,

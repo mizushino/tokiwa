@@ -123,12 +123,12 @@ export class UiModal extends LitElement {
     }
   }
 
-  private handleInputChange(e: Event): void {
+  private handleInputChange = (e: Event): void => {
     // The ui-input `input` event bubbles out of this component as-is; just track the value.
     this.inputValue = (e as CustomEvent<{ value: string }>).detail.value;
-  }
+  };
 
-  private handleInputKeyDown(e: KeyboardEvent): void {
+  private handleInputKeyDown = (e: KeyboardEvent): void => {
     if (e.key === 'Enter') {
       this.dispatchEvent(
         new CustomEvent('confirm', {
@@ -137,7 +137,7 @@ export class UiModal extends LitElement {
         })
       );
     }
-  }
+  };
 
   private handleButtonClick(button: ModalButton): void {
     this.dispatchEvent(
@@ -149,43 +149,43 @@ export class UiModal extends LitElement {
     );
   }
 
-  private handleConfirm(): void {
+  private handleConfirm = (): void => {
     this.dispatchEvent(
       new CustomEvent('confirm', {
         bubbles: true,
         composed: true,
       })
     );
-  }
+  };
 
-  private handleCancel(): void {
+  private handleCancel = (): void => {
     this.dispatchEvent(
       new CustomEvent('cancel', {
         bubbles: true,
         composed: true,
       })
     );
-  }
+  };
 
-  private handleDialogClose(): void {
+  private handleDialogClose = (): void => {
     this.open = false;
-  }
+  };
 
-  private handleDialogCancel(e: Event): void {
+  private handleDialogCancel = (e: Event): void => {
     e.preventDefault();
     this.handleCancel();
-  }
+  };
 
-  private handleMouseDown(e: MouseEvent): void {
+  private handleMouseDown = (e: MouseEvent): void => {
     this.mouseDownTarget = e.target;
-  }
+  };
 
-  private handleBackdropClick(e: MouseEvent): void {
+  private handleBackdropClick = (e: MouseEvent): void => {
     if (e.target === this.dialogRef.value && this.mouseDownTarget === this.dialogRef.value) {
       this.handleCancel();
     }
     this.mouseDownTarget = null;
-  }
+  };
 
   private getSizeClasses(): string {
     const sizes: Record<ModalSize, string> = {

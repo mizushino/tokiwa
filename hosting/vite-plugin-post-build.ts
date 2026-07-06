@@ -45,7 +45,7 @@ interface PageConfig {
   title: string;
   description: string;
   robots?: string;
-  jsonld?: unknown | unknown[];
+  jsonld?: unknown;
 }
 
 /**

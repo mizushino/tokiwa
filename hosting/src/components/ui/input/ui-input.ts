@@ -69,7 +69,7 @@ export class UiInput extends LitElement {
   @property({ type: Boolean })
   required = false;
 
-  private handleInput(e: Event): void {
+  private handleInput = (e: Event): void => {
     e.stopPropagation();
     this.value = (e.target as HTMLInputElement).value;
     this.dispatchEvent(
@@ -79,9 +79,9 @@ export class UiInput extends LitElement {
         composed: true,
       })
     );
-  }
+  };
 
-  private handleChange(e: Event): void {
+  private handleChange = (e: Event): void => {
     e.stopPropagation();
     this.value = (e.target as HTMLInputElement).value;
     this.dispatchEvent(
@@ -91,7 +91,7 @@ export class UiInput extends LitElement {
         composed: true,
       })
     );
-  }
+  };
 
   private getSizeClasses(): string {
     const sizes: Record<InputSize, string> = {

@@ -94,13 +94,13 @@ export class DefaultFirestore extends PageElement {
     `);
   }
 
-  private async load(): Promise<void> {
+  private load = async (): Promise<void> => {
     this.loadResult = this.trans('loading');
     await this.sampleDocument.get();
     this.loadResult = this.sampleDocument.data.name;
-  }
+  };
 
-  private async save(): Promise<void> {
+  private save = async (): Promise<void> => {
     const updatedDocument = new SampleDocument(
       { id: 'sample' },
       {
@@ -110,7 +110,7 @@ export class DefaultFirestore extends PageElement {
     );
     await updatedDocument.save();
     await this.sampleDocument.get();
-  }
+  };
 }
 
 declare global {

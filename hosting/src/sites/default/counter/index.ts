@@ -54,17 +54,17 @@ export class DefaultCounter extends PageElement {
     `);
   }
 
-  protected increment(): void {
+  protected increment = (): void => {
     this.count++;
-  }
+  };
 
-  protected decrement(): void {
+  protected decrement = (): void => {
     this.count--;
-  }
+  };
 
-  protected reset(): void {
+  protected reset = (): void => {
     this.count = 0;
-  }
+  };
 }
 
 declare global {

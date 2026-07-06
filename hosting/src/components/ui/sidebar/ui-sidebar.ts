@@ -45,10 +45,10 @@ export class UiSidebar extends LitElement {
   @property({ type: Array })
   navItems: SidebarNavItem[] = [];
 
-  private handleUserClick(e: Event): void {
+  private handleUserClick = (e: Event): void => {
     e.preventDefault();
     this.dispatchEvent(new CustomEvent('user-click', { bubbles: true, composed: true }));
-  }
+  };
 
   private async handleNavClick(e: Event, item: SidebarNavItem): Promise<void> {
     if (item.href && item.href !== '#') {

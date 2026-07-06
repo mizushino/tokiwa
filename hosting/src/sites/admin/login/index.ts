@@ -33,7 +33,7 @@ export class AdminLogin extends PageElement {
     window.location.href = this.getRedirectUrl();
   }
 
-  private async handleSubmit(e: Event): Promise<void> {
+  private handleSubmit = async (e: Event): Promise<void> => {
     e.preventDefault();
 
     const form = e.target as HTMLFormElement;
@@ -56,9 +56,9 @@ export class AdminLogin extends PageElement {
     } finally {
       this.isLoading = false;
     }
-  }
+  };
 
-  private async handleGoogleLogin(): Promise<void> {
+  private handleGoogleLogin = async (): Promise<void> => {
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -75,9 +75,9 @@ export class AdminLogin extends PageElement {
     } finally {
       this.isLoading = false;
     }
-  }
+  };
 
-  private async handleTwitterLogin(): Promise<void> {
+  private handleTwitterLogin = async (): Promise<void> => {
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -94,7 +94,7 @@ export class AdminLogin extends PageElement {
     } finally {
       this.isLoading = false;
     }
-  }
+  };
 
   private getErrorMessage(code: AuthErrorCode): string {
     switch (code) {

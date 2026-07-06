@@ -113,13 +113,13 @@ export class UiSplit extends LitElement {
     `;
   }
 
-  private onMouseDown(e: MouseEvent): void {
+  private onMouseDown = (e: MouseEvent): void => {
     if (e.buttons === 1) {
       this.startDrag(e.clientX, e.clientY);
       e.stopPropagation();
       e.preventDefault();
     }
-  }
+  };
 
   private onTouchStart = (e: TouchEvent): void => {
     const touch = e.touches[0];

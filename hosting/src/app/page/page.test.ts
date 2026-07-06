@@ -69,13 +69,15 @@ declare global {
 describe('Page', () => {
   let container: HTMLElement;
   let mockRouter: Router;
+  let gotoMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
 
+    gotoMock = vi.fn().mockResolvedValue(undefined);
     mockRouter = {
-      goto: vi.fn().mockResolvedValue(undefined),
+      goto: gotoMock,
     } as unknown as Router;
     LitShare.set('router', mockRouter);
 
@@ -367,7 +369,7 @@ describe('Page', () => {
 
       expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/');
       expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
-      expect(mockRouter.goto).toHaveBeenCalledWith('/test-page/');
+      expect(gotoMock).toHaveBeenCalledWith('/test-page/');
 
       history.pushState(null, '', originalPathname);
     });

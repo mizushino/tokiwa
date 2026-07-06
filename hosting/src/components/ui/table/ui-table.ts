@@ -71,6 +71,12 @@ export class UiTable extends LitElement {
     }, obj);
   }
 
+  private stringifyValue(value: unknown): string {
+    if (value == null) return '';
+    if (typeof value === 'object') return JSON.stringify(value);
+    return String(value as string | number | bigint | boolean | symbol);
+  }
+
   protected override willUpdate(_changedProperties: PropertyValues): void {
     if (!this.defaultSortApplied && this.defaultSort && !this.sort) {
       this.sort = { ...this.defaultSort };
@@ -90,7 +96,7 @@ export class UiTable extends LitElement {
         const value = this.getNestedValue(row, column.key);
         if (value == null) return false;
 
-        return String(value).toLowerCase().includes(searchTerm);
+        return this.stringifyValue(value).toLowerCase().includes(searchTerm);
       });
     });
   }
@@ -183,7 +189,9 @@ export class UiTable extends LitElement {
         ? `py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap ${alignClass} text-gray-900 sm:pl-0 dark:text-white`
         : `px-3 py-4 text-sm whitespace-nowrap ${alignClass} text-gray-500 dark:text-gray-400`;
 
-    const value = column.render ? column.render(row, column.key) : this.getNestedValue(row, column.key);
+    const value = column.render
+      ? column.render(row, column.key)
+      : this.stringifyValue(this.getNestedValue(row, column.key));
 
     return html`<td class="${cellClasses}">${value}</td>`;
   }
