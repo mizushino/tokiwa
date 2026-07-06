@@ -32,7 +32,7 @@ Follow the **Conventional Commits** specification for all commit messages.
 ```
 feat: add user authentication with Firebase Auth
 fix: resolve memory leak in data subscription
-test: add E2E tests for Cloud Functions with 84% coverage
+test: add emulator tests for the user written trigger
 refactor: extract business logic from triggers for testability
 docs: update README with installation instructions
 chore: upgrade dependencies to latest versions

@@ -22,8 +22,6 @@ npm run e2e
 npm run e2e:ui
 ```
 
-Coverage is not exposed as a root script. Run it per package: `vp test run --coverage` under `hosting/`, or `npm run coverage` under `functions/`.
-
 ## Hosting Component Tests
 
 ### Current Setup
@@ -31,8 +29,6 @@ Coverage is not exposed as a root script. Run it per package: `vp test run --cov
 - Toolchain: vite-plus (`vp`); tests run through Vitest under the hood (`hosting/vitest.config.ts`)
 - Environment: happy-dom
 - Include pattern: `src/**/*.test.ts`
-- Coverage provider: v8
-- Per-file coverage thresholds: 80 for statements, branches, functions, and lines
 
 ### Running Tests
 
@@ -41,7 +37,6 @@ cd hosting
 
 npm run test          # vp test run
 npm run test:watch    # vp test
-vp test run --coverage
 ```
 
 ### File Placement
@@ -156,7 +151,6 @@ test.describe('Admin Site', () => {
 - Global setup: `functions/src/test-setup.ts`
 - Tests run through `firebase emulators:exec`
 - Vitest config root is pinned to `functions/` so test discovery is stable even when emulators run from `.artifacts/firebase`
-- Coverage thresholds are 80 per file
 
 ### Running Tests
 
@@ -164,9 +158,6 @@ test.describe('Admin Site', () => {
 cd functions
 
 npm run test
-npm run test:watch
-npm run test:ui
-npm run coverage
 ```
 
 Or from the repository root:

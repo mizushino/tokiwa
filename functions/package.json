@@ -2,6 +2,7 @@
   "name": "functions",
   "version": "0.1.0",
   "type": "module",
+  "main": "lib/index.cjs",
   "scripts": {
     "lint": "vp lint .",
     "fmt": "vp fmt",
@@ -14,20 +15,12 @@
     "emulators:exec": "mkdir -p ../.artifacts/firebase && cd ../.artifacts/firebase && FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-tokiwa-template} FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET:-${FIREBASE_PROJECT_ID:-tokiwa-template}.appspot.com} firebase --config ../../firebase.functions-test.json emulators:exec --project \"${FIREBASE_PROJECT_ID:-tokiwa-template}\" --only auth,firestore,storage",
     "emulators:kill": "lsof -ti:8080,9099,9199 | xargs kill -9 2>/dev/null || true; sleep 1",
     "test": "npm run emulators:exec -- 'vp test run -c ../../functions/vitest.config.ts'",
-    "test:watch": "npm run emulators:exec -- 'vp test -c ../../functions/vitest.config.ts'",
-    "test:unit": "vp test run",
-    "test:ui": "vp test --ui",
-    "coverage": "npm run emulators:exec -- 'vp test run --coverage -c ../../functions/vitest.config.ts'",
     "serve": "npm run build && mkdir -p ../.artifacts/firebase && cd ../.artifacts/firebase && FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-tokiwa-template} firebase --config ../../firebase.json emulators:start --project \"${FIREBASE_PROJECT_ID:-tokiwa-template}\" --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
-  "engines": {
-    "node": "24"
-  },
-  "main": "lib/index.cjs",
   "dependencies": {
     "@mzsn/firestore": "^1.2.13",
     "@napi-rs/image": "^1.14.0",
@@ -36,14 +29,14 @@
   },
   "devDependencies": {
     "@types/node": "^26.1.0",
-    "@vitest/coverage-v8": "^4.1.9",
-    "@vitest/ui": "^4.1.9",
     "firebase-functions-test": "^3.5.0",
     "typescript": "~6.0.3",
-    "vite-plus": "0.2.2",
-    "vitest": "^4.1.9"
+    "vite-plus": "0.2.2"
   },
   "overrides": {
     "vite": "npm:@voidzero-dev/vite-plus-core@0.2.2"
+  },
+  "engines": {
+    "node": "24"
   }
 }

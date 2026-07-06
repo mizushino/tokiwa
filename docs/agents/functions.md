@@ -230,6 +230,4 @@ Repository-level scripts are also available from the root:
 npm run test:functions
 ```
 
-For coverage, run `npm run coverage` from within `functions/`.
-
 See [Testing Guide](./testing.md#functions-testing) for test details.

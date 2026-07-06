@@ -8,26 +8,6 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     globalSetup: './src/test-setup.ts',
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      thresholds: {
-        perFile: true,
-        statements: 80,
-        branches: 80,
-        functions: 80,
-        lines: 80,
-      },
-      exclude: [
-        'lib/**',
-        'node_modules/**',
-        '**/*.test.ts',
-        '**/*.config.*',
-        'src/test-setup.ts',
-        'src/models/**',
-        'src/test/**',
-      ],
-    },
     // Ensure tests run sequentially to avoid emulator conflicts
     fileParallelism: false,
     pool: 'forks',

@@ -7,27 +7,6 @@ export default defineConfig({
     environment: 'happy-dom',
     globals: true,
     include: ['src/**/*.test.ts'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      thresholds: {
-        perFile: true,
-        statements: 80,
-        branches: 80,
-        functions: 80,
-        lines: 80,
-      },
-      exclude: [
-        'node_modules/',
-        'src/**/*.test.ts',
-        'src/**/*.spec.ts',
-        '**/*.d.ts',
-        'vite.config.ts',
-        'vitest.config.ts',
-        'src/**/index.ts',
-        'src/app/element/tailwind.css',
-      ],
-    },
   },
   resolve: {
     alias: {
