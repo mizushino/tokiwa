@@ -235,7 +235,11 @@ export class UiModal extends LitElement {
       'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z';
 
     const icons: Record<ModalIcon, { bg: string; text: string; path: string }> = {
-      danger: { bg: 'bg-danger-100 dark:bg-danger-500/20', text: 'text-danger-600 dark:text-danger-400', path: alertPath },
+      danger: {
+        bg: 'bg-danger-100 dark:bg-danger-500/20',
+        text: 'text-danger-600 dark:text-danger-400',
+        path: alertPath,
+      },
       warning: {
         bg: 'bg-warning-100 dark:bg-warning-500/20',
         text: 'text-warning-600 dark:text-warning-400',
@@ -294,9 +298,9 @@ export class UiModal extends LitElement {
               <div class="mt-3 w-full text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white">${this.title}</h3>
                 <div class="mt-2">
-                  <p
-                    class="text-sm text-gray-500 dark:text-gray-400 ${this.useHtml ? '' : 'whitespace-pre-wrap'}"
-                  >${this.useHtml ? unsafeHTML(this.message) : this.message}</p>
+                  <p class="${this.useHtml ? '' : 'whitespace-pre-wrap'} text-sm text-gray-500 dark:text-gray-400">
+                    ${this.useHtml ? unsafeHTML(this.message) : this.message}
+                  </p>
                 </div>
                 ${this.showInput
                   ? html`

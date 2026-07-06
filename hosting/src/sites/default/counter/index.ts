@@ -28,7 +28,12 @@ export class DefaultCounter extends PageElement {
           accent: 'primary',
           icon: html`
             <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 10h18M3 6h18M3 14h18M3 18h18"
+              />
             </svg>
           `,
         })}

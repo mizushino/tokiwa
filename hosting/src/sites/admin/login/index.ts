@@ -119,7 +119,7 @@ export class AdminLogin extends PageElement {
     return html`
       <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <div class="text-center">
-          <i class="fa-solid fa-cube dark:text-primary-400 text-primary-800 text-5xl"></i>
+          <i class="fa-solid fa-cube text-5xl text-primary-800 dark:text-primary-400"></i>
         </div>
         <h2 class="mt-6 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">
           ${this.trans('sign_in_title')}
@@ -131,7 +131,9 @@ export class AdminLogin extends PageElement {
   protected renderEmailField(): TemplateResult {
     return html`
       <div>
-        <label for="email" class="block text-sm/6 font-medium text-gray-900 dark:text-white">${this.trans('email')}</label>
+        <label for="email" class="block text-sm/6 font-medium text-gray-900 dark:text-white"
+          >${this.trans('email')}</label
+        >
         <div class="mt-2">
           <input id="email" type="email" name="email" required autocomplete="email" class=${this.inputClass} />
         </div>
@@ -142,7 +144,9 @@ export class AdminLogin extends PageElement {
   protected renderPasswordField(): TemplateResult {
     return html`
       <div>
-        <label for="password" class="block text-sm/6 font-medium text-gray-900 dark:text-white">${this.trans('password')}</label>
+        <label for="password" class="block text-sm/6 font-medium text-gray-900 dark:text-white"
+          >${this.trans('password')}</label
+        >
         <div class="mt-2">
           <input
             id="password"
@@ -166,7 +170,12 @@ export class AdminLogin extends PageElement {
       <div class="rounded-md bg-danger-50 p-4 dark:bg-danger-900/20">
         <div class="flex">
           <div class="shrink-0">
-            <svg class="size-5 text-danger-400 dark:text-danger-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <svg
+              class="size-5 text-danger-400 dark:text-danger-500"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
               <path
                 fill-rule="evenodd"
                 d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
@@ -195,7 +204,7 @@ export class AdminLogin extends PageElement {
         <button
           type="submit"
           ?disabled=${this.isLoading}
-          class="bg-primary-600 hover:bg-primary-500 focus-visible:outline-primary-600 dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus-visible:outline-primary-500 flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-none"
+          class="flex w-full justify-center rounded-md bg-primary-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-primary-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500 dark:shadow-none dark:hover:bg-primary-400 dark:focus-visible:outline-primary-500"
         >
           ${this.isLoading ? this.trans('logging_in') : this.trans('login')}
         </button>
@@ -208,7 +217,9 @@ export class AdminLogin extends PageElement {
       <div>
         <div class="mt-10 flex items-center gap-x-6">
           <div class="w-full flex-1 border-t border-gray-200 dark:border-white/10"></div>
-          <p class="text-sm/6 font-medium text-nowrap text-gray-900 dark:text-white">${this.trans('or_continue_with')}</p>
+          <p class="text-sm/6 font-medium text-nowrap text-gray-900 dark:text-white">
+            ${this.trans('or_continue_with')}
+          </p>
           <div class="w-full flex-1 border-t border-gray-200 dark:border-white/10"></div>
         </div>
 

@@ -69,7 +69,8 @@ export class DefaultIndex extends PageElement {
             </div>
             <nav class="mt-3 flex flex-wrap gap-2">
               ${this.navItems.map(
-                (item) => html`<ui-button size="sm" variant="soft" ${navigate(item.path)}>${this.trans(item.key)}</ui-button>`
+                (item) =>
+                  html`<ui-button size="sm" variant="soft" ${navigate(item.path)}>${this.trans(item.key)}</ui-button>`
               )}
             </nav>
           </div>

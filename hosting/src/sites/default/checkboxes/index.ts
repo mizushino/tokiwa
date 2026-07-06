@@ -112,7 +112,9 @@ export class DefaultCheckboxes extends PageElement {
           <ui-checkbox>${this.trans('terms_agree')}</ui-checkbox>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('notifications_title')}</h3>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">
+            ${this.trans('notifications_title')}
+          </h3>
           <div class="space-y-3">
             <ui-checkbox checked>${this.trans('email_notifications')}</ui-checkbox>
             <ui-checkbox>${this.trans('push_notifications')}</ui-checkbox>
@@ -129,7 +131,9 @@ export class DefaultCheckboxes extends PageElement {
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('small_checkboxes_title')}</h3>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">
+            ${this.trans('small_checkboxes_title')}
+          </h3>
           <div class="space-y-2">
             <ui-checkbox size="sm">${this.trans('remember_me')}</ui-checkbox>
             <ui-checkbox size="sm">${this.trans('keep_logged_in')}</ui-checkbox>
@@ -147,10 +151,7 @@ export class DefaultCheckboxes extends PageElement {
         description: this.trans('hero_desc'),
         accent: 'success',
       })}
-      ${pageSection(
-        { title: this.trans('sizes_title'), description: this.trans('sizes_desc') },
-        this.renderSizes()
-      )}
+      ${pageSection({ title: this.trans('sizes_title'), description: this.trans('sizes_desc') }, this.renderSizes())}
       ${pageSection({ title: this.trans('states_title'), description: this.trans('states_desc') }, this.renderStates())}
       ${pageSection(
         { title: this.trans('interactive_title'), description: this.trans('interactive_desc') },

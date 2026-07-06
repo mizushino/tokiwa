@@ -13,6 +13,7 @@
     "prod": "npm -w hosting run dev -- --mode prod",
     "build": "npm -w hosting run build && npm -w functions run build",
     "lint": "npm -w hosting run lint && npm -w functions run lint",
+    "fmt": "npm -w hosting run fmt && npm -w functions run fmt && oxfmt firestore storage",
     "test": "npm -w hosting run test && npm -w functions run test",
     "test:hosting": "npm -w hosting run test",
     "test:functions": "npm -w functions run test",

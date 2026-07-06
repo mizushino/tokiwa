@@ -52,7 +52,18 @@ describe('page.json translations', () => {
 
 describe('globalTranslations', () => {
   it('exposes the shared labels the pages rely on in both languages', () => {
-    const sharedKeys = ['cancel', 'delete', 'save', 'name', 'email', 'password', 'error', 'success', 'loading', 'logout'];
+    const sharedKeys = [
+      'cancel',
+      'delete',
+      'save',
+      'name',
+      'email',
+      'password',
+      'error',
+      'success',
+      'loading',
+      'logout',
+    ];
     for (const key of sharedKeys) {
       expect(globalTranslations.en[key], `en.${key}`).toBeTruthy();
       expect(globalTranslations.ja[key], `ja.${key}`).toBeTruthy();

@@ -181,17 +181,18 @@ The repository is a single npm workspace with two member packages: `hosting` and
 | `nvm use` | Switch to the project's Node.js version |
 | `npm run dev:default` | Start the default site in dev mode |
 | `npm run dev:admin` | Start the admin site in dev mode |
+| `npm run fmt` | Format all sources (hosting, functions, firestore, storage) with oxfmt |
 | `npm run test` | Run hosting and functions tests |
 | `npm run e2e` | Run Playwright tests for hosting |
 | `npm run emulators` | Start Firebase emulators from `.artifacts/firebase` |
 
 ### Code Verification
 
-Run verification from the repository root so both packages are checked.
+After writing or modifying source code, always format it, then run verification from the repository root so both packages are checked.
 
 ```bash
 cd /path/to/<project>
-npm run lint && npm run build
+npm run fmt && npm run lint && npm run build
 ```
 
 When the change is test-related, prefer the narrowest matching root or package script before widening scope.

@@ -133,7 +133,10 @@ describe('UiDropdown', () => {
     const menu = getMenu();
     expect(menu.classList.contains('hidden')).toBe(false);
 
-    const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+    const event = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      bubbles: true,
+    });
     document.dispatchEvent(event);
     await element.updateComplete;
 
@@ -288,7 +291,11 @@ describe('UiDropdown', () => {
     const [firstItem, secondItem] = getFocusableItems();
     firstItem.focus();
 
-    const event = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true });
+    const event = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      bubbles: true,
+      cancelable: true,
+    });
     document.dispatchEvent(event);
 
     expect(document.activeElement).toBe(secondItem);
@@ -299,7 +306,11 @@ describe('UiDropdown', () => {
     const [firstItem, secondItem] = getFocusableItems();
     secondItem.focus();
 
-    const event = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true });
+    const event = new KeyboardEvent('keydown', {
+      key: 'ArrowUp',
+      bubbles: true,
+      cancelable: true,
+    });
     document.dispatchEvent(event);
 
     expect(document.activeElement).toBe(firstItem);
@@ -310,12 +321,20 @@ describe('UiDropdown', () => {
     const [firstItem, secondItem] = getFocusableItems();
     secondItem.focus();
 
-    const downEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true });
+    const downEvent = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      bubbles: true,
+      cancelable: true,
+    });
     document.dispatchEvent(downEvent);
     expect(document.activeElement).toBe(firstItem);
 
     firstItem.focus();
-    const upEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true });
+    const upEvent = new KeyboardEvent('keydown', {
+      key: 'ArrowUp',
+      bubbles: true,
+      cancelable: true,
+    });
     document.dispatchEvent(upEvent);
 
     expect(document.activeElement).toBe(secondItem);
@@ -326,12 +345,20 @@ describe('UiDropdown', () => {
     const [firstItem, secondItem] = getFocusableItems();
     firstItem.focus();
 
-    const homeEvent = new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true });
+    const homeEvent = new KeyboardEvent('keydown', {
+      key: 'Home',
+      bubbles: true,
+      cancelable: true,
+    });
     document.dispatchEvent(homeEvent);
     expect(document.activeElement).toBe(firstItem);
 
     firstItem.focus();
-    const endEvent = new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true });
+    const endEvent = new KeyboardEvent('keydown', {
+      key: 'End',
+      bubbles: true,
+      cancelable: true,
+    });
     document.dispatchEvent(endEvent);
 
     expect(document.activeElement).toBe(secondItem);
@@ -408,7 +435,13 @@ describe('UiDropdown keyboard navigation nested in a shadow root', () => {
   }
 
   function pressArrowDown(): void {
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowDown',
+        bubbles: true,
+        cancelable: true,
+      })
+    );
   }
 
   it('advances one item on each ArrowDown (not stuck on the first)', async () => {
@@ -438,7 +471,13 @@ describe('UiDropdown keyboard navigation nested in a shadow root', () => {
     const [, second, third] = items();
     third.focus();
 
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true }));
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowUp',
+        bubbles: true,
+        cancelable: true,
+      })
+    );
     expect(deepActiveElement()).toBe(second);
   });
 

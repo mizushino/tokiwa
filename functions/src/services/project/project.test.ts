@@ -37,9 +37,9 @@ describe('calculateProjectPermissions', () => {
   it('adds a permission entry for a known role', async () => {
     const { calculateProjectPermissions } = await import('./project.js');
 
-    expect(calculateProjectPermissions([], 'proj1', { displayName: 'U', email: 'u@example.com', role: 'owner' })).toEqual(
-      ['proj1:o']
-    );
+    expect(
+      calculateProjectPermissions([], 'proj1', { displayName: 'U', email: 'u@example.com', role: 'owner' })
+    ).toEqual(['proj1:o']);
   });
 
   it('replaces an existing entry for the same project', async () => {

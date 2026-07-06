@@ -38,7 +38,7 @@ export function pageHero({
   accent?: PageAccent;
 }): TemplateResult {
   return html`
-    <div class="relative overflow-hidden rounded-2xl bg-linear-to-br ${HERO_GRADIENT[accent]} p-6 text-white shadow-xl">
+    <div class="${HERO_GRADIENT[accent]} relative overflow-hidden rounded-2xl bg-linear-to-br p-6 text-white shadow-xl">
       <h1 class="text-3xl font-bold">${title}</h1>
       ${description ? html`<p class="mt-2 text-sm text-white/90">${description}</p>` : ''}
     </div>
@@ -48,7 +48,7 @@ export function pageHero({
 export function pageCard(content: unknown, extraClass = ''): TemplateResult {
   return html`
     <div
-      class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800 ${extraClass}"
+      class="${extraClass} rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
     >
       ${content}
     </div>
@@ -68,7 +68,7 @@ export function cardHeading({
 }): TemplateResult {
   return html`
     <div class="mb-3 flex items-center gap-2">
-      ${icon ? html`<span class="rounded-lg p-2 ${CHIP_ACCENT[accent]}">${icon}</span>` : ''}
+      ${icon ? html`<span class="${CHIP_ACCENT[accent]} rounded-lg p-2">${icon}</span>` : ''}
       <h2 class="text-xl font-bold text-gray-900 dark:text-white">${title}</h2>
     </div>
     ${description ? html`<p class="mb-4 text-sm text-gray-500 dark:text-gray-400">${description}</p>` : ''}
@@ -82,8 +82,7 @@ export function pageSection(
   return html`
     <div>
       <h2 class="mb-1 text-lg font-semibold text-gray-900 dark:text-white">${title}</h2>
-      ${description ? html`<p class="mb-6 text-sm text-gray-500 dark:text-gray-400">${description}</p>` : ''}
-      ${content}
+      ${description ? html`<p class="mb-6 text-sm text-gray-500 dark:text-gray-400">${description}</p>` : ''} ${content}
     </div>
   `;
 }

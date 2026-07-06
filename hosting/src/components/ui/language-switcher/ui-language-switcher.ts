@@ -49,7 +49,11 @@ export class UiLanguageSwitcher extends LitElement {
     const target: SupportedLanguage = getPreferredLanguage() === 'en' ? 'ja' : 'en';
     const label = target === 'ja' ? '日本語' : 'English';
     return html`
-      <ui-button size="sm" variant=${this.variant} ?fullWidth=${this.fullWidth} @click=${() => setPreferredLanguage(target)}
+      <ui-button
+        size="sm"
+        variant=${this.variant}
+        ?fullWidth=${this.fullWidth}
+        @click=${() => setPreferredLanguage(target)}
         >${label}</ui-button
       >
     `;

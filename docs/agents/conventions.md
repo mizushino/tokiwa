@@ -17,15 +17,16 @@ This document defines coding standards and conventions for the project.
 Both packages use the **vite-plus (`vp`) toolchain**; the root `npm run lint` runs both:
 
 - lint via `vp lint .` — oxlint, with rules in `{package}/oxlint-rules.json` (referenced from each `vite.config.ts` `lint` field). Type-aware checks are enabled.
-- format via `vp fmt` — oxfmt, configured in the `fmt` block of each `vite.config.ts`.
+- format via `vp fmt -c ../.oxfmtrc.json` — oxfmt, configured in the root `.oxfmtrc.json` (single quotes, print width 120, Tailwind class sorting). The `-c` flag is required because `vp fmt` does not discover the config file on its own.
+- The root `npm run fmt` formats everything: both packages plus the shared `firestore/` and `storage/` sources.
 - `vp check` runs format, lint, and type checks together.
 - No ESLint or Prettier in either package.
-- **IMPORTANT**: After writing or modifying source code, always run the linter to ensure consistent code style
+- **IMPORTANT**: After writing or modifying source code, always run the formatter and linter to ensure consistent code style
 
 ```bash
 # ALWAYS run from the root directory to check ALL packages (hosting + functions)
 cd /path/to/<project>  # Root directory
-npm run lint && npm run build
+npm run fmt && npm run lint && npm run build
 
 # This runs lint and build for both hosting and functions packages
 # Running from subdirectories (hosting/ or functions/) will miss errors in other packages

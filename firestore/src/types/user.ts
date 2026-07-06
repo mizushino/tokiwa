@@ -1,4 +1,4 @@
-export const userCollectionPath = "users";
+export const userCollectionPath = 'users';
 export const userDocumentPath = `${userCollectionPath}/{uid}`;
 
 export interface UserKey {

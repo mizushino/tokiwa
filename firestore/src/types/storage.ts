@@ -1,4 +1,4 @@
-export const storageCollectionPath = "storage";
+export const storageCollectionPath = 'storage';
 export const storageDocumentPath = `${storageCollectionPath}/{storageId}`;
 
 export interface StorageKey {

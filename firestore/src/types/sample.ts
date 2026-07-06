@@ -1,4 +1,4 @@
-export const sampleCollectionPath = "samples";
+export const sampleCollectionPath = 'samples';
 export const sampleDocumentPath = `${sampleCollectionPath}/{id}`;
 
 export interface SampleKey {

@@ -19,7 +19,7 @@ export class DefaultDropdown extends PageElement {
   ): TemplateResult {
     const padding = size === 'sm' ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm';
     const color = danger ? 'text-danger-600 dark:text-danger-400' : 'text-gray-900 dark:text-white';
-    return html`<a href=${href} class="block ${padding} ${color} hover:bg-gray-50 dark:hover:bg-white/5">${label}</a>`;
+    return html`<a href=${href} class="${padding} ${color} block hover:bg-gray-50 dark:hover:bg-white/5">${label}</a>`;
   }
 
   private renderBasic(): TemplateResult {
@@ -124,9 +124,19 @@ export class DefaultDropdown extends PageElement {
         <h3 class="mb-2 text-lg font-medium text-info-900 dark:text-info-200">${this.trans('features')}</h3>
         <ul class="list-inside list-disc space-y-1 text-sm text-info-800 dark:text-info-300">
           <li>${this.trans('feature_click_outside')}</li>
-          <li>${this.trans('feature_escape_prefix')} <kbd class="${kbd}">Escape</kbd> ${this.trans('feature_escape_suffix')}</li>
-          <li>${this.trans('feature_arrows_prefix')} <kbd class="${kbd}">↑</kbd> ${this.trans('feature_and')} <kbd class="${kbd}">↓</kbd> ${this.trans('feature_arrows_suffix')}</li>
-          <li>${this.trans('feature_homeend_prefix')} <kbd class="${kbd}">Home</kbd> ${this.trans('feature_and')} <kbd class="${kbd}">End</kbd> ${this.trans('feature_homeend_suffix')}</li>
+          <li>
+            ${this.trans('feature_escape_prefix')} <kbd class="${kbd}">Escape</kbd> ${this.trans(
+              'feature_escape_suffix'
+            )}
+          </li>
+          <li>
+            ${this.trans('feature_arrows_prefix')} <kbd class="${kbd}">↑</kbd> ${this.trans('feature_and')}
+            <kbd class="${kbd}">↓</kbd> ${this.trans('feature_arrows_suffix')}
+          </li>
+          <li>
+            ${this.trans('feature_homeend_prefix')} <kbd class="${kbd}">Home</kbd> ${this.trans('feature_and')}
+            <kbd class="${kbd}">End</kbd> ${this.trans('feature_homeend_suffix')}
+          </li>
           <li>${this.trans('feature_transitions')}</li>
           <li>${this.trans('feature_aria')}</li>
         </ul>
@@ -142,10 +152,7 @@ export class DefaultDropdown extends PageElement {
         accent: 'info',
       })}
       ${pageSection({ title: this.trans('basic_title'), description: this.trans('basic_desc') }, this.renderBasic())}
-      ${pageSection(
-        { title: this.trans('sizes_title'), description: this.trans('sizes_desc') },
-        this.renderSizes()
-      )}
+      ${pageSection({ title: this.trans('sizes_title'), description: this.trans('sizes_desc') }, this.renderSizes())}
       ${pageSection(
         { title: this.trans('placements_title'), description: this.trans('placements_desc') },
         this.renderPlacements()

@@ -1,4 +1,4 @@
-@import "tailwindcss/theme";
+@import 'tailwindcss/theme';
 
 html,
 body {
@@ -30,7 +30,7 @@ body {
 }
 
 :root {
-  --site-font-sans: "Noto Sans JP", sans-serif;
+  --site-font-sans: 'Noto Sans JP', sans-serif;
   --site-text-2xs: 0.6255rem;
   --site-leading-2xs: 1rem;
   --site-flex-2: 2 1 0%;

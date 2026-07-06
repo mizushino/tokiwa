@@ -103,7 +103,9 @@ export class DefaultLitAsync extends PageElement {
           </div>
         </div>
         <div class="mt-6 flex justify-end">
-          <ui-button id="btn-reload-quote" variant="info" @click=${this.reloadPromise}>${this.trans('fetch_quote')}</ui-button>
+          <ui-button id="btn-reload-quote" variant="info" @click=${this.reloadPromise}
+            >${this.trans('fetch_quote')}</ui-button
+          >
         </div>
       </div>
     `);
@@ -185,8 +187,20 @@ export class DefaultLitAsync extends PageElement {
                       id="slow-loading-placeholder"
                       class="flex items-center gap-2 text-primary-600 dark:text-primary-400"
                     >
-                      <svg class="size-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <svg
+                        class="size-5 animate-spin"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          class="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          stroke-width="4"
+                        ></circle>
                         <path
                           class="opacity-75"
                           fill="currentColor"

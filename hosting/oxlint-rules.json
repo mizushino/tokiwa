@@ -1,11 +1,5 @@
 {
-  "plugins": [
-    "oxc",
-    "typescript",
-    "unicorn",
-    "react",
-    "import"
-  ],
+  "plugins": ["oxc", "typescript", "unicorn", "react", "import"],
   "categories": {
     "correctness": "warn"
   },
@@ -13,34 +7,15 @@
     "builtin": true
   },
   "settings": {
-    "import-x/extensions": [
-      ".ts",
-      ".tsx",
-      ".cts",
-      ".mts",
-      ".js",
-      ".jsx",
-      ".cjs",
-      ".mjs"
-    ],
-    "import-x/external-module-folders": [
-      "node_modules",
-      "node_modules/@types"
-    ],
+    "import-x/extensions": [".ts", ".tsx", ".cts", ".mts", ".js", ".jsx", ".cjs", ".mjs"],
+    "import-x/external-module-folders": ["node_modules", "node_modules/@types"],
     "import-x/parsers": {
-      "@typescript-eslint/parser": [
-        ".ts",
-        ".tsx",
-        ".cts",
-        ".mts"
-      ]
+      "@typescript-eslint/parser": [".ts", ".tsx", ".cts", ".mts"]
     },
     "import-x/resolver": {
       "typescript": true
     },
-    "import-x/ignore": [
-      "\\.css$"
-    ],
+    "import-x/ignore": ["\\.css$"],
     "import-x/resolver-next": [
       {
         "interfaceVersion": 3,
@@ -52,9 +27,7 @@
       }
     ]
   },
-  "ignorePatterns": [
-    "public/**/*"
-  ],
+  "ignorePatterns": ["public/**/*"],
   "rules": {
     "constructor-super": "error",
     "for-direction": "error",
@@ -192,12 +165,7 @@
   },
   "overrides": [
     {
-      "files": [
-        "**/*.ts",
-        "**/*.tsx",
-        "**/*.mts",
-        "**/*.cts"
-      ],
+      "files": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
       "rules": {
         "constructor-super": "off",
         "getter-return": "off",

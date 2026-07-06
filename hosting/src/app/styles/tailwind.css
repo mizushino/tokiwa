@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 @plugin "@tailwindcss/forms";
 
@@ -18,7 +18,7 @@
 }
 
 @theme {
-  --font-sans: var(--site-font-sans, "Noto Sans JP", sans-serif);
+  --font-sans: var(--site-font-sans, 'Noto Sans JP', sans-serif);
 
   --text-2xs: var(--site-text-2xs, 0.6255rem);
   --leading-2xs: var(--site-leading-2xs, 1rem);

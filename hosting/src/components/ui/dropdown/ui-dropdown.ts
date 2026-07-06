@@ -96,9 +96,9 @@ export class UiDropdown extends LitElement {
   }
 
   private addEventListeners(): void {
+    document.addEventListener('keydown', this.handleKeyDown);
     requestAnimationFrame(() => {
       document.addEventListener('click', this.closeOnClickOutside);
-      document.addEventListener('keydown', this.handleKeyDown);
     });
   }
 
@@ -168,7 +168,9 @@ export class UiDropdown extends LitElement {
   }
 
   private focusTrigger(): void {
-    const assignedTrigger = this.triggerSlotRef.value?.assignedElements({ flatten: true })[0];
+    const assignedTrigger = this.triggerSlotRef.value?.assignedElements({
+      flatten: true,
+    })[0];
     if (assignedTrigger instanceof HTMLElement) {
       assignedTrigger.focus();
       return;

@@ -115,7 +115,7 @@ export class UiSidebar extends LitElement {
       >
         <div class="relative flex h-16 shrink-0 items-center justify-center">
           <slot name="logo">
-            <i class="fa-solid fa-cube text-primary-500 dark:text-primary-400 text-4xl"></i>
+            <i class="fa-solid fa-cube text-4xl text-primary-500 dark:text-primary-400"></i>
           </slot>
         </div>
         <nav class="relative flex flex-1 flex-col overflow-y-auto">

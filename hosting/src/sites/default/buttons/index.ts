@@ -129,7 +129,9 @@ export class DefaultButtons extends PageElement {
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('confirmation_dialog')}</h3>
+          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">
+            ${this.trans('confirmation_dialog')}
+          </h3>
           <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">${this.trans('confirmation_message')}</div>
           <div class="flex gap-3">
             <ui-button variant="soft" fullWidth>${this.trans('cancel')}</ui-button>

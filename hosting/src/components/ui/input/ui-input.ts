@@ -134,9 +134,7 @@ export class UiInput extends LitElement {
         @input=${this.handleInput}
         @change=${this.handleChange}
       />
-      ${this.error
-        ? html`<p class="mt-2 text-sm text-danger-600 dark:text-danger-400">${this.error}</p>`
-        : ''}
+      ${this.error ? html`<p class="mt-2 text-sm text-danger-600 dark:text-danger-400">${this.error}</p>` : ''}
     `;
   }
 }

@@ -1,4 +1,4 @@
-export const directoryCollectionPath = "directories";
+export const directoryCollectionPath = 'directories';
 export const directoryDocumentPath = `${directoryCollectionPath}/{directoryId}`;
 
 export interface DirectoryKey {

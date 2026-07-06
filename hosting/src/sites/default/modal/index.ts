@@ -32,7 +32,9 @@ export class DefaultModal extends PageElement {
   private renderSingleArgAPI(): TemplateResult {
     return html`
       <div class="flex flex-wrap gap-3">
-        <ui-button variant="secondary" @click=${() => this.testSingleArg()}>${this.trans('single_arg_button')}</ui-button>
+        <ui-button variant="secondary" @click=${() => this.testSingleArg()}
+          >${this.trans('single_arg_button')}</ui-button
+        >
       </div>
     `;
   }

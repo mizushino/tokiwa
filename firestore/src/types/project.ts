@@ -1,4 +1,4 @@
-export const projectCollectionPath = "projects";
+export const projectCollectionPath = 'projects';
 export const projectDocumentPath = `${projectCollectionPath}/{projectId}`;
 
 export interface ProjectKey {
