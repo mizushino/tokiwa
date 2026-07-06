@@ -67,7 +67,7 @@ node_modules/
 /hosting/.env.local
 
 # build
-/functions/libs
+/functions/lib
 /hosting/public
 
 # Playwright

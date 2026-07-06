@@ -3,6 +3,7 @@
   "description": "Demonstration of using the lit-async library for handling async operations reactively in Lit.",
   "translations": {
     "en": {
+      "hero_title": "lit-async Demo",
       "hero_desc": "lit-async is a lightweight collection of directives and decorators for handling asynchronous operations directly in your Lit templates without boilerplate.",
       "promise_desc": "Binds a Promise directly in the template. The template automatically updates when the Promise resolves.",
       "loading_promise": "Loading promise...",
@@ -19,6 +20,7 @@
     "ja": {
       "title": "Lit-Async - サンプルサイト",
       "description": "lit-async ライブラリで非同期処理を Lit 上でリアクティブに扱う方法のデモです。",
+      "hero_title": "lit-async デモ",
       "hero_desc": "lit-async は、非同期処理をボイラープレートなしで Lit テンプレート内に直接記述するための、軽量なディレクティブとデコレーターのコレクションです。",
       "promise_desc": "Promise をテンプレートに直接バインドします。Promise が解決するとテンプレートが自動的に更新されます。",
       "loading_promise": "Promise を読み込み中…",

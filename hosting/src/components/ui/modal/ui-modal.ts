@@ -6,7 +6,11 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { tailwindCSS } from '@app/styles';
 import { overlayBackdropTransition, overlayPanelTransition, transition } from '@app/transition';
 
+import type { ButtonVariant } from '../button/ui-button';
+import type { UiInput } from '../input/ui-input';
+
 import '../button/ui-button';
+import '../input/ui-input';
 
 export type ModalIcon = 'warning' | 'danger' | 'success' | 'info' | 'question';
 
@@ -15,7 +19,7 @@ export type ModalSize = 'sm' | 'md' | 'lg';
 export interface ModalButton {
   label: string;
   value?: string;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: ButtonVariant;
 }
 
 /**
@@ -53,10 +57,10 @@ export interface ModalButton {
  * ```
  *
  * @slot content - Additional content rendered below the message.
- * @fires button-click - Fired when a custom button is pressed.
+ * @fires button-click - Fired when a custom button is pressed, detail: { value, label }.
  * @fires confirm - Fired when the primary confirmation action is requested.
  * @fires cancel - Fired when cancellation is requested.
- * @fires input-change - Fired when the prompt input value changes.
+ * @fires input - Fired on each keystroke of the prompt input (forwarded from the internal ui-input), detail: { value }.
  */
 @customElement('ui-modal')
 export class UiModal extends LitElement {
@@ -99,7 +103,7 @@ export class UiModal extends LitElement {
   useHtml = false;
 
   private readonly dialogRef = createRef<HTMLDialogElement>();
-  private readonly inputRef = createRef<HTMLInputElement>();
+  private readonly inputRef = createRef<UiInput>();
   private mouseDownTarget: EventTarget | null = null;
 
   protected override updated(changedProperties: Map<string, unknown>): void {
@@ -120,14 +124,8 @@ export class UiModal extends LitElement {
   }
 
   private handleInputChange(e: Event): void {
-    this.inputValue = (e.target as HTMLInputElement).value;
-    this.dispatchEvent(
-      new CustomEvent('input-change', {
-        detail: { value: this.inputValue },
-        bubbles: true,
-        composed: true,
-      })
-    );
+    // The ui-input `input` event bubbles out of this component as-is; just track the value.
+    this.inputValue = (e as CustomEvent<{ value: string }>).detail.value;
   }
 
   private handleInputKeyDown(e: KeyboardEvent): void {
@@ -304,21 +302,13 @@ export class UiModal extends LitElement {
                 ${this.showInput
                   ? html`
                       <div class="mt-4">
-                        <input
+                        <ui-input
                           ${ref(this.inputRef)}
-                          type="text"
                           .value=${this.inputValue}
+                          error=${this.inputError}
                           @input=${this.handleInputChange}
                           @keydown=${this.handleInputKeyDown}
-                          class="${this.inputError
-                            ? 'ring-danger-500'
-                            : 'ring-gray-300'} focus:ring-primary-600 dark:focus:ring-primary-500 block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-xs ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm dark:bg-white/5 dark:text-white dark:ring-white/10"
-                        />
-                        ${this.inputError
-                          ? html`<p class="text-danger-600 dark:text-danger-400 mt-2 text-sm">
-                              <i class="fa-solid fa-circle-exclamation mr-1"></i>${this.inputError}
-                            </p>`
-                          : ''}
+                        ></ui-input>
                       </div>
                     `
                   : ''}

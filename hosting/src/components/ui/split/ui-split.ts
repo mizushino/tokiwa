@@ -4,6 +4,8 @@ import { createRef, ref, type Ref } from 'lit/directives/ref.js';
 
 import { tailwindCSS } from '@app/styles';
 
+export type SplitDirection = 'horizontal' | 'vertical';
+
 /**
  * Resizable split divider for adjacent panels.
  *
@@ -19,6 +21,7 @@ import { tailwindCSS } from '@app/styles';
  * ```
  *
  * @fires change - Fired when a drag interaction commits a new panel size.
+ *   detail: { width } for direction="horizontal", { height } for direction="vertical".
  */
 @customElement('ui-split')
 export class UiSplit extends LitElement {
@@ -33,7 +36,7 @@ export class UiSplit extends LitElement {
   ];
 
   @property({ type: String })
-  direction: 'horizontal' | 'vertical' = 'horizontal';
+  direction: SplitDirection = 'horizontal';
 
   @property({ type: Number })
   min?: number;

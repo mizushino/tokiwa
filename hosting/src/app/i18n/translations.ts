@@ -18,6 +18,8 @@ export const globalTranslations: Record<'en' | 'ja', Record<string, string>> = {
     search: 'Search',
     send: 'Send',
     retry: 'Retry',
+    confirm_keyword_message: 'Type {keyword} to confirm.',
+    confirm_keyword_error: 'Please type "{keyword}".',
 
     name: 'Name',
     email: 'Email address',
@@ -85,6 +87,8 @@ export const globalTranslations: Record<'en' | 'ja', Record<string, string>> = {
     search: '検索',
     send: '送信',
     retry: '再試行',
+    confirm_keyword_message: '確認のため{keyword}と入力してください。',
+    confirm_keyword_error: '「{keyword}」と入力してください',
 
     name: 'お名前',
     email: 'メールアドレス',

@@ -5,7 +5,7 @@ import { logger } from 'firebase-functions';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { beforeUserCreated } from 'firebase-functions/v2/identity';
 
-import type { UserData } from '@firestore/types/user.js';
+import { userDocumentPath, type UserData } from '@firestore/types/user.js';
 import { UserDocument } from 'src/models/user.js';
 
 /**
@@ -43,7 +43,7 @@ export async function handleUserCreated(
   photoURL: string | null
 ): Promise<void> {
   await getFirestore().runTransaction(async (transaction) => {
-    const userDocument = new UserDocument({ uid: uid });
+    const userDocument = new UserDocument({ uid });
     await userDocument.get(transaction);
 
     let userData = userDocument.data;
@@ -51,7 +51,7 @@ export async function handleUserCreated(
       userData = {
         ...UserDocument.defaultData,
         displayName: displayName ?? '',
-        email: email,
+        email,
         image: photoURL ?? '',
       };
     }
@@ -92,17 +92,14 @@ export const created = beforeUserCreated({ region: 'asia-northeast1' }, async (e
 });
 
 /**
- * Trigger fired when user document is created, updated, or deleted
- * Synchronizes Firebase Authentication user info and custom claims
+ * Handle user document changes: sync Firebase Authentication user info and custom claims
+ * This function is extracted for testability
  */
-export const written = onDocumentWritten({ region: 'asia-northeast1', document: '/users/{uid}' }, async (event) => {
-  const uid = event.params.uid;
-  const user = event.data?.after.data() as UserData | undefined;
-
+export async function handleUserWritten(uid: string, user?: UserData): Promise<void> {
   if (user) {
     try {
       const photoURL = getFirebaseImageURL(user.image);
-      await getAuth().updateUser(event.params.uid, {
+      await getAuth().updateUser(uid, {
         displayName: user.displayName,
         ...(photoURL ? { photoURL } : {}),
       });
@@ -118,4 +115,13 @@ export const written = onDocumentWritten({ region: 'asia-northeast1', document: 
     // User might have been deleted in Auth, log and continue
     logger.warn(`Failed to update custom claims for user ${uid}:`, error);
   }
+}
+
+/**
+ * Trigger fired when user document is created, updated, or deleted
+ * Synchronizes Firebase Authentication user info and custom claims
+ */
+export const written = onDocumentWritten({ region: 'asia-northeast1', document: userDocumentPath }, async (event) => {
+  const user = event.data?.after.data() as UserData | undefined;
+  await handleUserWritten(event.params.uid, user);
 });

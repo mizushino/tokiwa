@@ -192,19 +192,20 @@ describe('UiModal', () => {
     );
   });
 
-  it('focuses the input and emits input-change for prompt dialogs', async () => {
-    const focusSpy = vi.spyOn(HTMLInputElement.prototype, 'focus').mockImplementation(() => undefined);
-    const inputChangeHandler = vi.fn();
+  it('focuses the input and emits input for prompt dialogs', async () => {
+    const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus').mockImplementation(() => undefined);
+    const inputHandler = vi.fn();
 
     element.showInput = true;
     element.open = true;
-    element.addEventListener('input-change', inputChangeHandler);
+    element.addEventListener('input', inputHandler);
     await element.updateComplete;
 
-    const input = element.querySelector('input');
+    const uiInput = element.querySelector('ui-input');
     expect(focusSpy).toHaveBeenCalled();
-    expect(input).toBeInstanceOf(HTMLInputElement);
+    expect(uiInput).toBeTruthy();
 
+    const input = uiInput?.shadowRoot?.querySelector('input');
     if (!input) {
       throw new Error('Expected prompt input to exist');
     }
@@ -213,11 +214,22 @@ describe('UiModal', () => {
     input.dispatchEvent(new Event('input', { bubbles: true }));
 
     expect(element.inputValue).toBe('typed value');
-    expect(inputChangeHandler).toHaveBeenCalledWith(
+    expect(inputHandler).toHaveBeenCalledWith(
       expect.objectContaining({
         detail: { value: 'typed value' },
       })
     );
+  });
+
+  it('shows the prompt input error through ui-input', async () => {
+    element.showInput = true;
+    element.inputError = 'Required';
+    element.open = true;
+    await element.updateComplete;
+
+    const uiInput = element.querySelector('ui-input');
+    expect(uiInput?.error).toBe('Required');
+    expect(uiInput?.shadowRoot?.textContent).toContain('Required');
   });
 
   it('emits confirm when Enter is pressed in the prompt input', async () => {
@@ -228,8 +240,8 @@ describe('UiModal', () => {
     element.addEventListener('confirm', confirmHandler);
     await element.updateComplete;
 
-    const input = element.querySelector('input');
-    input?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    const input = element.querySelector('ui-input')?.shadowRoot?.querySelector('input');
+    input?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
 
     expect(confirmHandler).toHaveBeenCalled();
   });

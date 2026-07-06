@@ -180,7 +180,7 @@ async function prompt(
           .inputError=${inputError}
           .useHtml=${useHtml}
           .open=${isOpen}
-          @input-change=${handleInputChange}
+          @input=${handleInputChange}
           @confirm=${handleConfirm}
           @cancel=${handleCancel}
         ></ui-modal>
@@ -208,8 +208,9 @@ async function confirmWithInput(
     variant === 'success'
       ? 'font-semibold text-success-600 dark:text-success-400'
       : 'font-semibold text-danger-600 dark:text-danger-400';
+  const lang = getPreferredLanguage();
   const keywordHtml = `<span class="${keywordClass}">${keyword}</span>`;
-  const fullMessage = `${message}<br><br>確認のため${keywordHtml}と入力してください。`;
+  const fullMessage = `${message}<br><br>${tGlobal('confirm_keyword_message', lang).replace('{keyword}', keywordHtml)}`;
 
   const icon = variant === 'success' ? 'warning' : 'danger';
 
@@ -219,7 +220,7 @@ async function confirmWithInput(
     icon,
     (value) => {
       if (normalizeKeyword(value) !== normalizedKeyword) {
-        return `「${keyword}」と入力してください`;
+        return tGlobal('confirm_keyword_error', lang).replace('{keyword}', keyword);
       }
       return null;
     },

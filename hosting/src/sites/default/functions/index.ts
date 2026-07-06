@@ -53,7 +53,7 @@ export class DefaultFunctions extends PageElement {
         })}
         <div class="space-y-4">
           <ui-input
-            label="ID"
+            label=${this.trans('id')}
             .value=${this.sampleId}
             @input=${(event: CustomEvent<{ value: string }>) => {
               this.sampleId = event.detail.value;

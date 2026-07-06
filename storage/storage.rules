@@ -33,11 +33,6 @@ service firebase.storage {
       return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w', projectId + ':r']);
     }
 
-    function hasProductAccess(productId) {
-      let products = request.auth.token.p.get('products', []);
-      return products.hasAny([productId]);
-    }
-
     function isActive(meta) {
       return meta.active == 'true';
     }
@@ -70,7 +65,7 @@ service firebase.storage {
         allow read: if isReader(pid) && hasAccess(resource.metadata);
         allow write: if isManager(pid);
       }
-		}
+    }
 
     match /{document=**} {
       allow read, write: if isAdmin();

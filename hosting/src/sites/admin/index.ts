@@ -6,7 +6,6 @@ import { customElement, state } from 'lit/decorators.js';
 import { track } from 'lit-async';
 
 import { signOut, userSnapshot } from '@app/auth';
-import { getPreferredLanguage, setPreferredLanguage, type SupportedLanguage } from '@app/i18n';
 import { PageElement } from '@app/page';
 import type { SidebarNavItem } from '@components/ui/sidebar/ui-sidebar';
 import { subscribeToUserDocument } from '@models/user';
@@ -15,6 +14,7 @@ import pageMetadata from './page.json';
 
 import '@components/ui/sidebar/ui-sidebar';
 import '@components/ui/button/ui-button';
+import '@components/ui/language-switcher/ui-language-switcher';
 import './login';
 import './helloworld';
 
@@ -104,14 +104,6 @@ export class AdminIndex extends PageElement {
     ];
   }
 
-  private renderLanguageSwitcher(): TemplateResult {
-    const target: SupportedLanguage = getPreferredLanguage() === 'en' ? 'ja' : 'en';
-    const label = target === 'ja' ? '日本語' : 'English';
-    return html`<ui-button size="sm" variant="secondary" fullWidth @click=${() => setPreferredLanguage(target)}
-      >${label}</ui-button
-    >`;
-  }
-
   private async handleUserClick(): Promise<void> {
     this.stopUserDocSubscription();
     await signOut();
@@ -140,7 +132,9 @@ export class AdminIndex extends PageElement {
           .navItems=${this.navItems}
           @user-click=${this.handleUserClick}
         >
-          <div slot="actions" class="px-3 pb-3">${this.renderLanguageSwitcher()}</div>
+          <div slot="actions" class="px-3 pb-3">
+            <ui-language-switcher variant="secondary" fullWidth></ui-language-switcher>
+          </div>
           <svg
             slot="logo"
             class="size-8 text-primary-500 dark:text-primary-400"

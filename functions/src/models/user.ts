@@ -1,6 +1,7 @@
-import { FirestoreCollection, FirestoreDocument } from '@mzsn/firestore';
+import { FirestoreCollection } from '@mzsn/firestore';
 
 import { userCollectionPath, userDocumentPath, type UserData, type UserKey } from '@firestore/types/user.js';
+import { TimestampedDocument, timestampDefaults } from 'src/models/timestamped-document.js';
 
 /**
  * Firestore document representing a user.
@@ -8,7 +9,7 @@ import { userCollectionPath, userDocumentPath, type UserData, type UserKey } fro
  * This class handles CRUD operations for user documents in Firestore.
  * Each user has authentication info, profile data, permissions, and timestamps.
  */
-export class UserDocument extends FirestoreDocument<UserKey, UserData> {
+export class UserDocument extends TimestampedDocument<UserKey, UserData> {
   static pathTemplate = userDocumentPath;
 
   /**
@@ -26,26 +27,14 @@ export class UserDocument extends FirestoreDocument<UserKey, UserData> {
    * Initializes empty fields with current timestamps.
    */
   public static get defaultData(): UserData {
-    const now = new Date();
     return {
       email: '',
       displayName: '',
       image: '',
       permissions: {},
       admin: false,
-      createdAt: now,
-      updatedAt: now,
+      ...timestampDefaults(),
     };
-  }
-
-  /**
-   * Lifecycle hook that runs before saving the document.
-   * Automatically updates the updatedAt timestamp to the current time.
-   */
-  protected override beforeSave(): void {
-    const now = new Date();
-    this.data.createdAt ??= now;
-    this.data.updatedAt = now;
   }
 }
 

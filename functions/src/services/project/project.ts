@@ -1,6 +1,6 @@
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 
-import type { ProjectUserData } from '@firestore/types/project-user.js';
+import { projectUserDocumentPath, type ProjectUserData } from '@firestore/types/project-user.js';
 import { UserDocument } from 'src/models/user.js';
 
 export const roleTable = new Map<string, string>([
@@ -37,14 +37,14 @@ export async function updateUserPermissions(
   uid: string,
   projectUserData: ProjectUserData | null
 ): Promise<void> {
-  const userDocument = new UserDocument({ uid: uid });
+  const userDocument = new UserDocument({ uid });
   await userDocument.get();
   if (!userDocument.exists) {
     return;
   }
 
   const currentPermissions = userDocument.data.permissions || { projects: [] };
-  const currentProjects = currentPermissions['projects'] || [];
+  const currentProjects = currentPermissions.projects || [];
 
   const newProjects = calculateProjectPermissions(currentProjects, pid, projectUserData);
 
@@ -65,11 +65,10 @@ export async function updateUserPermissions(
  * Automatically updates the permissions field in the user document
  */
 export const written = onDocumentWritten(
-  { region: 'asia-northeast1', document: '/projects/{pid}/users/{uid}' },
+  { region: 'asia-northeast1', document: projectUserDocumentPath },
   async (event) => {
-    const pid = event.params.pid;
-    const uid = event.params.uid;
+    const { projectId, uid } = event.params;
     const projectUserData = event.data?.after.data() as ProjectUserData | null;
-    await updateUserPermissions(pid, uid, projectUserData);
+    await updateUserPermissions(projectId, uid, projectUserData);
   }
 );

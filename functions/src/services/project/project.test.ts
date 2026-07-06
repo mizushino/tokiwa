@@ -33,6 +33,51 @@ async function waitForUserDocument(db: Firestore, uid: string): Promise<void> {
   });
 }
 
+describe('calculateProjectPermissions', () => {
+  it('adds a permission entry for a known role', async () => {
+    const { calculateProjectPermissions } = await import('./project.js');
+
+    expect(calculateProjectPermissions([], 'proj1', { displayName: 'U', email: 'u@example.com', role: 'owner' })).toEqual(
+      ['proj1:o']
+    );
+  });
+
+  it('replaces an existing entry for the same project', async () => {
+    const { calculateProjectPermissions } = await import('./project.js');
+
+    expect(
+      calculateProjectPermissions(['proj1:r', 'proj2:m'], 'proj1', {
+        displayName: 'U',
+        email: 'u@example.com',
+        role: 'writer',
+      })
+    ).toEqual(['proj2:m', 'proj1:w']);
+  });
+
+  it('removes the entry when project user data is null', async () => {
+    const { calculateProjectPermissions } = await import('./project.js');
+
+    expect(calculateProjectPermissions(['proj1:o', 'proj2:m'], 'proj1', null)).toEqual(['proj2:m']);
+  });
+
+  it('ignores unknown roles', async () => {
+    const { calculateProjectPermissions } = await import('./project.js');
+    const staleRole = 'guest' as ProjectUserData['role'];
+
+    expect(
+      calculateProjectPermissions(['proj1:o'], 'proj1', { displayName: 'U', email: 'u@example.com', role: staleRole })
+    ).toEqual([]);
+  });
+
+  it('handles undefined current permissions', async () => {
+    const { calculateProjectPermissions } = await import('./project.js');
+
+    expect(
+      calculateProjectPermissions(undefined, 'proj1', { displayName: 'U', email: 'u@example.com', role: 'reader' })
+    ).toEqual(['proj1:r']);
+  });
+});
+
 describe('project service E2E', () => {
   let db: Firestore;
 
@@ -263,7 +308,7 @@ describe('project service E2E', () => {
 
     await wrapped({
       data: testEnv.makeChange(beforeSnap, afterSnap),
-      params: { pid: 'proj-trigger', uid: 'user-trigger' },
+      params: { projectId: 'proj-trigger', uid: 'user-trigger' },
     });
 
     const resultDoc = new UserDocument({ uid: 'user-trigger' });

@@ -1,4 +1,4 @@
-import { FirestoreCollection, FirestoreDocument, timeId } from '@mzsn/firestore';
+import { FirestoreCollection, timeId } from '@mzsn/firestore';
 
 import {
   directoryCollectionPath,
@@ -6,6 +6,7 @@ import {
   type DirectoryData,
   type DirectoryKey,
 } from '@firestore/types/directory.js';
+import { TimestampedDocument, timestampDefaults } from 'src/models/timestamped-document.js';
 
 /**
  * Firestore document representing a directory.
@@ -13,7 +14,7 @@ import {
  * This class handles CRUD operations for directory documents in Firestore.
  * Each directory has a name, path, and timestamps for creation and updates.
  */
-export class DirectoryDocument extends FirestoreDocument<DirectoryKey, DirectoryData> {
+export class DirectoryDocument extends TimestampedDocument<DirectoryKey, DirectoryData> {
   static pathTemplate = directoryDocumentPath;
 
   /**
@@ -31,23 +32,11 @@ export class DirectoryDocument extends FirestoreDocument<DirectoryKey, Directory
    * Initializes empty name and path fields with current timestamps.
    */
   public static get defaultData(): DirectoryData {
-    const now = new Date();
     return {
       name: '',
       path: '',
-      createdAt: now,
-      updatedAt: now,
+      ...timestampDefaults(),
     };
-  }
-
-  /**
-   * Lifecycle hook that runs before saving the document.
-   * Automatically updates the updatedAt timestamp to the current time.
-   */
-  protected override beforeSave(): void {
-    const now = new Date();
-    this.data.createdAt ??= now;
-    this.data.updatedAt = now;
   }
 }
 

@@ -15,6 +15,8 @@ export default defineConfig({
       '@services': resolve(__dirname, './src/services'),
       '@models': resolve(__dirname, './src/models'),
       '@assets': resolve(__dirname, './src/assets'),
+      '@firestore': resolve(__dirname, '../firestore/src'),
+      '@functions': resolve(__dirname, '../functions/src'),
     },
   },
 });

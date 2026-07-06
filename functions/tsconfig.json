@@ -6,9 +6,7 @@
     "moduleResolution": "nodenext",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "rootDir": "..",
-    "outDir": "lib",
-    "sourceMap": true,
+    "noEmit": true,
     "strict": true,
     "target": "ES2024",
     "lib": ["ES2024"],
@@ -17,6 +15,5 @@
       "src/*": ["./src/*"]
     }
   },
-  "compileOnSave": true,
-  "include": ["src", "scripts", "../firestore/src", "*.config.ts"]
+  "include": ["src", "../firestore/src", "*.config.ts"]
 }

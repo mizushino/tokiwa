@@ -2,7 +2,6 @@ import { Routes } from '@lit-labs/router';
 import { html, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import { getPreferredLanguage, setPreferredLanguage, type SupportedLanguage } from '@app/i18n';
 import { navigate, PageElement } from '@app/page';
 
 import pageMetadata from './page.json';
@@ -18,6 +17,7 @@ import './dropdown';
 import './modal';
 
 import '@components/ui/button/ui-button';
+import '@components/ui/language-switcher/ui-language-switcher';
 
 interface NavItem {
   key: string;
@@ -58,12 +58,6 @@ export class DefaultIndex extends PageElement {
     { fallback: { render: () => html`` } }
   );
 
-  private renderLanguageSwitcher(): TemplateResult {
-    const target: SupportedLanguage = getPreferredLanguage() === 'en' ? 'ja' : 'en';
-    const label = target === 'ja' ? '日本語' : 'English';
-    return html`<ui-button size="sm" variant="soft" @click=${() => setPreferredLanguage(target)}>${label}</ui-button>`;
-  }
-
   protected override renderContents(): TemplateResult {
     return html`
       <div class="min-h-full w-full bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white dark:scheme-dark">
@@ -71,7 +65,7 @@ export class DefaultIndex extends PageElement {
           <div class="mx-auto max-w-4xl px-4 py-4">
             <div class="flex items-center justify-between gap-4">
               <h1 class="text-xl font-bold">${this.trans('site_title')}</h1>
-              ${this.renderLanguageSwitcher()}
+              <ui-language-switcher variant="soft"></ui-language-switcher>
             </div>
             <nav class="mt-3 flex flex-wrap gap-2">
               ${this.navItems.map(

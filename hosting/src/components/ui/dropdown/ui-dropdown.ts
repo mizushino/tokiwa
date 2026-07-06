@@ -7,6 +7,8 @@ import { transition } from '@app/transition';
 
 export type DropdownSize = 'sm' | 'md' | 'lg';
 
+export type DropdownPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
+
 /**
  * Dropdown menu component with trigger button and dropdown panel.
  *
@@ -34,7 +36,7 @@ export class UiDropdown extends LitElement {
   size: DropdownSize = 'md';
 
   @property({ type: String })
-  placement: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end' = 'bottom-start';
+  placement: DropdownPlacement = 'bottom-start';
 
   @state()
   private isOpen = false;

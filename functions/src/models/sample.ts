@@ -1,6 +1,7 @@
-import { FirestoreCollection, FirestoreDocument, timeId } from '@mzsn/firestore';
+import { FirestoreCollection, timeId } from '@mzsn/firestore';
 
 import { sampleCollectionPath, sampleDocumentPath, type SampleData, type SampleKey } from '@firestore/types/sample.js';
+import { TimestampedDocument, timestampDefaults } from 'src/models/timestamped-document.js';
 
 /**
  * Firestore document representing a sample.
@@ -8,7 +9,7 @@ import { sampleCollectionPath, sampleDocumentPath, type SampleData, type SampleK
  * This class handles CRUD operations for sample documents in Firestore.
  * Used as a template for creating new document models.
  */
-export class SampleDocument extends FirestoreDocument<SampleKey, SampleData> {
+export class SampleDocument extends TimestampedDocument<SampleKey, SampleData> {
   static pathTemplate = sampleDocumentPath;
 
   /**
@@ -26,23 +27,11 @@ export class SampleDocument extends FirestoreDocument<SampleKey, SampleData> {
    * Initializes empty fields with current timestamps.
    */
   public static get defaultData(): SampleData {
-    const now = new Date();
     return {
       name: '',
       count: 0,
-      createdAt: now,
-      updatedAt: now,
+      ...timestampDefaults(),
     };
-  }
-
-  /**
-   * Lifecycle hook that runs before saving the document.
-   * Automatically updates the updatedAt timestamp to the current time.
-   */
-  protected override beforeSave(): void {
-    const now = new Date();
-    this.data.createdAt ??= now;
-    this.data.updatedAt = now;
   }
 }
 

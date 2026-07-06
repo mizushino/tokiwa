@@ -16,7 +16,7 @@ export type CheckboxSize = 'sm' | 'md' | 'lg';
  * ```
  *
  * @slot - Checkbox label content.
- * @fires change - Fired when the checked state changes.
+ * @fires change - Fired when the checked state changes, detail: { checked, value }.
  */
 @customElement('ui-checkbox')
 export class UiCheckbox extends LitElement {

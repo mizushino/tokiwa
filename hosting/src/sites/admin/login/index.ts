@@ -3,13 +3,13 @@ import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 import { AuthError, signInWithEmail, signInWithProvider, type AuthErrorCode } from '@app/auth';
-import { getPreferredLanguage, setPreferredLanguage, type SupportedLanguage } from '@app/i18n';
 import { PageElement } from '@app/page';
 
 import pageMetadata from './page.json';
 
 import '@components/ui/button/ui-button';
 import '@components/ui/checkbox/ui-checkbox';
+import '@components/ui/language-switcher/ui-language-switcher';
 
 @customElement('admin-login')
 export class AdminLogin extends PageElement {
@@ -106,6 +106,10 @@ export class AdminLogin extends PageElement {
         return this.trans('err_invalid_credentials');
       case 'LOGIN_FAILED':
         return this.trans('err_login_failed');
+      case 'EMAIL_NOT_VERIFIED':
+        return this.trans('err_email_not_verified');
+      case 'ACCOUNT_LINKING_REQUIRED':
+        return this.trans('err_account_linking');
       default:
         return this.trans('err_generic');
     }
@@ -120,16 +124,6 @@ export class AdminLogin extends PageElement {
         <h2 class="mt-6 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">
           ${this.trans('sign_in_title')}
         </h2>
-      </div>
-    `;
-  }
-
-  private renderLanguageSwitcher(): TemplateResult {
-    const target: SupportedLanguage = getPreferredLanguage() === 'en' ? 'ja' : 'en';
-    const label = target === 'ja' ? '日本語' : 'English';
-    return html`
-      <div class="flex justify-end">
-        <ui-button size="sm" variant="secondary" @click=${() => setPreferredLanguage(target)}>${label}</ui-button>
       </div>
     `;
   }
@@ -192,7 +186,7 @@ export class AdminLogin extends PageElement {
     return html`
       <form @submit=${this.handleSubmit} class="space-y-6">
         ${this.renderErrorMessage()} ${this.renderEmailField()} ${this.renderPasswordField()}
-        <ui-checkbox name="remember-me">ログイン状態を保持</ui-checkbox>
+        <ui-checkbox name="remember-me">${this.trans('remember_me')}</ui-checkbox>
         <!--
           Native submit button: a submit control inside a nested custom element's shadow root
           would not be associated with this form, so we keep it native and reuse the primary
@@ -265,7 +259,9 @@ export class AdminLogin extends PageElement {
         ${this.renderHeader()}
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-120">
-          ${this.renderLanguageSwitcher()}
+          <div class="flex justify-end">
+            <ui-language-switcher variant="secondary"></ui-language-switcher>
+          </div>
           <div
             class="mt-3 bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12 dark:bg-gray-800/50 dark:shadow-none dark:outline dark:-outline-offset-1 dark:outline-white/10"
           >

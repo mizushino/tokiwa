@@ -214,9 +214,8 @@ export class DefaultLitAsync extends PageElement {
   protected override renderContents(): TemplateResult {
     return pageContainer(html`
       ${pageHero({
-        title: 'lit-async Demo',
-        description:
-          'lit-async is a lightweight collection of directives and decorators for handling asynchronous operations directly in your Lit templates without boilerplate.',
+        title: this.trans('hero_title'),
+        description: this.trans('hero_desc'),
         accent: 'info',
       })}
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
