@@ -13,8 +13,11 @@ This document defines coding standards and conventions for the project.
 ## Code Style
 
 ### Linting and Formatting
-- **ESLint 10 flat config** with `typescript-eslint` and `eslint-plugin-import-x` for code quality
-- **Prettier** is configured per package (`hosting/prettier.config.js`, `functions/prettier.config.js`)
+
+Tooling differs per package, but the root `npm run lint` runs both:
+
+- **hosting**: vite-plus (`vp`) toolchain — lint via `vp lint .` (oxlint, rules in `hosting/oxlint-rules.json`), format via `vp fmt`. No ESLint/Prettier here.
+- **functions**: ESLint 10 flat config (`functions/eslint.config.js`) with `typescript-eslint` and `eslint-plugin-import-x`; Prettier via `functions/prettier.config.js`.
 - **IMPORTANT**: After writing or modifying source code, always run the linter to ensure consistent code style
 
 ```bash

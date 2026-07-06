@@ -173,8 +173,7 @@ node -v
 | `npm run dev:default` | Start the default site in dev mode |
 | `npm run dev:admin` | Start the admin site in dev mode |
 | `npm run test` | Run hosting and functions tests |
-| `npm run test:e2e` | Run Playwright tests for hosting |
-| `npm run coverage` | Run coverage for hosting and functions |
+| `npm run e2e` | Run Playwright tests for hosting |
 | `npm run emulators` | Start Firebase emulators from `.artifacts/firebase` |
 
 ### Code Verification

@@ -29,17 +29,12 @@ Follow the **Conventional Commits** specification for all commit messages.
 
 ## Examples
 
-```bash
+```
 feat: add user authentication with Firebase Auth
-
 fix: resolve memory leak in data subscription
-
 test: add E2E tests for Cloud Functions with 84% coverage
-
 refactor: extract business logic from triggers for testability
-
 docs: update README with installation instructions
-
 chore: upgrade dependencies to latest versions
 ```
 
@@ -57,7 +52,7 @@ chore: upgrade dependencies to latest versions
 
 The subject line should complete the sentence: "If applied, this commit will..."
 
-```bash
+```
 # ✅ Good
 feat: add user profile page
 fix: resolve navigation bug on Safari
@@ -86,7 +81,7 @@ Closes #123
 
 Reference issues, breaking changes, or other metadata:
 
-```bash
+```
 fix: resolve data sync issue with Firestore
 
 BREAKING CHANGE: UserDocument.save() now returns Promise<void> instead of boolean
@@ -94,7 +89,7 @@ BREAKING CHANGE: UserDocument.save() now returns Promise<void> instead of boolea
 
 ## Quick Reference
 
-```bash
+```
 feat: add new feature
 fix: bug fix
 docs: documentation changes

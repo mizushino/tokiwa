@@ -20,7 +20,8 @@ hosting/
 │   └── test/            # Test helpers
 ├── global-setup.ts      # Playwright global setup
 ├── playwright.config.ts
-└── vite.config.ts
+├── vitest.config.ts     # Component test config
+└── vite.config.ts       # vite-plus (vp) config
 ```
 
 ### Key Directories
@@ -42,7 +43,7 @@ Contains site-specific routers and pages:
 - nested folders such as `helloworld/`, `buttons/`, or `firestore/` map to route segments and usually contain `index.ts`, `page.json`, and optional `*.spec.ts`
 
 #### `src/components/ui/`
-Reusable components shared across sites. Current UI components include button, checkbox, dialog, dropdown, modal, sidebar, split, and table.
+Reusable components shared across sites. Current UI components include button, checkbox, dialog, dropdown, input, modal, sidebar, split, and table.
 
 #### `src/models/`
 Client-side Firestore models and subscriptions, for example `subscribeToUserDocument()` and Firestore document classes built on `@mzsn/firestore/web`.
@@ -240,7 +241,7 @@ Prefer root-level scripts during day-to-day work:
 npm run dev:default
 npm run dev:admin
 npm run test
-npm run test:e2e
+npm run e2e
 ```
 
 Package-level scripts remain useful when you want to scope work to hosting only:
@@ -249,7 +250,7 @@ Package-level scripts remain useful when you want to scope work to hosting only:
 cd hosting
 npm run test
 npm run test:watch
-npm run coverage
+npm run e2e
 ```
 ```ts
 ${transition(show ? 'enter' : 'leave', {

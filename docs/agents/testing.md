@@ -18,17 +18,17 @@ Run these from the repository root when you want a package-agnostic entry point:
 npm run test
 npm run test:hosting
 npm run test:functions
-npm run test:e2e
-npm run coverage
-npm run coverage:hosting
-npm run coverage:functions
+npm run e2e
+npm run e2e:ui
 ```
+
+Coverage is not exposed as a root script. Run it per package: `vp test run --coverage` under `hosting/`, or `npm run coverage` under `functions/`.
 
 ## Hosting Component Tests
 
 ### Current Setup
 
-- Test runner: Vitest
+- Toolchain: vite-plus (`vp`); tests run through Vitest under the hood (`hosting/vitest.config.ts`)
 - Environment: happy-dom
 - Include pattern: `src/**/*.test.ts`
 - Coverage provider: v8
@@ -39,10 +39,9 @@ npm run coverage:functions
 ```bash
 cd hosting
 
-npm run test
-npm run test:watch
-npm run test:ui
-npm run coverage
+npm run test          # vp test run
+npm run test:watch    # vp test
+vp test run --coverage
 ```
 
 ### File Placement
@@ -103,11 +102,11 @@ Avoid asserting raw Tailwind class names or implementation-only layout details u
 ```bash
 cd hosting
 
-npm run test:e2e
-npm run test:e2e:ui
-npm run test:e2e:debug
-npm run test:e2e:report
+npm run e2e            # playwright test
+npm run e2e:ui         # playwright test --ui
 ```
+
+Both are also exposed at the repository root as `npm run e2e` and `npm run e2e:ui`.
 
 `hosting/playwright.config.ts` starts three background services automatically:
 
@@ -174,7 +173,6 @@ Or from the repository root:
 
 ```bash
 npm run test:functions
-npm run coverage:functions
 ```
 
 ### File Placement
