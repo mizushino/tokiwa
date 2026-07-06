@@ -3,7 +3,7 @@ import { css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { PartType, type ElementPart, type PartInfo } from 'lit/directive.js';
 import { LitShare } from 'lit-share';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { clearPreferredLanguageCache, setPreferredLanguage } from '@app/i18n';
 

@@ -1,7 +1,7 @@
 import { LitElement, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { PartType, type ElementPart, type PartInfo } from 'lit/directive.js';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { TransitionDirective, transition } from './transition';
 

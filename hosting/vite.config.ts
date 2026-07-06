@@ -1,11 +1,13 @@
-import { mkdirSync } from 'fs';
+import { mkdirSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 
 import tailwindcss from '@tailwindcss/vite';
-import type { UserConfig } from 'vite';
-import { defineConfig, loadEnv } from 'vite';
+import type { UserConfig } from 'vite-plus';
+import { defineConfig, loadEnv } from 'vite-plus';
 
 import { PostBuildPlugin } from './vite-plugin-post-build';
+
+const lint = JSON.parse(readFileSync(resolve(__dirname, 'oxlint-rules.json'), 'utf8'));
 
 let globalProperties = '';
 
@@ -17,6 +19,7 @@ export default ({ mode }: { mode: string }): UserConfig => {
   const publicDir = resolve(process.cwd(), 'public', site);
 
   return defineConfig({
+    lint,
     root: `src/sites/${site}`,
     envDir: resolve(__dirname),
     publicDir,

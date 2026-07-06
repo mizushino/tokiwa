@@ -1,6 +1,6 @@
 import type { FirebaseApp } from 'firebase/app';
 import type { Auth, AuthProvider, User } from 'firebase/auth';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import {
   AuthError,

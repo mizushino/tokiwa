@@ -1,6 +1,6 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test';
 
 import { clearPreferredLanguageCache, setPreferredLanguage } from '@app/i18n';
 
