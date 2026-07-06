@@ -163,6 +163,68 @@ Use `static styles` or a wrapper element when host-level layout must be enforced
 
 If you want the default wrapper, override `renderContents()`. If the page needs a custom shell, override `render()` directly.
 
+### Internationalization (i18n)
+
+`src/app/i18n/` owns the preferred-language state and translation lookup. Supported languages are `'ja'` and `'en'` (`SupportedLanguage`), and the module default is `'ja'`.
+
+#### Language State
+
+- `getPreferredLanguage()` returns the current language; `setPreferredLanguage(lang)` updates it, persists it to `localStorage` (`preferredLanguage`), and notifies subscribers
+- `subscribePreferredLanguage(listener)` registers a change listener and returns an unsubscribe function
+- Cross-tab changes (`storage` events) and back/forward-cache restores (`pageshow`) are synchronized automatically by the module
+
+`PageElement` already subscribes: on a language change it re-applies page metadata and re-renders, so pages usually need no extra wiring. A non-page component that renders language-dependent output must subscribe itself, following the same pattern as `ui-language-switcher`:
+
+```ts
+private unsubscribeLanguage?: () => void;
+
+public override connectedCallback(): void {
+  super.connectedCallback();
+  this.unsubscribeLanguage = subscribePreferredLanguage(() => this.requestUpdate());
+}
+
+public override disconnectedCallback(): void {
+  super.disconnectedCallback();
+  this.unsubscribeLanguage?.();
+  this.unsubscribeLanguage = undefined;
+}
+```
+
+#### Language Seeding
+
+Two helpers choose an initial language for visitors who have not picked one yet. Both are no-ops once an explicit preference is stored.
+
+- `seedPreferredLanguageIfUnset(lang)`: soft per-site default. Does not persist, so a site can seed `'en'` (the default site does this in its `app.ts`) while the module default stays `'ja'`
+- `seedPreferredLanguageFromUser(user)`: called from the auth layer on sign-in. Parses a `[en]` / `[ja]` suffix from the Auth `displayName` via `parseDisplayNameWithLanguage()` and persists the result
+
+Effective priority: explicit stored choice → user-profile seed → site seed → module default `'ja'`.
+
+#### Translation Lookup
+
+- Page-local strings live in the page's `page.json` under `translations`, and `this.trans(code)` in `PageElement` resolves them. Fallback order: page translation → `globalTranslations` → the code itself
+- `translations` may also localize `title` and `description`; `PageElement` applies them to the document title and meta tags per language
+- Shared UI labels (submit, cancel, close, …) live in `globalTranslations` in `src/app/i18n/translations.ts`; use `tGlobal(code, lang)` outside a `PageElement` context. Placeholders such as `{keyword}` are plain strings the caller replaces
+
+```json
+{
+  "title": "Hello, World!",
+  "translations": {
+    "en": { "title": "Hello, World!", "greeting": "Hello" },
+    "ja": { "title": "こんにちは、世界！", "greeting": "こんにちは" }
+  }
+}
+```
+
+```ts
+protected override render(): TemplateResult {
+  return html`<h1>${this.trans('greeting')}</h1>`;
+}
+```
+
+#### Language Switcher
+
+`<ui-language-switcher>` is the shared toggle control. It shows the name of the other language and calls `setPreferredLanguage()` on click; place it in headers or sidebars instead of hand-rolling per-site switchers.
+
 ### Authentication Pattern
 
 Use `userSnapshot()` with `track()` for auth-aware rendering.
