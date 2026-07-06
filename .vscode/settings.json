@@ -3,39 +3,18 @@
   "editor.formatOnSave": true,
   "editor.formatOnPaste": false,
   "editor.formatOnType": true,
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "explorer.compactFolders": false,
   "html.format.wrapAttributes": "force-aligned",
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
-  "eslint.workingDirectories": [
-    {
-      "directory": "./hosting",
-      "changeProcessCWD": true
-    },
-    {
-      "directory": "./functions",
-      "changeProcessCWD": true
-    },
-    {
-      "directory": "./firestore",
-      "changeProcessCWD": true
-    }
-  ],
   "editor.codeActionsOnSave": {
     "source.organizeImports": "never",
     "source.addMissingImports": "always",
     "source.fixAll": "never",
-    "source.fixAll.eslint": "always"
+    "source.fixAll.oxc": "always"
   },
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
-      "file": ".github/docs/commit.md"
+      "file": "docs/agents/commit.md"
     }
   ],
   "tailwindCSS.experimental.classRegex": [

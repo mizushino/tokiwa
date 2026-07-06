@@ -20,15 +20,14 @@ node_modules/
 src/
 
 # TypeScript config
-tsconfig.json
-tsconfig.dev.json
+tsconfig*.json
 
-# Build config
-esbuild.config.mjs
+# Build / test config
+vite.config.ts
+vitest.config.ts
 
 # Linting
-eslint.config.js
-.eslintrc.*
+oxlint-rules.json
 
 # IDE
 .vscode/
