@@ -347,7 +347,7 @@ ${transition(show ? 'enter' : 'leave', {
 
 ## Firebase Configuration
 
-- Firebase SDK v10+
+- Firebase SDK v12+
 - Modular imports for tree-shaking
 - IndexedDB persistence for offline support
 - Automatic ID token refresh (55-minute interval)
