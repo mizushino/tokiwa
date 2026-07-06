@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
-import { PageElement, pageCard, pageContainer, pageHero, pageSection } from '@app/page';
+import { cardSubheading, PageElement, pageCard, pageContainer, pageHero, pageSection } from '@app/page';
 
 import pageMetadata from './page.json';
 
@@ -122,16 +122,14 @@ export class DefaultButtons extends PageElement {
     return html`
       <div class="space-y-6">
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('form_actions')}</h3>
+          ${cardSubheading(this.trans('form_actions'))}
           <div class="flex justify-end gap-3">
             <ui-button variant="soft">${this.trans('cancel')}</ui-button>
             <ui-button variant="primary">${this.trans('save_changes')}</ui-button>
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">
-            ${this.trans('confirmation_dialog')}
-          </h3>
+          ${cardSubheading(this.trans('confirmation_dialog'))}
           <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">${this.trans('confirmation_message')}</div>
           <div class="flex gap-3">
             <ui-button variant="soft" fullWidth>${this.trans('cancel')}</ui-button>
@@ -139,7 +137,7 @@ export class DefaultButtons extends PageElement {
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('button_group')}</h3>
+          ${cardSubheading(this.trans('button_group'))}
           <div class="flex gap-2">
             <ui-button variant="soft" size="sm">${this.trans('view')}</ui-button>
             <ui-button variant="info" size="sm">${this.trans('edit')}</ui-button>
@@ -147,7 +145,7 @@ export class DefaultButtons extends PageElement {
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('rounded_buttons')}</h3>
+          ${cardSubheading(this.trans('rounded_buttons'))}
           <div class="flex gap-3">
             <ui-button variant="primary" size="md" rounded>Primary</ui-button>
             <ui-button variant="success" size="md" rounded>Success</ui-button>

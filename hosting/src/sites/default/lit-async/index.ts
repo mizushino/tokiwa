@@ -2,7 +2,7 @@ import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { track, loading } from 'lit-async';
 
-import { cardHeading, PageElement, pageCard, pageContainer, pageHero } from '@app/page';
+import { cardHeading, PageElement, pageCard, pageContainer, pageHero, pageResultBox } from '@app/page';
 
 import pageMetadata from './page.json';
 
@@ -96,11 +96,12 @@ export class DefaultLitAsync extends PageElement {
               </svg>
             `,
           })}
-          <div
-            class="flex min-h-20 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 text-center font-medium italic dark:border-gray-800 dark:bg-gray-900/50"
-          >
-            ${track(loading(this.promise, html`<span class="text-gray-400">${this.trans('loading_promise')}</span>`))}
-          </div>
+          ${pageResultBox(
+            html`${track(
+              loading(this.promise, html`<span class="text-gray-400">${this.trans('loading_promise')}</span>`)
+            )}`,
+            'text-center font-medium italic'
+          )}
         </div>
         <div class="mt-6 flex justify-end">
           <ui-button id="btn-reload-quote" variant="info" @click=${this.reloadPromise}
@@ -130,18 +131,19 @@ export class DefaultLitAsync extends PageElement {
               </svg>
             `,
           })}
-          <div
-            class="flex min-h-20 flex-col items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
-          >
-            ${this.counterGenerator
-              ? html`
-                  <span id="generator-counter" class="text-3xl font-extrabold text-success-600 dark:text-success-400">
-                    ${track(this.counterGenerator)}
-                  </span>
-                  <span class="mt-1 text-xs text-gray-400">${this.trans('seconds_elapsed')}</span>
-                `
-              : html`<span id="generator-stopped" class="text-gray-400">${this.trans('generator_stopped')}</span>`}
-          </div>
+          ${pageResultBox(
+            html`
+              ${this.counterGenerator
+                ? html`
+                    <span id="generator-counter" class="text-3xl font-extrabold text-success-600 dark:text-success-400">
+                      ${track(this.counterGenerator)}
+                    </span>
+                    <span class="mt-1 text-xs text-gray-400">${this.trans('seconds_elapsed')}</span>
+                  `
+                : html`<span id="generator-stopped" class="text-gray-400">${this.trans('generator_stopped')}</span>`}
+            `,
+            'flex-col'
+          )}
         </div>
         <div class="mt-6 flex justify-end gap-2">
           ${this.isGeneratorRunning
@@ -176,10 +178,8 @@ export class DefaultLitAsync extends PageElement {
                 </svg>
               `,
             })}
-            <div
-              class="flex min-h-20 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 text-center font-medium dark:border-gray-800 dark:bg-gray-900/50"
-            >
-              ${track(
+            ${pageResultBox(
+              html`${track(
                 loading(
                   this.slowPromise,
                   html`
@@ -211,8 +211,9 @@ export class DefaultLitAsync extends PageElement {
                     </div>
                   `
                 )
-              )}
-            </div>
+              )}`,
+              'text-center font-medium'
+            )}
           </div>
           <div class="mt-6 flex justify-end">
             <ui-button id="btn-trigger-slow" variant="primary" @click=${this.reloadSlowPromise}>

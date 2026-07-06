@@ -1,5 +1,14 @@
 import { html, type TemplateResult } from 'lit';
 
+/**
+ * Shared page-layout helpers.
+ *
+ * Signature convention:
+ * - Plain wrappers take `(content, extraClass?)` — pageContainer, pageCard, pageResultBox.
+ * - Chrome-only helpers take a single options object — pageHero, cardHeading — or a string — cardSubheading.
+ * - pageSection renders chrome above content and takes `(options, content)`.
+ */
+
 export type PageAccent = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
 
 const HERO_GRADIENT: Record<PageAccent, string> = {
@@ -24,8 +33,8 @@ const CHIP_ACCENT: Record<PageAccent, string> = {
  * Outer page container: a centered column with consistent spacing.
  * Every page wraps its content in this so pages share the same width and rhythm.
  */
-export function pageContainer(content: unknown): TemplateResult {
-  return html`<div class="mx-auto max-w-4xl space-y-6 p-4">${content}</div>`;
+export function pageContainer(content: unknown, extraClass = ''): TemplateResult {
+  return html`<div class="${extraClass} mx-auto max-w-4xl space-y-6 p-4">${content}</div>`;
 }
 
 export function pageHero({
@@ -55,6 +64,20 @@ export function pageCard(content: unknown, extraClass = ''): TemplateResult {
   `;
 }
 
+/**
+ * Neutral "result" surface for demo output (counter values, fetched data, async placeholders).
+ * Centers its content in a subtle bordered box so every page presents results the same way.
+ */
+export function pageResultBox(content: unknown, extraClass = ''): TemplateResult {
+  return html`
+    <div
+      class="${extraClass} flex min-h-20 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
+    >
+      ${content}
+    </div>
+  `;
+}
+
 export function cardHeading({
   title,
   description,
@@ -73,6 +96,11 @@ export function cardHeading({
     </div>
     ${description ? html`<p class="mb-4 text-sm text-gray-500 dark:text-gray-400">${description}</p>` : ''}
   `;
+}
+
+/** Lighter sibling of cardHeading for grouping controls inside a card (no icon chip). */
+export function cardSubheading(title: string): TemplateResult {
+  return html`<h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${title}</h3>`;
 }
 
 export function pageSection(

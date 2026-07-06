@@ -1,4 +1,4 @@
-import { html, LitElement, type TemplateResult } from 'lit';
+import { html, LitElement, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 import {
@@ -7,6 +7,7 @@ import {
   subscribePreferredLanguage,
   type SupportedLanguage,
 } from '@app/i18n';
+import { tailwindCSS } from '@app/styles';
 import type { ButtonVariant } from '@components/ui/button/ui-button';
 
 import '@components/ui/button/ui-button';
@@ -26,6 +27,8 @@ import '@components/ui/button/ui-button';
  */
 @customElement('ui-language-switcher')
 export class UiLanguageSwitcher extends LitElement {
+  static override styles: CSSResultGroup = [tailwindCSS];
+
   @property({ type: String })
   variant: ButtonVariant = 'secondary';
 

@@ -11,7 +11,6 @@ export interface SidebarNavItem {
   href?: string;
   icon?: TemplateResult;
   badge?: string | number;
-  active?: boolean;
   divider?: boolean;
 }
 

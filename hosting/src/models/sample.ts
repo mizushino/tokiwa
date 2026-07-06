@@ -1,8 +1,10 @@
-import { FirestoreCollection, FirestoreDocument, timeId } from '@mzsn/firestore/web';
+import { FirestoreCollection, timeId } from '@mzsn/firestore/web';
 
 import { sampleCollectionPath, sampleDocumentPath, type SampleData, type SampleKey } from '@firestore/types/sample.js';
 
-export class SampleDocument extends FirestoreDocument<SampleKey, SampleData> {
+import { TimestampedDocument, timestampDefaults } from './timestamped-document';
+
+export class SampleDocument extends TimestampedDocument<SampleKey, SampleData> {
   static pathTemplate = sampleDocumentPath;
 
   public static get defaultKey(): SampleKey {
@@ -12,19 +14,11 @@ export class SampleDocument extends FirestoreDocument<SampleKey, SampleData> {
   }
 
   public static get defaultData(): SampleData {
-    const now = new Date();
     return {
       name: '',
       count: 0,
-      createdAt: now,
-      updatedAt: now,
+      ...timestampDefaults(),
     };
-  }
-
-  protected override beforeSave(): void {
-    const now = new Date();
-    this.data.createdAt ??= now;
-    this.data.updatedAt = now;
   }
 }
 

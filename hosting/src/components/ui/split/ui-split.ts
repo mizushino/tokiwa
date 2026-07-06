@@ -6,6 +6,9 @@ import { tailwindCSS } from '@app/styles';
 
 export type SplitDirection = 'horizontal' | 'vertical';
 
+const DEFAULT_MIN_NEXT_HEIGHT = 200;
+const DEFAULT_MIN_NEXT_WIDTH = 320;
+
 /**
  * Resizable split divider for adjacent panels.
  *
@@ -204,7 +207,7 @@ export class UiSplit extends LitElement {
     }
   }
 
-  private onDrag = (e: MouseEvent | TouchEvent | DragEvent): void => {
+  private onDrag = (e: MouseEvent | TouchEvent): void => {
     if (!this.isDragging) return;
 
     let clientX: number;
@@ -217,15 +220,13 @@ export class UiSplit extends LitElement {
       }
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
-    } else if (e instanceof MouseEvent) {
+    } else {
       if (e.buttons !== 1) {
         this.finalizeDrag();
         return;
       }
       clientX = e.clientX;
       clientY = e.clientY;
-    } else {
-      return;
     }
 
     const handleElement = this.handleRef.value;
@@ -240,7 +241,7 @@ export class UiSplit extends LitElement {
 
       const nextElement = this.nextElementSibling as HTMLElement;
       if (nextElement) {
-        const minNextHeight = this.startMin !== undefined ? this.startMin : 200;
+        const minNextHeight = this.startMin !== undefined ? this.startMin : DEFAULT_MIN_NEXT_HEIGHT;
         const maxAllowedHeight = this.parentRect.height - minNextHeight - (handleElement.clientHeight || 0);
         if (height > maxAllowedHeight) height = maxAllowedHeight;
       }
@@ -257,7 +258,7 @@ export class UiSplit extends LitElement {
 
       const nextElement = this.nextElementSibling as HTMLElement;
       if (nextElement) {
-        const minNextWidth = 320;
+        const minNextWidth = DEFAULT_MIN_NEXT_WIDTH;
         const maxAllowedWidth = this.parentRect.width - minNextWidth - (handleElement.clientWidth || 0);
         if (width > maxAllowedWidth) width = maxAllowedWidth;
       }
@@ -293,7 +294,6 @@ export class UiSplit extends LitElement {
     super.connectedCallback();
     document.addEventListener('mousemove', this.onDrag);
     document.addEventListener('touchmove', this.onDrag, { passive: false });
-    document.addEventListener('drag', this.onDrag);
     document.addEventListener('mouseup', this.onPointerUp);
     document.addEventListener('touchend', this.onPointerUp);
     document.addEventListener('touchcancel', this.onPointerUp);
@@ -303,7 +303,6 @@ export class UiSplit extends LitElement {
     super.disconnectedCallback();
     document.removeEventListener('mousemove', this.onDrag);
     document.removeEventListener('touchmove', this.onDrag);
-    document.removeEventListener('drag', this.onDrag);
     document.removeEventListener('mouseup', this.onPointerUp);
     document.removeEventListener('touchend', this.onPointerUp);
     document.removeEventListener('touchcancel', this.onPointerUp);

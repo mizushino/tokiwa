@@ -4,7 +4,15 @@ import { createRef, ref } from 'lit/directives/ref.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import { tailwindCSS } from '@app/styles';
-import { overlayBackdropTransition, overlayPanelTransition, transition } from '@app/transition';
+import {
+  overlayBackdropClasses,
+  overlayBackdropTransition,
+  overlayDialogClasses,
+  overlayLeaveDurationMs,
+  overlayPanelClasses,
+  overlayPanelTransition,
+  transition,
+} from '@app/transition';
 
 import type { ButtonVariant } from '../button/ui-button';
 import type { UiInput } from '../input/ui-input';
@@ -118,7 +126,7 @@ export class UiModal extends LitElement {
       } else {
         setTimeout(() => {
           this.dialogRef.value?.close();
-        }, 200);
+        }, overlayLeaveDurationMs);
       }
     }
   }
@@ -251,8 +259,8 @@ export class UiModal extends LitElement {
         path: 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
       },
       info: {
-        bg: 'bg-primary-100 dark:bg-primary-500/20',
-        text: 'text-primary-600 dark:text-primary-400',
+        bg: 'bg-info-100 dark:bg-info-500/20',
+        text: 'text-info-600 dark:text-info-400',
         path: 'm11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z',
       },
       question: {
@@ -283,17 +291,17 @@ export class UiModal extends LitElement {
         @cancel=${this.handleDialogCancel}
         @mousedown=${this.handleMouseDown}
         @click=${this.handleBackdropClick}
-        class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto border-0 bg-transparent p-0"
+        class="${overlayDialogClasses}"
       >
         <div
           ${transition(this.open ? 'enter' : 'leave', overlayBackdropTransition)}
-          class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/50"
+          class="${overlayBackdropClasses}"
         ></div>
 
         <div class="flex min-h-full items-center justify-center p-4 text-center focus:outline-none sm:p-0">
           <div
             ${transition(this.open ? 'enter' : 'leave', overlayPanelTransition)}
-            class="${this.getSizeClasses()} relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10"
+            class="${this.getSizeClasses()} ${overlayPanelClasses}"
           >
             <div class="sm:flex sm:items-start">
               ${this.getIconElement()}

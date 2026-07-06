@@ -46,9 +46,9 @@ export class Navigate extends Directive {
     this.element?.addEventListener('click', this.onClick);
   }
 
-  protected onClick = (async () => {
+  protected onClick = async (): Promise<void> => {
     await Navigate.to(this._pathname);
-  }).bind(this);
+  };
 
   public static async to(pathname: string, state?: unknown): Promise<void> {
     if (Navigate.isExternalUrl(pathname)) {

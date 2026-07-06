@@ -229,4 +229,4 @@ async function confirmWithInput(
   return result !== null && normalizeKeyword(result) === normalizedKeyword;
 }
 
-export const Modal = { open, success, info, error, confirm, prompt, confirmWithInput };
+export const Modal = { success, info, error, confirm, prompt, confirmWithInput };

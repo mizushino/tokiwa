@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { PageElement, pageCard, pageContainer, pageHero, pageSection } from '@app/page';
+import { cardSubheading, PageElement, pageCard, pageContainer, pageHero, pageSection } from '@app/page';
 
 import pageMetadata from './page.json';
 
@@ -108,13 +108,11 @@ export class DefaultCheckboxes extends PageElement {
     return html`
       <div class="space-y-6">
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('terms_title')}</h3>
+          ${cardSubheading(this.trans('terms_title'))}
           <ui-checkbox>${this.trans('terms_agree')}</ui-checkbox>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">
-            ${this.trans('notifications_title')}
-          </h3>
+          ${cardSubheading(this.trans('notifications_title'))}
           <div class="space-y-3">
             <ui-checkbox checked>${this.trans('email_notifications')}</ui-checkbox>
             <ui-checkbox>${this.trans('push_notifications')}</ui-checkbox>
@@ -123,7 +121,7 @@ export class DefaultCheckboxes extends PageElement {
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">${this.trans('features_title')}</h3>
+          ${cardSubheading(this.trans('features_title'))}
           <div class="space-y-3">
             <ui-checkbox size="lg" checked>${this.trans('feature_advanced')}</ui-checkbox>
             <ui-checkbox size="lg">${this.trans('feature_beta')}</ui-checkbox>
@@ -131,9 +129,7 @@ export class DefaultCheckboxes extends PageElement {
           </div>
         `)}
         ${pageCard(html`
-          <h3 class="mb-4 text-base font-semibold text-gray-900 dark:text-white">
-            ${this.trans('small_checkboxes_title')}
-          </h3>
+          ${cardSubheading(this.trans('small_checkboxes_title'))}
           <div class="space-y-2">
             <ui-checkbox size="sm">${this.trans('remember_me')}</ui-checkbox>
             <ui-checkbox size="sm">${this.trans('keep_logged_in')}</ui-checkbox>

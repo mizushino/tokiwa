@@ -61,7 +61,7 @@ describe('UiSidebar', () => {
 
   it('renders navigation items', async () => {
     const navItems: SidebarNavItem[] = [
-      { label: 'Dashboard', href: '/dashboard', active: true },
+      { label: 'Dashboard', href: '/dashboard' },
       { label: 'Settings', href: '/settings' },
     ];
     element.navItems = navItems;

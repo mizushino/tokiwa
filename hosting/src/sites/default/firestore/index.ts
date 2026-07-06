@@ -2,7 +2,7 @@ import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { track } from 'lit-async';
 
-import { cardHeading, PageElement, pageCard, pageContainer, pageHero } from '@app/page';
+import { cardHeading, PageElement, pageCard, pageContainer, pageHero, pageResultBox } from '@app/page';
 import { SampleDocument } from '@models/sample';
 
 import pageMetadata from './page.json';
@@ -83,13 +83,11 @@ export class DefaultFirestore extends PageElement {
             </svg>
           `,
         })}
-        <div
-          class="flex min-h-20 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
-        >
+        ${pageResultBox(html`
           <span class="font-medium text-success-600 dark:text-success-400">
             ${track(this.sampleDocument.snapshot, (sample) => (sample ? sample.data.name : this.trans('no_data')))}
           </span>
-        </div>
+        `)}
       `)}
     `);
   }

@@ -17,7 +17,7 @@ interface FirebaseConfigOptions {
   allowDemoFallback?: boolean;
 }
 
-function requireEnv(env: FirebaseEnv, key: keyof FirebaseOptions extends string ? string : never): string {
+function requireEnv(env: FirebaseEnv, key: string): string {
   const value = env[key];
   if (!value) {
     throw new Error(`Missing Firebase config: ${key}`);

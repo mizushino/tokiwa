@@ -48,6 +48,18 @@ export const overlayPanelTransition: TransitionOptions = {
   leaveTo: 'translate-y-4 opacity-0 sm:scale-95',
 };
 
+/** Shared overlay chrome for the native-dialog components (ui-dialog, ui-modal). */
+export const overlayDialogClasses =
+  'fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto border-0 bg-transparent p-0';
+
+export const overlayBackdropClasses = 'fixed inset-0 bg-gray-500/75 dark:bg-gray-900/50';
+
+export const overlayPanelClasses =
+  'relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10';
+
+/** Must match the duration-200 leave transitions above; overlays delay close() until the leave finishes. */
+export const overlayLeaveDurationMs = 200;
+
 export class TransitionDirective extends AsyncDirective {
   private element?: HTMLElement;
   private currentDirection: 'enter' | 'leave' | null = null;

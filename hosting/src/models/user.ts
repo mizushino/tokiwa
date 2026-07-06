@@ -1,7 +1,9 @@
-import { FirestoreCollection, FirestoreDocument, firestore } from '@mzsn/firestore/web';
+import { FirestoreCollection, firestore } from '@mzsn/firestore/web';
 import { doc, onSnapshot, type Unsubscribe } from 'firebase/firestore';
 
 import { userCollectionPath, userDocumentPath, type UserData, type UserKey } from '@firestore/types/user.js';
+
+import { TimestampedDocument, timestampDefaults } from './timestamped-document';
 
 /**
  * Subscribe to real-time updates of a user document.
@@ -42,7 +44,7 @@ export function subscribeToUserDocument(uid: string, callback: (data: UserData |
   );
 }
 
-export class UserDocument extends FirestoreDocument<UserKey, UserData> {
+export class UserDocument extends TimestampedDocument<UserKey, UserData> {
   static pathTemplate = userDocumentPath;
 
   public static get defaultKey(): UserKey {
@@ -52,19 +54,11 @@ export class UserDocument extends FirestoreDocument<UserKey, UserData> {
   }
 
   public static get defaultData(): UserData {
-    const now = new Date();
     return {
       displayName: '',
       email: '',
-      createdAt: now,
-      updatedAt: now,
+      ...timestampDefaults(),
     };
-  }
-
-  protected override beforeSave(): void {
-    const now = new Date();
-    this.data.createdAt ??= now;
-    this.data.updatedAt = now;
   }
 }
 

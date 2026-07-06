@@ -158,7 +158,7 @@ describe('UiModal', () => {
     element.open = true;
     await element.updateComplete;
 
-    const iconContainer = element.querySelector('.bg-primary-100');
+    const iconContainer = element.querySelector('.bg-info-100');
     expect(iconContainer).toBeTruthy();
   });
 

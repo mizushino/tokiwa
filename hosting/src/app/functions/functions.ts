@@ -1,7 +1,7 @@
 import type { FirebaseApp } from 'firebase/app';
 import { connectFunctionsEmulator, getFunctions, httpsCallable, type Functions } from 'firebase/functions';
 
-export let firebaseFunctions: Functions;
+let firebaseFunctions: Functions;
 
 export interface FunctionsSettings {
   region?: string;

@@ -3,7 +3,15 @@ import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 
 import { tailwindCSS } from '@app/styles';
-import { overlayBackdropTransition, overlayPanelTransition, transition } from '@app/transition';
+import {
+  overlayBackdropClasses,
+  overlayBackdropTransition,
+  overlayDialogClasses,
+  overlayLeaveDurationMs,
+  overlayPanelClasses,
+  overlayPanelTransition,
+  transition,
+} from '@app/transition';
 
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
@@ -59,7 +67,7 @@ export class UiDialog extends LitElement {
       } else {
         setTimeout(() => {
           this.dialog?.close();
-        }, 200);
+        }, overlayLeaveDurationMs);
       }
     }
   }
@@ -103,17 +111,17 @@ export class UiDialog extends LitElement {
         @close=${this.handleDialogClose}
         @mousedown=${this.handleMouseDown}
         @click=${this.handleBackdropClick}
-        class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto border-0 bg-transparent p-0"
+        class="${overlayDialogClasses}"
       >
         <div
           ${transition(this.open ? 'enter' : 'leave', overlayBackdropTransition)}
-          class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/50"
+          class="${overlayBackdropClasses}"
         ></div>
 
         <div class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
           <div
             ${transition(this.open ? 'enter' : 'leave', overlayPanelTransition)}
-            class="${this.getSizeClasses()} relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800 dark:outline dark:-outline-offset-1 dark:outline-white/10"
+            class="${this.getSizeClasses()} ${overlayPanelClasses}"
           >
             <div class="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
               <button

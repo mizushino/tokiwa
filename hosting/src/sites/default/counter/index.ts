@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { cardHeading, PageElement, pageCard, pageContainer, pageHero } from '@app/page';
+import { cardHeading, PageElement, pageCard, pageContainer, pageHero, pageResultBox } from '@app/page';
 
 import pageMetadata from './page.json';
 
@@ -37,13 +37,11 @@ export class DefaultCounter extends PageElement {
             </svg>
           `,
         })}
-        <div
-          class="flex min-h-20 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
-        >
+        ${pageResultBox(html`
           <span id="counter-value" class="text-5xl font-extrabold text-primary-600 dark:text-primary-400">
             ${this.count}
           </span>
-        </div>
+        `)}
 
         <div class="mt-6 flex justify-center gap-3">
           <ui-button variant="danger" @click=${this.decrement}>${this.trans('decrement')}</ui-button>

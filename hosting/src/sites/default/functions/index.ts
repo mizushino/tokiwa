@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { cardHeading, PageElement, pageCard, pageContainer, pageHero } from '@app/page';
+import { cardHeading, PageElement, pageCard, pageContainer, pageHero, pageResultBox } from '@app/page';
 import { sample } from '@services/sample';
 
 import pageMetadata from './page.json';
@@ -72,9 +72,7 @@ export class DefaultFunctions extends PageElement {
             ${this.isSubmitting ? this.trans('running') : this.trans('run_sample')}
           </ui-button>
 
-          <div
-            class="flex min-h-20 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
-          >
+          ${pageResultBox(html`
             ${this.result
               ? html`<span class="font-medium text-success-600 dark:text-success-400">${this.result}</span>`
               : this.error
@@ -82,7 +80,7 @@ export class DefaultFunctions extends PageElement {
                     >${this.trans('error')}: ${this.error}</span
                   >`
                 : html`<span class="text-sm text-gray-400">${this.trans('result_placeholder')}</span>`}
-          </div>
+          `)}
         </div>
       `)}
     `);
