@@ -390,7 +390,7 @@ describe('UiDropdown keyboard navigation nested in a shadow root', () => {
     document.body.appendChild(host);
     const shadow = host.attachShadow({ mode: 'open' });
 
-    dropdown = document.createElement('ui-dropdown') as UiDropdown;
+    dropdown = proxyShadowQueries(document.createElement('ui-dropdown') as UiDropdown);
 
     const trigger = document.createElement('button');
     trigger.setAttribute('slot', 'trigger');
@@ -429,7 +429,7 @@ describe('UiDropdown keyboard navigation nested in a shadow root', () => {
 
   async function open(): Promise<void> {
     await dropdown.updateComplete;
-    (dropdown.shadowRoot?.querySelector('[data-dropdown-trigger]') as HTMLElement).click();
+    (dropdown.querySelector('[data-dropdown-trigger]') as HTMLElement).click();
     await dropdown.updateComplete;
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
@@ -482,7 +482,7 @@ describe('UiDropdown keyboard navigation nested in a shadow root', () => {
   });
 
   function menu(): HTMLElement {
-    return dropdown.shadowRoot?.querySelector('[data-dropdown-menu]') as HTMLElement;
+    return dropdown.querySelector('[data-dropdown-menu]') as HTMLElement;
   }
 
   it('stays open when clicking an item inside the menu (inside click not treated as outside)', async () => {
