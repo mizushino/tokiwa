@@ -177,18 +177,16 @@ describe('UiButton', () => {
     expect(button?.className).toContain('items-center');
   });
 
-  it('applies full width class when fullWidth is true', async () => {
+  it('reflects fullwidth attribute when fullWidth is true', async () => {
     element.fullWidth = true;
     await element.updateComplete;
-    const button = element.querySelector('button');
-    expect(button?.className).toContain('w-full');
+    expect(element.hasAttribute('fullwidth')).toBe(true);
   });
 
-  it('does not apply full width class when fullWidth is false', async () => {
+  it('does not reflect fullwidth attribute when fullWidth is false', async () => {
     element.fullWidth = false;
     await element.updateComplete;
-    const button = element.querySelector('button');
-    expect(button?.className).not.toContain('w-full');
+    expect(element.hasAttribute('fullwidth')).toBe(false);
   });
 
   it('applies common button classes to all variants', async () => {

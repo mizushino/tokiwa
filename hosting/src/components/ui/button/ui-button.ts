@@ -35,9 +35,6 @@ export class UiButton extends LitElement {
         display: flex;
         width: 100%;
       }
-      button {
-        width: 100%;
-      }
     `,
   ];
 
@@ -64,7 +61,7 @@ export class UiButton extends LitElement {
 
   private getVariantClasses(): string {
     const baseClasses =
-      'inline-flex items-center justify-center font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer';
+      'inline-flex w-full items-center justify-center font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer';
 
     const variants: Record<ButtonVariant, string> = {
       primary:
@@ -130,7 +127,6 @@ export class UiButton extends LitElement {
     const classes = [
       this.getVariantClasses(),
       this.getSizeClasses(),
-      this.fullWidth && 'w-full',
       (this.disabled || this.loading) && 'disabled:cursor-not-allowed disabled:opacity-50',
     ]
       .filter(Boolean)
