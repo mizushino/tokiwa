@@ -18,10 +18,5 @@
     }
   },
   "compileOnSave": true,
-  "include": [
-    "src",
-    "scripts",
-    "../firestore/src",
-    "*.config.ts"
-  ]
+  "include": ["src", "scripts", "../firestore/src", "*.config.ts"]
 }

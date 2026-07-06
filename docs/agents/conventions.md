@@ -14,10 +14,12 @@ This document defines coding standards and conventions for the project.
 
 ### Linting and Formatting
 
-Tooling differs per package, but the root `npm run lint` runs both:
+Both packages use the **vite-plus (`vp`) toolchain**; the root `npm run lint` runs both:
 
-- **hosting**: vite-plus (`vp`) toolchain — lint via `vp lint .` (oxlint, rules in `hosting/oxlint-rules.json`), format via `vp fmt`. No ESLint/Prettier here.
-- **functions**: ESLint 10 flat config (`functions/eslint.config.js`) with `typescript-eslint` and `eslint-plugin-import-x`; Prettier via `functions/prettier.config.js`.
+- lint via `vp lint .` — oxlint, with rules in `{package}/oxlint-rules.json` (referenced from each `vite.config.ts` `lint` field). Type-aware checks are enabled.
+- format via `vp fmt` — oxfmt, configured in the `fmt` block of each `vite.config.ts`.
+- `vp check` runs format, lint, and type checks together.
+- No ESLint or Prettier in either package.
 - **IMPORTANT**: After writing or modifying source code, always run the linter to ensure consistent code style
 
 ```bash
@@ -48,7 +50,7 @@ private renderCell(_row: unknown, column: TableColumn, index: number): TemplateR
   // ...
 }
 
-// ❌ Bad: Unused parameter without underscore (ESLint error)
+// ❌ Bad: Unused parameter without underscore (lint error)
 private renderCell(row: unknown, column: TableColumn, index: number): TemplateResult {
   // ...
 }

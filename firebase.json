@@ -13,11 +13,9 @@
       "*.local",
       "src",
       "tsconfig*.json",
-      "esbuild.config.mjs",
-      "eslint.config.js",
-      ".eslintrc.*",
-      "prettier.config.js",
-      ".prettierrc.*"
+      "vite.config.ts",
+      "vitest.config.ts",
+      "oxlint-rules.json"
     ],
     "predeploy": [
       "npm --prefix \"$RESOURCE_DIR\" run lint",

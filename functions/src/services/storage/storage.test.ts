@@ -1,3 +1,5 @@
+import type * as NodeCrypto from 'crypto';
+
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
@@ -67,8 +69,9 @@ vi.mock('firebase-admin/storage', () => ({
   })),
 }));
 
-vi.mock('uuid', () => ({
-  v4: vi.fn(() => 'fixed-download-token'),
+vi.mock('crypto', async (importActual) => ({
+  ...(await importActual<typeof NodeCrypto>()),
+  randomUUID: vi.fn(() => 'fixed-download-token'),
 }));
 
 describe('storage service', () => {

@@ -3,6 +3,7 @@
  * Monitors file uploads to Cloud Storage, generates multiple size variations for images, and records metadata in Firestore
  */
 
+import { randomUUID } from 'crypto';
 import { existsSync, unlinkSync, mkdirSync } from 'fs';
 import { writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
@@ -14,7 +15,6 @@ import { logger } from 'firebase-functions';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import type { StorageObjectData } from 'firebase-functions/v2/storage';
 import { onObjectFinalized } from 'firebase-functions/v2/storage';
-import { v4 } from 'uuid';
 
 import type {
   ImageStorageData,
@@ -111,7 +111,7 @@ const METADATA_INACTIVE = { active: 'false' } as const;
  */
 function generateMetadata(storageData: StorageData | ImageStorageData): Record<string, string> {
   return {
-    firebaseStorageDownloadTokens: v4(),
+    firebaseStorageDownloadTokens: randomUUID(),
     active: storageData.active.toString(),
     accessLevel: storageData.accessLevel.toString(),
     ...('width' in storageData && storageData.width && { width: storageData.width.toString() }),
