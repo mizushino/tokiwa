@@ -1,1 +1,19 @@
-export * from './auth';
+export {
+  AuthError,
+  AuthErrorCode,
+  currentUser,
+  destroy,
+  getFirebaseAuth,
+  initializeAuth,
+  isLoading,
+  isSignedIn,
+  loadUser,
+  resetPassword,
+  signInWithCustomToken,
+  signInWithEmail,
+  signInWithProvider,
+  signOut,
+  userSnapshot,
+  type FirebaseAuthSettings,
+  type User,
+} from './auth';

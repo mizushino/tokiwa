@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    /* Shared strictness for all workspace packages; module/target stay per-package. */
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  }
+}

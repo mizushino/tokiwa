@@ -1,23 +1,8 @@
 import { FirestoreDocument } from '@mzsn/firestore/web';
 
-/**
- * Timestamp fields shared by every Firestore document type in this project.
- */
-export interface TimestampedData {
-  createdAt: Date;
-  updatedAt: Date;
-}
+import type { TimestampedData } from '@firestore/types/timestamped.js';
 
-/**
- * Returns fresh creation/update timestamps for use in `defaultData`.
- */
-export function timestampDefaults(): TimestampedData {
-  const now = new Date();
-  return {
-    createdAt: now,
-    updatedAt: now,
-  };
-}
+export { type TimestampedData, timestampDefaults } from '@firestore/types/timestamped.js';
 
 /**
  * Base class for this project's client-side Firestore documents.

@@ -62,13 +62,11 @@ export class DefaultFirestore extends PageElement {
           </div>
 
           ${this.loadResult
-            ? html`
-                <div class="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50">
-                  <span class="text-sm text-gray-600 dark:text-gray-300"
-                    >${this.trans('load_result')}: ${this.loadResult}</span
-                  >
-                </div>
-              `
+            ? pageResultBox(html`
+                <span class="text-sm text-gray-600 dark:text-gray-300"
+                  >${this.trans('load_result')}: ${this.loadResult}</span
+                >
+              `)
             : ''}
         </div>
       `)}

@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { PageElement, pageContainer, pageHero, pageSection } from '@app/page';
+import { PageElement, pageContainer, pageHero, pageResultBox, pageSection } from '@app/page';
 import { Modal } from '@components/ui/modal';
 
 import '@components/ui/modal/ui-modal';
@@ -61,10 +61,13 @@ export class DefaultModal extends PageElement {
         this.renderSingleArgAPI()
       )}
       ${this.lastAction
-        ? html`<div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-gray-900">
-            <h3 class="font-semibold text-gray-900 dark:text-white">${this.trans('last_action')}</h3>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">${this.lastAction}</p>
-          </div>`
+        ? pageResultBox(
+            html`
+              <h3 class="font-semibold text-gray-900 dark:text-white">${this.trans('last_action')}</h3>
+              <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">${this.lastAction}</p>
+            `,
+            'flex-col items-start'
+          )
         : ''}
     `);
   }

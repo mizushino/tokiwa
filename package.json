@@ -25,14 +25,10 @@
     "prod:default": "APP_SITE=default npm run prod",
     "build:default": "APP_SITE=default npm run build",
     "lint:default": "APP_SITE=default npm run lint",
-    "lint:hosting:default": "npm run lint:default",
-    "build:hosting:default": "npm run build:default",
     "dev:admin": "APP_SITE=admin npm run dev",
     "prod:admin": "APP_SITE=admin npm run prod",
     "build:admin": "APP_SITE=admin npm run build",
-    "lint:admin": "APP_SITE=admin npm run lint",
-    "lint:hosting:admin": "npm run lint:admin",
-    "build:hosting:admin": "npm run build:admin"
+    "lint:admin": "APP_SITE=admin npm run lint"
   },
   "devDependencies": {
     "firebase-tools": "^15.22.4"

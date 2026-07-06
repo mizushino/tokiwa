@@ -57,15 +57,6 @@ export class StorageCollection extends FirestoreCollection<never, StorageKey, St
   static documentClass = StorageDocument;
 
   /**
-   * Finds all storage objects in a specific directory.
-   */
-  static async findByDirectory(directoryId: string): Promise<StorageCollection> {
-    const collection = new StorageCollection({ where: [['directoryId', '==', directoryId]] });
-    await collection.get();
-    return collection;
-  }
-
-  /**
    * Finds a single storage object by bucket and object name.
    */
   static async findOneByObjectName(bucket: string, objectName: string): Promise<StorageDocument | undefined> {

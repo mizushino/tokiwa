@@ -62,7 +62,7 @@ export class DefaultButtons extends PageElement {
         </div>
 
         <div>
-          <h3 class="mb-4 text-sm font-medium text-gray-900 dark:text-white">${this.trans('full_width')}</h3>
+          ${cardSubheading(this.trans('full_width'))}
           <div class="space-y-4">
             <ui-button variant="primary" size="md" fullWidth>Full Width Primary</ui-button>
             <ui-button variant="danger" size="md" fullWidth>Full Width Danger</ui-button>

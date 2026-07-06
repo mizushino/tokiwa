@@ -30,14 +30,14 @@ export type AuthErrorCode =
   | 'ACCOUNT_LINKING_REQUIRED'
   | 'EMAIL_NOT_VERIFIED';
 
-export const AuthErrorCode: Record<string, AuthErrorCode> = {
+export const AuthErrorCode = {
   EmailRequired: 'EMAIL_REQUIRED',
   PasswordRequired: 'PASSWORD_REQUIRED',
   InvalidCredentials: 'INVALID_CREDENTIALS',
   LoginFailed: 'LOGIN_FAILED',
   AccountLinkingRequired: 'ACCOUNT_LINKING_REQUIRED',
   EmailNotVerified: 'EMAIL_NOT_VERIFIED',
-};
+} as const satisfies Record<string, AuthErrorCode>;
 
 export class AuthError extends Error {
   code: AuthErrorCode;
@@ -266,7 +266,11 @@ export async function signInWithProvider(
     return;
   }
 
-  await signInWithRedirect(auth, provider, resolver);
+  try {
+    await signInWithRedirect(auth, provider, resolver);
+  } catch (error: unknown) {
+    handleAuthError(error);
+  }
 }
 
 export async function signOut(): Promise<void> {

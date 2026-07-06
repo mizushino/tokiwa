@@ -1,13 +1,9 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "module": "NodeNext",
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "moduleResolution": "nodenext",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noEmit": true,
-    "strict": true,
     "target": "ES2024",
     "lib": ["ES2024"],
     "paths": {

@@ -57,6 +57,7 @@ export class UserDocument extends TimestampedDocument<UserKey, UserData> {
     return {
       displayName: '',
       email: '',
+      image: '',
       ...timestampDefaults(),
     };
   }

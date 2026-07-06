@@ -10,6 +10,7 @@ import {
   overlayLeaveDurationMs,
   overlayPanelClasses,
   overlayPanelTransition,
+  overlayTitleClasses,
   transition,
 } from '@app/transition';
 
@@ -140,7 +141,7 @@ export class UiDialog extends LitElement {
               ? html`
                   <div class="sm:flex sm:items-start">
                     <div class="mt-3 w-full text-center sm:mt-0 sm:text-left">
-                      <h3 class="text-base font-semibold text-gray-900 dark:text-white">${this.title}</h3>
+                      <h3 class="${overlayTitleClasses}">${this.title}</h3>
                     </div>
                   </div>
                 `

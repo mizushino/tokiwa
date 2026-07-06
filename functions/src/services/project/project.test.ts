@@ -5,26 +5,11 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import type { ProjectUserData } from '@firestore/types/project-user.js';
 import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
+import { waitForCondition } from 'src/test/wait-for-condition.js';
 
 const testEnv = firebaseFunctionsTest(getFirebaseTestConfig());
 
-async function waitForCondition(assertion: () => Promise<void> | void, attempts = 40, delayMs = 100): Promise<void> {
-  let lastError: unknown;
-
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    try {
-      await assertion();
-      return;
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
-    }
-  }
-
-  throw lastError;
-}
-
-async function waitForUserDocument(db: Firestore, uid: string): Promise<void> {
+async function waitForUserDocument(uid: string): Promise<void> {
   await waitForCondition(async () => {
     const { UserDocument } = await import('../../models/user.js');
     const userDocument = new UserDocument({ uid });
@@ -112,7 +97,7 @@ describe('project service E2E', () => {
       }
     );
     await userDoc.save();
-    await waitForUserDocument(db, 'user123');
+    await waitForUserDocument('user123');
 
     const projectUserData: ProjectUserData = {
       displayName: 'Test User',
@@ -144,7 +129,7 @@ describe('project service E2E', () => {
       }
     );
     await userDoc.save();
-    await waitForUserDocument(db, 'user456');
+    await waitForUserDocument('user456');
 
     const projectUserData: ProjectUserData = {
       displayName: 'Test User',
@@ -177,7 +162,7 @@ describe('project service E2E', () => {
       }
     );
     await userDoc.save();
-    await waitForUserDocument(db, 'user789');
+    await waitForUserDocument('user789');
 
     await updateUserPermissions('proj789', 'user789', null);
 
@@ -204,7 +189,7 @@ describe('project service E2E', () => {
       }
     );
     await userDoc.save();
-    await waitForUserDocument(db, 'user999');
+    await waitForUserDocument('user999');
 
     const projectUserData: ProjectUserData = {
       displayName: 'Test User',
@@ -238,7 +223,7 @@ describe('project service E2E', () => {
       }
     );
     await userDoc.save();
-    await waitForUserDocument(db, 'user111');
+    await waitForUserDocument('user111');
 
     const projectUserData: ProjectUserData = {
       displayName: 'Test User',
@@ -292,7 +277,7 @@ describe('project service E2E', () => {
       }
     );
     await userDoc.save();
-    await waitForUserDocument(db, 'user-trigger');
+    await waitForUserDocument('user-trigger');
 
     const afterData: ProjectUserData = {
       displayName: 'Trigger User',

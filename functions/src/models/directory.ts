@@ -1,11 +1,6 @@
-import { FirestoreCollection, timeId } from '@mzsn/firestore';
+import { timeId } from '@mzsn/firestore';
 
-import {
-  directoryCollectionPath,
-  directoryDocumentPath,
-  type DirectoryData,
-  type DirectoryKey,
-} from '@firestore/types/directory.js';
+import { directoryDocumentPath, type DirectoryData, type DirectoryKey } from '@firestore/types/directory.js';
 import { TimestampedDocument, timestampDefaults } from 'src/models/timestamped-document.js';
 
 /**
@@ -38,14 +33,4 @@ export class DirectoryDocument extends TimestampedDocument<DirectoryKey, Directo
       ...timestampDefaults(),
     };
   }
-}
-
-/**
- * Firestore collection for managing directory documents.
- *
- * Provides methods for querying and managing multiple directory documents.
- */
-export class DirectoryCollection extends FirestoreCollection<never, DirectoryKey, DirectoryData, DirectoryDocument> {
-  static pathTemplate = directoryCollectionPath;
-  static documentClass = DirectoryDocument;
 }

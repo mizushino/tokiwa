@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { cardSubheading, PageElement, pageCard, pageContainer, pageHero, pageSection } from '@app/page';
+import { cardSubheading, PageElement, pageCard, pageContainer, pageHero, pageResultBox, pageSection } from '@app/page';
 
 import pageMetadata from './page.json';
 
@@ -87,19 +87,20 @@ export class DefaultCheckboxes extends PageElement {
           </ui-checkbox>
         </div>
 
-        <div
-          class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50 dark:outline dark:-outline-offset-1 dark:outline-white/10"
-        >
-          <div class="text-sm text-gray-900 dark:text-white">
-            <p class="font-semibold">${this.trans('selected_options')}</p>
-            <ul class="mt-2 list-inside list-disc space-y-1 text-gray-600 dark:text-gray-400">
-              ${isChecked1 ? html`<li>${this.trans('option_1')}</li>` : ''}
-              ${isChecked2 ? html`<li>${this.trans('option_2')}</li>` : ''}
-              ${isChecked3 ? html`<li>${this.trans('option_3')}</li>` : ''}
-              ${!isChecked1 && !isChecked2 && !isChecked3 ? html`<li>${this.trans('none_selected')}</li>` : ''}
-            </ul>
-          </div>
-        </div>
+        ${pageResultBox(
+          html`
+            <div class="text-sm text-gray-900 dark:text-white">
+              <p class="font-semibold">${this.trans('selected_options')}</p>
+              <ul class="mt-2 list-inside list-disc space-y-1 text-gray-600 dark:text-gray-400">
+                ${isChecked1 ? html`<li>${this.trans('option_1')}</li>` : ''}
+                ${isChecked2 ? html`<li>${this.trans('option_2')}</li>` : ''}
+                ${isChecked3 ? html`<li>${this.trans('option_3')}</li>` : ''}
+                ${!isChecked1 && !isChecked2 && !isChecked3 ? html`<li>${this.trans('none_selected')}</li>` : ''}
+              </ul>
+            </div>
+          `,
+          'flex-col items-start'
+        )}
       </div>
     `;
   }

@@ -22,14 +22,6 @@ const lint = JSON.parse(readFileSync(resolve(__dirname, 'oxlint-rules.json'), 'u
 // Firebase from `package.json` on deploy. Output is a CommonJS bundle at
 // `lib/index.cjs`, matching the package `main` field.
 export default defineConfig({
-  fmt: {
-    tabWidth: 2,
-    singleQuote: true,
-    trailingComma: 'es5',
-    printWidth: 120,
-    sortPackageJson: false,
-    ignorePatterns: [],
-  },
   lint,
   resolve: {
     alias: {

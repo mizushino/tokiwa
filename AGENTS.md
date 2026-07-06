@@ -181,9 +181,14 @@ The repository is a single npm workspace with two member packages: `hosting` and
 | `nvm use` | Switch to the project's Node.js version |
 | `npm run dev:default` | Start the default site in dev mode |
 | `npm run dev:admin` | Start the admin site in dev mode |
+| `npm run build` | Build hosting (current `APP_SITE`) and functions |
+| `npm run build:default` / `npm run build:admin` | Build one hosting site |
 | `npm run fmt` | Format all sources (hosting, functions, firestore, storage) with oxfmt |
+| `npm run lint` | Lint hosting (oxlint + lit-analyzer) and functions |
 | `npm run test` | Run hosting and functions tests |
+| `npm run test:hosting` / `npm run test:functions` | Run one package's tests |
 | `npm run e2e` | Run Playwright tests for hosting |
+| `npm run e2e:ui` | Run Playwright tests in UI mode |
 | `npm run emulators` | Start Firebase emulators from `.artifacts/firebase` |
 
 ### Code Verification

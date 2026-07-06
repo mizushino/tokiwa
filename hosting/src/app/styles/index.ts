@@ -1,1 +1,1 @@
-export { tailwindCSS } from './tailwindcss.ts';
+export { tailwindCSS } from './tailwindcss';

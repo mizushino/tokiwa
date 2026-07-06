@@ -7,25 +7,10 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 
 import type { UserData } from '@firestore/types/user.js';
 import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
+import { waitForCondition } from 'src/test/wait-for-condition.js';
 
 const testEnv = firebaseFunctionsTest(getFirebaseTestConfig());
 const wrapBlockingFunction = <T>(fn: T): ReturnType<typeof testEnv.wrap> => testEnv.wrap(fn as never);
-
-async function waitForCondition(assertion: () => Promise<void> | void, attempts = 20, delayMs = 100): Promise<void> {
-  let lastError: unknown;
-
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    try {
-      await assertion();
-      return;
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
-    }
-  }
-
-  throw lastError;
-}
 
 describe('user service E2E', () => {
   let db: Firestore;

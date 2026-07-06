@@ -1,3 +1,5 @@
+import type { TimestampedData } from './timestamped.js';
+
 export const storageCollectionPath = 'storage';
 export const storageDocumentPath = `${storageCollectionPath}/{storageId}`;
 
@@ -27,7 +29,7 @@ export interface ImageStorageVariation {
   height: number;
 }
 
-export interface StorageData {
+export interface StorageData extends TimestampedData {
   name: string;
   bucket: string;
   objectName: string;
@@ -40,8 +42,6 @@ export interface StorageData {
   metadata?: StorageMetadata;
   beginDate?: Date;
   endDate?: Date;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface ImageStorageData extends StorageData {

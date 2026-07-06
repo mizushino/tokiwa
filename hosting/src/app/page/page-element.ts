@@ -1,6 +1,6 @@
 import { LitElement, css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 
-import { globalTranslations, getPreferredLanguage, subscribePreferredLanguage } from '@app/i18n';
+import { getPreferredLanguage, subscribePreferredLanguage, tGlobal } from '@app/i18n';
 import { tailwindCSS } from '@app/styles';
 
 import { Navigate } from './navigate';
@@ -84,8 +84,7 @@ export class PageElement extends LitElement {
     const lang = getPreferredLanguage();
     const pageValue = this.pageMetadata?.translations?.[lang]?.[code];
     if (pageValue !== undefined) return pageValue;
-    const globalValue = globalTranslations[lang]?.[code];
-    return globalValue ?? code;
+    return tGlobal(code, lang);
   }
 
   protected async navigateTo(pathname: string, state?: unknown): Promise<void> {

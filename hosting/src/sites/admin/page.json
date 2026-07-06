@@ -7,16 +7,14 @@
       "nav_helloworld": "Hello World",
       "access_denied_title": "Access denied",
       "access_denied_message": "This page is only accessible to administrators.",
-      "checking_permission": "Checking permissions…",
-      "not_found": "Not Found"
+      "checking_permission": "Checking permissions…"
     },
     "ja": {
       "nav_dashboard": "ダッシュボード",
       "nav_helloworld": "Hello World",
       "access_denied_title": "アクセス権限がありません",
       "access_denied_message": "このページは管理者のみアクセス可能です。",
-      "checking_permission": "権限を確認中...",
-      "not_found": "見つかりません"
+      "checking_permission": "権限を確認中..."
     }
   }
 }

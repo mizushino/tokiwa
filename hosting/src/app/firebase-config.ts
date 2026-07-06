@@ -35,6 +35,7 @@ function createDemoFirebaseConfig(env: FirebaseEnv): FirebaseOptions {
     storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || env.FIREBASE_STORAGE_BUCKET || `${projectId}.appspot.com`,
     messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || '000000000000',
     appId: env.VITE_FIREBASE_APP_ID || `1:000000000000:web:${projectId}`,
+    ...(env.VITE_FIREBASE_MEASUREMENT_ID ? { measurementId: env.VITE_FIREBASE_MEASUREMENT_ID } : {}),
   };
 }
 

@@ -111,16 +111,19 @@ export class AdminIndex extends PageElement {
     this.requestUpdate();
   };
 
+  /** Full-screen centered wrapper shared by the loading, permission-check, and access-denied states. */
+  protected renderFullScreenCenter(content: TemplateResult): TemplateResult {
+    return html`<div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">${content}</div>`;
+  }
+
   protected renderAccessDenied(): TemplateResult {
-    return html`
-      <div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
-        <div class="text-center">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">${this.trans('access_denied_title')}</h1>
-          <p class="mt-2 text-gray-500 dark:text-gray-400">${this.trans('access_denied_message')}</p>
-          <ui-button class="mt-4" variant="primary" @click=${this.handleUserClick}>${this.trans('logout')}</ui-button>
-        </div>
+    return this.renderFullScreenCenter(html`
+      <div class="text-center">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">${this.trans('access_denied_title')}</h1>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">${this.trans('access_denied_message')}</p>
+        <ui-button class="mt-4" variant="primary" @click=${this.handleUserClick}>${this.trans('logout')}</ui-button>
       </div>
-    `;
+    `);
   }
 
   protected renderContents(): TemplateResult {
@@ -158,9 +161,9 @@ export class AdminIndex extends PageElement {
   protected override render(): TemplateResult {
     return html`${track(this.user, (user) => {
       if (user === undefined) {
-        return html`<div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
-          <div class="text-gray-500 dark:text-gray-400">${this.trans('loading')}</div>
-        </div>`;
+        return this.renderFullScreenCenter(
+          html`<div class="text-gray-500 dark:text-gray-400">${this.trans('loading')}</div>`
+        );
       }
 
       this.currentUser = user as unknown as User;
@@ -174,9 +177,9 @@ export class AdminIndex extends PageElement {
       this.startUserDocSubscription(user.uid);
 
       if (this.isAdmin === undefined) {
-        return html`<div class="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
-          <div class="text-gray-500 dark:text-gray-400">${this.trans('checking_permission')}</div>
-        </div>`;
+        return this.renderFullScreenCenter(
+          html`<div class="text-gray-500 dark:text-gray-400">${this.trans('checking_permission')}</div>`
+        );
       }
 
       if (!this.isAdmin) {

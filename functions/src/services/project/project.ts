@@ -3,7 +3,7 @@ import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { projectUserDocumentPath, type ProjectUserData } from '@firestore/types/project-user.js';
 import { UserDocument } from 'src/models/user.js';
 
-export const roleTable = new Map<string, string>([
+const roleTable = new Map<string, string>([
   ['owner', 'o'],
   ['manager', 'm'],
   ['writer', 'w'],
