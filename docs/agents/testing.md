@@ -39,6 +39,14 @@ npm run test          # vp test run
 npm run test:watch    # vp test
 ```
 
+Scope a run to a directory or file by passing a path:
+
+```bash
+npm run test -- src/components/ui/button
+```
+
+Always run `vp test` from inside the package directory (`hosting/` or `functions/`). Running it from the repository root has no matching Vitest config, so it picks up Playwright specs and emulator-dependent functions tests and reports meaningless failures.
+
 ### File Placement
 
 Component and app-level unit tests are colocated with the code they exercise.

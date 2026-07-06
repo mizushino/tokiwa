@@ -165,6 +165,15 @@ nvm use
 node -v
 ```
 
+### npm Workspaces
+
+The repository is a single npm workspace with two member packages: `hosting` and `functions`. `firestore/` is not a package; it is shared source referenced through the `@firestore/*` path alias.
+
+- Always run `npm install` from the repository root; there is one root `package-lock.json` and no per-package lockfiles
+- Add a dependency to a specific package with `npm install <pkg> -w hosting` or `npm install <pkg> -w functions`
+- `overrides` and `devEngines` only take effect in the root `package.json`; never add them to member packages
+- `functions/` ships as a self-contained bundle (`lib/index.cjs`); only the packages listed in its `dependencies` are installed by Firebase on deploy, resolved from version ranges since there is no package-level lockfile
+
 ### Development Commands
 
 | Command | Description |

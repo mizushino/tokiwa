@@ -43,7 +43,7 @@ Contains site-specific routers and pages:
 - nested folders such as `helloworld/`, `buttons/`, or `firestore/` map to route segments and usually contain `index.ts`, `page.json`, and optional `*.spec.ts`
 
 #### `src/components/ui/`
-Reusable components shared across sites. Current UI components include button, checkbox, dialog, dropdown, input, modal, sidebar, split, and table.
+Reusable components shared across sites. Current UI components include button, checkbox, dialog, dropdown, input, language-switcher, modal, sidebar, split, and table.
 
 #### `src/models/`
 Client-side Firestore models and subscriptions, for example `subscribeToUserDocument()` and Firestore document classes built on `@mzsn/firestore/web`.
@@ -233,35 +233,7 @@ html`
 `;
 ```
 
-## Frontend Workflow
-
-Prefer root-level scripts during day-to-day work:
-
-```bash
-npm run dev:default
-npm run dev:admin
-npm run test
-npm run e2e
-```
-
-Package-level scripts remain useful when you want to scope work to hosting only:
-
-```bash
-cd hosting
-npm run test
-npm run test:watch
-npm run e2e
-```
-```ts
-${transition(show ? 'enter' : 'leave', {
-  enter: 'transition-opacity duration-300 ease-out',
-  enterFrom: 'opacity-0',
-  enterTo: 'opacity-100',
-  leave: 'transition-opacity duration-200 ease-in',
-  leaveFrom: 'opacity-100',
-  leaveTo: 'opacity-0',
-})}
-```
+#### Common Patterns
 
 **Scale and fade**:
 ```ts
@@ -337,6 +309,26 @@ ${transition(show ? 'enter' : 'leave', {
 >
   Dialog content
 </div>
+```
+
+## Frontend Workflow
+
+Prefer root-level scripts during day-to-day work:
+
+```bash
+npm run dev:default
+npm run dev:admin
+npm run test
+npm run e2e
+```
+
+Package-level scripts remain useful when you want to scope work to hosting only:
+
+```bash
+cd hosting
+npm run test
+npm run test:watch
+npm run e2e
 ```
 
 ## Multi-site Architecture
