@@ -55,7 +55,7 @@ export class UiInput extends LitElement {
   error = '';
 
   @property({ type: String })
-  autocomplete = '';
+  autocomplete: AutoFill = '';
 
   @property({ type: String })
   inputId = '';
@@ -128,7 +128,7 @@ export class UiInput extends LitElement {
         .value=${this.value}
         placeholder="${this.placeholder}"
         name="${this.name}"
-        autocomplete="${ifDefined(this.autocomplete || undefined)}"
+        .autocomplete=${this.autocomplete}
         ?disabled=${this.disabled}
         ?required=${this.required}
         @input=${this.handleInput}
