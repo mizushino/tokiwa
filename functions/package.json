@@ -33,9 +33,6 @@
     "typescript": "~6.0.3",
     "vite-plus": "0.2.2"
   },
-  "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.2"
-  },
   "engines": {
     "node": "24"
   }
