@@ -8,7 +8,8 @@
     "preview": "vp preview",
     "test": "vp test run",
     "test:watch": "vp test",
-    "lint": "vp lint .",
+    "lint": "vp lint . && npm run lint:lit",
+    "lint:lit": "lit-analyzer \"src/**/*.ts\" --quiet",
     "fmt": "vp fmt -c ../.oxfmtrc.json",
     "check": "vp check",
     "e2e": "playwright test",
@@ -36,6 +37,7 @@
     "@types/node": "^26.1.0",
     "firebase-admin": "^14.1.0",
     "happy-dom": "^20.10.6",
+    "lit-analyzer": "^2.0.3",
     "playwright": "^1.61.1",
     "typescript": "~6.0.3",
     "vite-plus": "0.2.2"
