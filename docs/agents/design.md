@@ -111,6 +111,25 @@ static override styles = [
 ];
 ```
 
+### Keep `css` Blocks to `:host` Rules Only
+- The `css` template in `static styles` exists only for `:host` / `:host([attr])` selectors, which cannot receive utility classes from inside Shadow DOM
+- Do not style inner elements through `css` selectors — put Tailwind utilities on the element's `class` attribute instead
+
+```ts
+// ❌ Bad: element selector in css`` — the button can take utility classes directly
+css`
+  button {
+    width: 100%;
+  }
+`;
+
+// ✅ Good: Tailwind utility on the element
+html`<button class="w-full ...">...</button>`;
+```
+
+- Conditional styling belongs in the class list too: prefer `class="${cond ? '' : 'whitespace-pre-wrap'}"` over `style="${cond ? '' : 'white-space: pre-wrap;'}"`
+- Direct `element.style` manipulation is acceptable only for runtime-computed values (e.g. drag sizes in pixels) or elements created outside the component's Shadow DOM, where the shared Tailwind sheet does not apply
+
 ### Keep Components Composable
 - Prefer small building blocks with slots or focused props over large monolithic components
 - Reuse shared UI primitives for buttons, dialogs, dropdowns, tables, sidebars, and form controls
