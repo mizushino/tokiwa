@@ -5,7 +5,7 @@
   "main": "lib/index.cjs",
   "scripts": {
     "lint": "vp lint .",
-    "fmt": "vp fmt",
+    "fmt": "vp fmt -c ../.oxfmtrc.json",
     "check": "vp check",
     "build": "vp build",
     "build:watch": "vp build --watch",

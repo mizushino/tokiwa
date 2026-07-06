@@ -5,7 +5,7 @@
   "trailingComma": "es5",
   "printWidth": 120,
   "sortTailwindcss": {
-    "stylesheet": "./src/app/styles/tailwind.css"
+    "stylesheet": "./hosting/src/app/styles/tailwind.css"
   },
   "sortPackageJson": false,
   "ignorePatterns": []
