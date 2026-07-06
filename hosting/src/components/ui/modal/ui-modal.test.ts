@@ -50,6 +50,17 @@ describe('UiModal', () => {
     expect(message?.textContent?.trim()).toBe('Are you sure you want to delete this item?');
   });
 
+  it('renders message without surrounding whitespace inside the pre-wrap element', async () => {
+    element.message = 'Line 1\nLine 2';
+    await element.updateComplete;
+
+    const message = element.querySelector('.whitespace-pre-wrap');
+
+    // Exact match (no trim): template indentation leaking into the pre-wrap
+    // element renders as visible leading whitespace before the message
+    expect(message?.textContent).toBe('Line 1\nLine 2');
+  });
+
   it('opens modal when open property is set to true', async () => {
     element.open = true;
     await element.updateComplete;

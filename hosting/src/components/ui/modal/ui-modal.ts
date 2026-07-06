@@ -274,6 +274,8 @@ export class UiModal extends LitElement {
   }
 
   protected override render(): TemplateResult {
+    const message = this.useHtml ? unsafeHTML(this.message) : this.message;
+
     return html`
       <dialog
         ${ref(this.dialogRef)}
@@ -298,8 +300,8 @@ export class UiModal extends LitElement {
               <div class="mt-3 w-full text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white">${this.title}</h3>
                 <div class="mt-2">
-                  <p class="${this.useHtml ? '' : 'whitespace-pre-wrap'} text-sm text-gray-500 dark:text-gray-400">
-                    ${this.useHtml ? unsafeHTML(this.message) : this.message}
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <span class="${this.useHtml ? '' : 'whitespace-pre-wrap'}">${message}</span>
                   </p>
                 </div>
                 ${this.showInput
