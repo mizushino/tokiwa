@@ -203,6 +203,21 @@ it('updates permissions when a project role changes', async () => {
 
 ---
 
+## Bug Fix Workflow
+
+Fix bugs test-first. Never fix the code before a failing test proves the bug exists.
+
+1. **Reproduce**: add a test that exercises the buggy behavior, in the same file placement as other tests for that module
+2. **Confirm it fails**: run the narrowest matching test command and verify the new test fails for the expected reason (the bug), not for a setup mistake
+3. **Fix**: change the implementation
+4. **Confirm it passes**: re-run the same test command and verify the new test passes along with the existing ones
+
+Rules:
+
+- The reproduction test stays in the codebase as a regression test; do not delete it after the fix
+- If the bug cannot be reproduced in a unit test (e.g. browser-only timing), prefer a Playwright test; if no automated reproduction is feasible, state that explicitly instead of skipping the step silently
+- Do not weaken or rewrite an existing failing assertion to make it pass unless the assertion itself encoded the buggy expectation
+
 ## Verification Strategy
 
 After changing code:
