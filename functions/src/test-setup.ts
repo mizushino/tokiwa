@@ -1,4 +1,4 @@
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
 
 import { setGlobalOptions } from 'firebase-functions/v2/options';
 

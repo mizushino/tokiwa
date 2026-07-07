@@ -3,11 +3,8 @@
  * Monitors file uploads to Cloud Storage, generates multiple size variations for images, and records metadata in Firestore
  */
 
-import { randomUUID } from 'crypto';
-import { existsSync, unlinkSync, mkdirSync } from 'fs';
-import { writeFile } from 'fs/promises';
-import { tmpdir } from 'os';
-import { basename, dirname, extname, join } from 'path';
+import { randomUUID } from 'node:crypto';
+import { basename, dirname, extname, join } from 'node:path';
 
 import { Transformer } from '@napi-rs/image';
 import { getStorage } from 'firebase-admin/storage';
@@ -48,6 +45,27 @@ interface StorageChangeEvent {
 type Bucket = ReturnType<ReturnType<typeof getStorage>['bucket']>;
 type File = ReturnType<Bucket['file']>;
 
+interface FormatOption {
+  format: ImageFormat;
+  quality: number;
+}
+
+interface UploadTask {
+  width: number;
+  height: number;
+  uploadBases: string[];
+}
+
+/** Document fields derived from processing an uploaded image */
+type ImageFields = Pick<ImageStorageData, 'width' | 'height' | 'path' | 'variations'>;
+
+interface ImageUploadResult {
+  /** Image metadata to merge into the storage document's metadata field */
+  metadata: ImageStorageMetadata;
+  /** Image-derived document fields; absent when no variations were generated */
+  imageFields?: ImageFields;
+}
+
 const IMAGE_CONFIG = {
   MAX_SIZE: 2048,
   MIN_SIZE: 128,
@@ -57,13 +75,6 @@ const IMAGE_CONFIG = {
 const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 
 type SupportedImageType = (typeof SUPPORTED_IMAGE_TYPES)[number];
-
-/**
- * Check if content type is a supported image format
- */
-function isSupportedImageType(contentType: string): contentType is SupportedImageType {
-  return SUPPORTED_IMAGE_TYPES.includes(contentType as SupportedImageType);
-}
 
 const FORMAT_MAP = {
   jpeg: { extension: 'jpg', mimeType: 'image/jpeg' },
@@ -75,6 +86,15 @@ type ImageFormat = keyof typeof FORMAT_MAP;
 
 /** Output encodings generated for every image variation */
 const FORMAT_OPTIONS: readonly FormatOption[] = [{ format: 'webp', quality: IMAGE_CONFIG.QUALITY }];
+
+const METADATA_INACTIVE = { active: 'false' } as const;
+
+/**
+ * Check if content type is a supported image format
+ */
+function isSupportedImageType(contentType: string): contentType is SupportedImageType {
+  return SUPPORTED_IMAGE_TYPES.includes(contentType as SupportedImageType);
+}
 
 /**
  * Encodes image using the specified format
@@ -94,8 +114,6 @@ async function encodeImage(transformer: Transformer, format: ImageFormat, qualit
   }
 }
 
-const METADATA_INACTIVE = { active: 'false' } as const;
-
 /**
  * Generates metadata for Cloud Storage files
  * @param storageData - Storage or image storage data
@@ -113,108 +131,67 @@ function generateMetadata(storageData: StorageData | ImageStorageData): Record<s
   };
 }
 
-interface FormatOption {
-  format: ImageFormat;
-  quality: number;
-}
-
-interface UploadTask {
-  scale: number;
-  width: number;
-  height: number;
-  uploadBases: string[];
-}
-
 /**
- * Creates default metadata object with zero/empty values
- * @returns Default metadata structure
- */
-function createDefaultMetadata(): ImageStorageMetadata {
-  return {
-    width: 0,
-    height: 0,
-    space: '',
-    channels: 0,
-    chromaSubsampling: '',
-    density: 0,
-    depth: '',
-    format: '',
-    hasAlpha: false,
-  };
-}
-
-/**
- * Creates a metadata result object
+ * Creates image metadata from the dimensions and format that could be read,
+ * with every other field zeroed or empty
  * @param width - Image width
  * @param height - Image height
  * @param format - Image format
  * @returns Metadata result object
  */
-function createMetadataResult(width: number, height: number, format: string): ImageStorageMetadata {
+function createMetadataResult(width = 0, height = 0, format = ''): ImageStorageMetadata {
   return {
-    ...createDefaultMetadata(),
     width,
     height,
+    space: '',
+    channels: 0,
+    chromaSubsampling: '',
+    density: 0,
+    depth: '',
     format,
+    hasAlpha: false,
   };
 }
 
 /**
- * Resizes an image and uploads it in multiple formats
+ * Resizes an image and uploads it in every configured output format
  * @param bucket - Cloud Storage bucket
  * @param imageBuffer - Original image buffer
- * @param width - Target width
- * @param height - Target height
- * @param tempBase - Base path for temporary files
- * @param uploadBases - Array of upload destination paths
+ * @param task - Target dimensions and upload destination base paths
  * @param metadata - Metadata to attach to uploaded files
  * @returns True if all uploads succeed, false otherwise
  */
 async function modifyAndUploadImage(
   bucket: Bucket,
   imageBuffer: Buffer,
-  width: number,
-  height: number,
-  tempBase: string,
-  uploadBases: string[],
+  task: UploadTask,
   metadata: Record<string, string>
 ): Promise<boolean> {
-  const tasks = FORMAT_OPTIONS.map((option) =>
-    (async () => {
+  const results = await Promise.all(
+    FORMAT_OPTIONS.map(async (option) => {
       const formatInfo = FORMAT_MAP[option.format];
-      const tempPath = `${tempBase}.${formatInfo.extension}`;
 
       try {
-        const transformer = new Transformer(imageBuffer).resize(width, height);
+        const transformer = new Transformer(imageBuffer).resize(task.width, task.height);
         const output = await encodeImage(transformer, option.format, option.quality);
 
-        await writeFile(tempPath, output);
-
         await Promise.all(
-          uploadBases.map((uploadBase) =>
-            bucket.upload(tempPath, {
-              destination: `${uploadBase}.${formatInfo.extension}`,
-              metadata: {
-                contentType: formatInfo.mimeType,
-                metadata,
-              },
+          task.uploadBases.map((uploadBase) =>
+            bucket.file(`${uploadBase}.${formatInfo.extension}`).save(output, {
+              contentType: formatInfo.mimeType,
+              metadata: { metadata },
             })
           )
         );
 
         return true;
       } catch (err) {
-        logger.error(`Failed to process ${option.format} format for ${tempBase}:`, err);
+        logger.error(`Failed to process ${option.format} format for ${task.uploadBases[0]}:`, err);
         return false;
-      } finally {
-        if (existsSync(tempPath)) {
-          unlinkSync(tempPath);
-        }
       }
-    })()
+    })
   );
 
-  const results = await Promise.all(tasks);
   return results.every((result) => result);
 }
 
@@ -250,16 +227,6 @@ function getOutputScales(size: number, minSize: number, maxSize: number): number
   return outputs;
 }
 
-/** Document fields derived from processing an uploaded image */
-type ImageFields = Pick<ImageStorageData, 'width' | 'height' | 'path' | 'variations'>;
-
-interface ImageUploadResult {
-  /** Image metadata to merge into the storage document's metadata field */
-  metadata: ImageStorageMetadata;
-  /** Image-derived document fields; absent when no variations were generated */
-  imageFields?: ImageFields;
-}
-
 /**
  * Processes an uploaded image and generates multiple size variations
  * @param object - Storage object data from the trigger
@@ -278,14 +245,6 @@ async function uploadImage(
   const objectDir = dirname(objectName);
   const name = basename(objectName); // Keep the extension in the name
 
-  const tempDirectory = join(tmpdir(), objectDir);
-  try {
-    mkdirSync(tempDirectory, { recursive: true });
-  } catch (err) {
-    logger.error(`Failed to create temporary directory ${tempDirectory}:`, err);
-    return null;
-  }
-
   try {
     await file.setMetadata({ metadata: METADATA_INACTIVE });
 
@@ -300,13 +259,13 @@ async function uploadImage(
     const { width, height, format } = metadata;
     if (!width || !height || width <= 0 || height <= 0) {
       logger.warn(`Invalid image dimensions for ${objectName}: ${width}x${height}`);
-      return { metadata: createMetadataResult(width ?? 0, height ?? 0, format ?? '') };
+      return { metadata: createMetadataResult(width, height, format) };
     }
 
     const outputScales = getOutputScales(Math.max(width, height), IMAGE_CONFIG.MIN_SIZE, IMAGE_CONFIG.MAX_SIZE);
     if (outputScales.length === 0) {
       logger.warn(`No output scales generated for image ${objectName} (${width}x${height})`);
-      return { metadata: createMetadataResult(width, height, format ?? '') };
+      return { metadata: createMetadataResult(width, height, format) };
     }
 
     const variations: Record<number, ImageStorageVariation> = {};
@@ -335,7 +294,6 @@ async function uploadImage(
         existingTask.uploadBases.push(outputPath);
       } else {
         uploadTasksMap.set(scale, {
-          scale,
           width: outputWidth,
           height: outputHeight,
           uploadBases: [outputPath],
@@ -346,20 +304,9 @@ async function uploadImage(
     }
 
     const metadataRecord = generateMetadata({ ...storageData, ...imageFields });
-    const tasks = Array.from(uploadTasksMap.values()).map((task) => {
-      const tempPath = join(tempDirectory, `${name}@${task.scale}`);
-      return modifyAndUploadImage(
-        bucket,
-        imageBuffer,
-        task.width,
-        task.height,
-        tempPath,
-        task.uploadBases,
-        metadataRecord
-      );
-    });
-
-    const results = await Promise.all(tasks);
+    const results = await Promise.all(
+      Array.from(uploadTasksMap.values()).map((task) => modifyAndUploadImage(bucket, imageBuffer, task, metadataRecord))
+    );
 
     const failedCount = results.filter((result) => !result).length;
     if (failedCount > 0) {
@@ -367,7 +314,7 @@ async function uploadImage(
       return null;
     }
 
-    return { metadata: createMetadataResult(width, height, format ?? ''), imageFields };
+    return { metadata: createMetadataResult(width, height, format), imageFields };
   } catch (err) {
     logger.error(`Failed to process image upload for ${objectName}:`, err);
     return null;
@@ -510,30 +457,21 @@ export async function handleChange(event: StorageChangeEvent): Promise<void> {
   }
 
   const imageData = data as ImageStorageData;
-  const { variations } = imageData;
-
-  if (!variations) {
+  const variations = Object.values(imageData.variations ?? {}).filter(isImageStorageVariation);
+  if (variations.length === 0) {
     logger.warn(`No variations found to update for bucket ${data.bucket}`);
     return;
   }
 
   const bucket = getStorage().bucket(data.bucket);
-
   const extensions = FORMAT_OPTIONS.map((option) => FORMAT_MAP[option.format].extension);
 
-  const tasks = Object.values(variations)
-    .filter((variation): variation is ImageStorageVariation => isImageStorageVariation(variation))
-    .flatMap((variation) => {
-      return extensions.map((ext) => {
-        const file = bucket.file(`${variation.path}.${ext}`);
-        return file.setMetadata({ metadata: generateMetadata(imageData) });
-      });
-    });
-
-  if (tasks.length === 0) {
-    logger.warn(`No variations found to update for bucket ${data.bucket}`);
-    return;
-  }
+  const tasks = variations.flatMap((variation) =>
+    extensions.map((ext) => {
+      const file = bucket.file(`${variation.path}.${ext}`);
+      return file.setMetadata({ metadata: generateMetadata(imageData) });
+    })
+  );
 
   try {
     await Promise.all(tasks);

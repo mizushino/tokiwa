@@ -80,16 +80,16 @@ export async function handleUserCreated(
  */
 export const created = beforeUserCreated({ region }, async (event) => {
   const userRecord = event.data;
-  if (!userRecord) {
+  if (!userRecord?.email) {
     return;
   }
 
-  const email = userRecord.email;
-  if (!email) {
-    return;
-  }
-
-  await handleUserCreated(userRecord.uid, email, userRecord.displayName ?? null, userRecord.photoURL ?? null);
+  await handleUserCreated(
+    userRecord.uid,
+    userRecord.email,
+    userRecord.displayName ?? null,
+    userRecord.photoURL ?? null
+  );
 });
 
 /**

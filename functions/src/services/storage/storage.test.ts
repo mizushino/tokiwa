@@ -1,4 +1,4 @@
-import type * as NodeCrypto from 'crypto';
+import type * as NodeCrypto from 'node:crypto';
 
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
@@ -49,14 +49,14 @@ class MockTransformer {
 
 const downloadMock = vi.fn();
 const setMetadataMock = vi.fn();
-const uploadMock = vi.fn();
+const saveMock = vi.fn();
 const fileMock = vi.fn(() => ({
   download: downloadMock,
   setMetadata: setMetadataMock,
+  save: saveMock,
 }));
 const bucketMock = vi.fn(() => ({
   file: fileMock,
-  upload: uploadMock,
 }));
 
 vi.mock('@napi-rs/image', () => ({
@@ -69,7 +69,7 @@ vi.mock('firebase-admin/storage', () => ({
   })),
 }));
 
-vi.mock('crypto', async (importActual) => ({
+vi.mock('node:crypto', async (importActual) => ({
   ...(await importActual<typeof NodeCrypto>()),
   randomUUID: vi.fn(() => 'fixed-download-token'),
 }));
@@ -93,7 +93,7 @@ describe('storage service', () => {
     transformerState.webpError = null;
     downloadMock.mockResolvedValue([Buffer.from('image')]);
     setMetadataMock.mockResolvedValue(undefined);
-    uploadMock.mockResolvedValue(undefined);
+    saveMock.mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -206,13 +206,13 @@ describe('storage service', () => {
     };
 
     expect(setMetadataMock).toHaveBeenCalledWith({ metadata: { active: 'false' } });
-    expect(uploadMock).toHaveBeenCalledTimes(5);
-    expect(uploadMock).toHaveBeenCalledWith(
-      expect.stringContaining('photo.jpg@2.webp'),
+    expect(saveMock).toHaveBeenCalledTimes(5);
+    expect(fileMock).toHaveBeenCalledWith('gallery/photo.jpg@2048.webp');
+    expect(saveMock).toHaveBeenCalledWith(
+      Buffer.from('webp-output'),
       expect.objectContaining({
-        destination: 'gallery/photo.jpg@2048.webp',
+        contentType: 'image/webp',
         metadata: expect.objectContaining({
-          contentType: 'image/webp',
           metadata: expect.objectContaining({
             firebaseStorageDownloadTokens: 'fixed-download-token',
             active: 'true',
@@ -273,7 +273,7 @@ describe('storage service', () => {
     const storageDocument = await StorageCollection.findOneByObjectName('test-bucket', 'gallery/unreadable.jpg');
 
     expect(warnSpy).toHaveBeenCalledWith('Unable to read metadata for gallery/unreadable.jpg');
-    expect(uploadMock).not.toHaveBeenCalled();
+    expect(saveMock).not.toHaveBeenCalled();
     expect(storageDocument?.data.metadata).toEqual({ owner: 'alice' });
   });
 
@@ -295,7 +295,7 @@ describe('storage service', () => {
     const storageDocument = await StorageCollection.findOneByObjectName('test-bucket', 'gallery/flat.png');
 
     expect(warnSpy).toHaveBeenCalledWith('Invalid image dimensions for gallery/flat.png: 0x640');
-    expect(uploadMock).not.toHaveBeenCalled();
+    expect(saveMock).not.toHaveBeenCalled();
     expect(storageDocument?.data.metadata).toEqual({
       width: 0,
       height: 640,
@@ -314,7 +314,7 @@ describe('storage service', () => {
     const { StorageCollection } = await import('../../models/storage.js');
     const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
     const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
-    uploadMock.mockRejectedValueOnce(new Error('upload failed'));
+    saveMock.mockRejectedValueOnce(new Error('upload failed'));
 
     await handleUpload({
       bucket: 'test-bucket',
@@ -556,7 +556,7 @@ describe('storage service', () => {
       },
     });
 
-    expect(bucketMock).toHaveBeenCalledWith('test-bucket');
+    expect(bucketMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalledWith('No variations found to update for bucket test-bucket');
     expect(fileMock).not.toHaveBeenCalled();
   });

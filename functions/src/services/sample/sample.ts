@@ -30,19 +30,8 @@ export async function runHandler(request: SampleRunHandlerRequest): Promise<Samp
   const sampleDocument = new SampleDocument({ id });
   await sampleDocument.get();
 
-  const nextData = sampleDocument.exists
-    ? {
-        ...sampleDocument.data,
-        name,
-        count: sampleDocument.data.count + 1,
-      }
-    : {
-        ...SampleDocument.defaultData,
-        name,
-        count: 1,
-      };
-
-  const updatedDocument = new SampleDocument({ id }, nextData);
+  const baseData = sampleDocument.exists ? sampleDocument.data : SampleDocument.defaultData;
+  const updatedDocument = new SampleDocument({ id }, { ...baseData, name, count: baseData.count + 1 });
   await updatedDocument.save();
 
   return {
