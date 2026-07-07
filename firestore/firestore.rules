@@ -44,6 +44,11 @@ service cloud.firestore {
       return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w', projectId + ':r']);
     }
 
+    function sampleFieldsValidTypes(data) {
+      return (data.name is string) &&
+        (data.count is number);
+    }
+
     function userFieldsValidTypes(data) {
        return (data.displayName is string) &&
              (data.get('email', '') is string) &&
@@ -74,6 +79,18 @@ service cloud.firestore {
         allow write: if isManager(pid);
       }
 		}
+
+    // Public demo collection: the default site reads and writes it without
+    // signing in, so access is open but constrained to the expected shape.
+    match /samples/{id} {
+      allow read: if true;
+      allow create: if
+        createVerifyFields(['name', 'count', 'createdAt', 'updatedAt'], []) &&
+        sampleFieldsValidTypes(request.resource.data);
+      allow update: if
+        updateVerifyFields(['name', 'count', 'updatedAt']) &&
+        sampleFieldsValidTypes(request.resource.data);
+    }
 
     match /{document=**} {
       allow read, write: if isAdmin();
