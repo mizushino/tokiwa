@@ -2,6 +2,7 @@ import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 
 import { projectUserDocumentPath, type ProjectUserData } from '@firestore/types/project-user.js';
 import { UserDocument } from 'src/models/user.js';
+import { region } from 'src/options.js';
 
 const roleTable = new Map<string, string>([
   ['owner', 'o'],
@@ -19,10 +20,11 @@ export function calculateProjectPermissions(
   pid: string,
   projectUserData: ProjectUserData | null
 ): string[] {
-  const projects = (currentPermissions || []).filter((project) => !project.startsWith(`${pid}:`));
+  const projects = (currentPermissions ?? []).filter((project) => !project.startsWith(`${pid}:`));
 
-  if (projectUserData && roleTable.has(projectUserData.role)) {
-    projects.push(`${pid}:${roleTable.get(projectUserData.role)}`);
+  const roleCode = projectUserData ? roleTable.get(projectUserData.role) : undefined;
+  if (roleCode) {
+    projects.push(`${pid}:${roleCode}`);
   }
 
   return projects;
@@ -43,20 +45,18 @@ export async function updateUserPermissions(
     return;
   }
 
-  const currentPermissions = userDocument.data.permissions || { projects: [] };
-  const currentProjects = currentPermissions.projects || [];
+  const permissions = userDocument.data.permissions ?? {};
 
-  const newProjects = calculateProjectPermissions(currentProjects, pid, projectUserData);
-
-  const updatedData = {
-    ...userDocument.data,
-    permissions: {
-      ...currentPermissions,
-      projects: newProjects,
-    },
-  };
-
-  const updatedDocument = new UserDocument({ uid }, updatedData);
+  const updatedDocument = new UserDocument(
+    { uid },
+    {
+      ...userDocument.data,
+      permissions: {
+        ...permissions,
+        projects: calculateProjectPermissions(permissions.projects, pid, projectUserData),
+      },
+    }
+  );
   await updatedDocument.save();
 }
 
@@ -64,11 +64,8 @@ export async function updateUserPermissions(
  * Trigger fired when a project user document is created, updated, or deleted
  * Automatically updates the permissions field in the user document
  */
-export const written = onDocumentWritten(
-  { region: 'asia-northeast1', document: projectUserDocumentPath },
-  async (event) => {
-    const { projectId, uid } = event.params;
-    const projectUserData = event.data?.after.data() as ProjectUserData | null;
-    await updateUserPermissions(projectId, uid, projectUserData);
-  }
-);
+export const written = onDocumentWritten({ region, document: projectUserDocumentPath }, async (event) => {
+  const { projectId, uid } = event.params;
+  const projectUserData = event.data?.after.data() as ProjectUserData | null;
+  await updateUserPermissions(projectId, uid, projectUserData);
+});

@@ -26,6 +26,7 @@ import {
 } from '@firestore/types/storage.js';
 import { DirectoryDocument } from 'src/models/directory.js';
 import { StorageCollection, StorageDocument } from 'src/models/storage.js';
+import { region } from 'src/options.js';
 
 interface StorageUploadEvent {
   bucket?: string;
@@ -72,18 +73,8 @@ const FORMAT_MAP = {
 
 type ImageFormat = keyof typeof FORMAT_MAP;
 
-/**
- * Creates format options for image encoding
- * @returns Array of format options
- */
-function createFormatOptions(): FormatOption[] {
-  return [
-    {
-      format: 'webp',
-      quality: IMAGE_CONFIG.QUALITY,
-    },
-  ];
-}
+/** Output encodings generated for every image variation */
+const FORMAT_OPTIONS: readonly FormatOption[] = [{ format: 'webp', quality: IMAGE_CONFIG.QUALITY }];
 
 /**
  * Encodes image using the specified format
@@ -175,7 +166,6 @@ function createMetadataResult(width: number, height: number, format: string): Im
  * @param width - Target width
  * @param height - Target height
  * @param tempBase - Base path for temporary files
- * @param formatOptions - Array of format options (jpeg, png, webp)
  * @param uploadBases - Array of upload destination paths
  * @param metadata - Metadata to attach to uploaded files
  * @returns True if all uploads succeed, false otherwise
@@ -186,11 +176,10 @@ async function modifyAndUploadImage(
   width: number,
   height: number,
   tempBase: string,
-  formatOptions: FormatOption[],
   uploadBases: string[],
   metadata: Record<string, string>
 ): Promise<boolean> {
-  const tasks = formatOptions.map((option) =>
+  const tasks = FORMAT_OPTIONS.map((option) =>
     (async () => {
       const formatInfo = FORMAT_MAP[option.format];
       const tempPath = `${tempBase}.${formatInfo.extension}`;
@@ -314,6 +303,12 @@ async function uploadImage(
       return { metadata: createMetadataResult(width ?? 0, height ?? 0, format ?? '') };
     }
 
+    const outputScales = getOutputScales(Math.max(width, height), IMAGE_CONFIG.MIN_SIZE, IMAGE_CONFIG.MAX_SIZE);
+    if (outputScales.length === 0) {
+      logger.warn(`No output scales generated for image ${objectName} (${width}x${height})`);
+      return { metadata: createMetadataResult(width, height, format ?? '') };
+    }
+
     const variations: Record<number, ImageStorageVariation> = {};
     const imageFields: ImageFields = {
       width,
@@ -324,19 +319,12 @@ async function uploadImage(
 
     const uploadTasksMap = new Map<number, UploadTask>();
 
-    let imageSize = IMAGE_CONFIG.MAX_SIZE;
-    const outputScales = getOutputScales(Math.max(width, height), IMAGE_CONFIG.MIN_SIZE, imageSize);
-
-    if (outputScales.length === 0) {
-      logger.warn(`No output scales generated for image ${objectName} (${width}x${height})`);
-      return { metadata: createMetadataResult(width, height, format ?? '') };
-    }
-
+    let variationSize = IMAGE_CONFIG.MAX_SIZE;
     for (const scale of outputScales) {
-      const outputPath = join(objectDir, `${name}@${imageSize}`);
+      const outputPath = join(objectDir, `${name}@${variationSize}`);
       const outputWidth = Math.round(width / scale);
       const outputHeight = Math.round(height / scale);
-      variations[imageSize] = {
+      variations[variationSize] = {
         path: outputPath,
         width: outputWidth,
         height: outputHeight,
@@ -354,10 +342,8 @@ async function uploadImage(
         });
       }
 
-      imageSize /= 2;
+      variationSize /= 2;
     }
-
-    const formats = createFormatOptions();
 
     const metadataRecord = generateMetadata({ ...storageData, ...imageFields });
     const tasks = Array.from(uploadTasksMap.values()).map((task) => {
@@ -368,16 +354,10 @@ async function uploadImage(
         task.width,
         task.height,
         tempPath,
-        formats,
         task.uploadBases,
         metadataRecord
       );
     });
-
-    if (tasks.length === 0) {
-      logger.warn(`No processing tasks generated for image ${objectName}`);
-      return { metadata: createMetadataResult(width, height, format ?? '') };
-    }
 
     const results = await Promise.all(tasks);
 
@@ -437,7 +417,7 @@ export async function handleUpload(object: StorageUploadEvent): Promise<void> {
   const data = object.data;
   const bucketName = object.bucket ?? data.bucket;
 
-  if (!bucketName || !data.contentType || !data.name || data.name?.includes('@') || data.contentEncoding === 'gzip') {
+  if (!bucketName || !data.contentType || !data.name || data.name.includes('@') || data.contentEncoding === 'gzip') {
     return;
   }
 
@@ -464,7 +444,7 @@ export async function handleUpload(object: StorageUploadEvent): Promise<void> {
     await newDirectory.save();
   }
 
-  const storageDocument = await StorageCollection.findOneByObjectName(bucketName, data.name);
+  const storageDocument = await StorageCollection.findOneByObjectName(bucketName, objectName);
   const storageKey = storageDocument?.key ?? StorageDocument.defaultKey;
   const baseData: StorageData = storageDocument
     ? storageDocument.data
@@ -472,23 +452,23 @@ export async function handleUpload(object: StorageUploadEvent): Promise<void> {
         ...StorageDocument.defaultData,
         name,
         bucket: bucketName,
-        objectName: data.name,
+        objectName,
         originalName: name,
         contentType: data.contentType,
-        path: data.name,
+        path: objectName,
         directoryId,
       };
 
-  const currentMetadata = (baseData.metadata ?? undefined) as StorageMetadata | undefined;
-  const objectMetadata = (data.metadata ?? undefined) as StorageMetadata | undefined;
+  const currentMetadata = baseData.metadata;
+  const objectMetadata = data.metadata ?? undefined;
 
   const imageResult = isImage ? await uploadImage(data, bucket, file, baseData) : null;
 
-  const mergedMetadata = {
+  const mergedMetadata: StorageMetadata = {
     ...(hasMetadataEntries(currentMetadata) ? currentMetadata : {}),
     ...(hasMetadataEntries(objectMetadata) ? objectMetadata : {}),
     ...imageResult?.metadata,
-  } as StorageMetadata;
+  };
 
   const nextData: ImageStorageData = { ...baseData, ...imageResult?.imageFields };
   if (Object.keys(mergedMetadata).length === 0) {
@@ -501,7 +481,7 @@ export async function handleUpload(object: StorageUploadEvent): Promise<void> {
   await updatedDocument.save();
 }
 
-export const upload = onObjectFinalized({ region: 'asia-northeast1', memory: '1GiB', concurrency: 10 }, handleUpload);
+export const upload = onObjectFinalized({ region, memory: '1GiB', concurrency: 10 }, handleUpload);
 
 /**
  * Cloud Function triggered when a storage document is updated in Firestore
@@ -539,8 +519,7 @@ export async function handleChange(event: StorageChangeEvent): Promise<void> {
 
   const bucket = getStorage().bucket(data.bucket);
 
-  const formats = createFormatOptions();
-  const extensions = formats.map((opt) => FORMAT_MAP[opt.format].extension);
+  const extensions = FORMAT_OPTIONS.map((option) => FORMAT_MAP[option.format].extension);
 
   const tasks = Object.values(variations)
     .filter((variation): variation is ImageStorageVariation => isImageStorageVariation(variation))
@@ -563,4 +542,4 @@ export async function handleChange(event: StorageChangeEvent): Promise<void> {
   }
 }
 
-export const change = onDocumentWritten({ region: 'asia-northeast1', document: storageDocumentPath }, handleChange);
+export const change = onDocumentWritten({ region, document: storageDocumentPath }, handleChange);

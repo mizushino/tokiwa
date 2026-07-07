@@ -1,6 +1,7 @@
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 
 import { SampleDocument } from 'src/models/sample.js';
+import { region } from 'src/options.js';
 import type { SampleRunRequest, SampleRunResponse } from 'src/types/sample.js';
 
 /** Minimal callable-request shape accepted by {@link runHandler} */
@@ -55,4 +56,4 @@ export async function runHandler(request: SampleRunHandlerRequest): Promise<Samp
  * Callable function that upserts a sample document and increments its counter
  * Used as a template for creating new callable functions
  */
-export const run = onCall<SampleRunRequest, Promise<SampleRunResponse>>({ region: 'asia-northeast1' }, runHandler);
+export const run = onCall<SampleRunRequest, Promise<SampleRunResponse>>({ region }, runHandler);

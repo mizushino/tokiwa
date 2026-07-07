@@ -7,6 +7,7 @@ import { beforeUserCreated } from 'firebase-functions/v2/identity';
 
 import { userDocumentPath, type UserData } from '@firestore/types/user.js';
 import { UserDocument } from 'src/models/user.js';
+import { region } from 'src/options.js';
 
 /**
  * Generate image URL from Firebase Storage path
@@ -61,7 +62,7 @@ export async function handleUserCreated(
     if (userDocumentByEmail.exists) {
       userData = {
         ...userData,
-        admin: userDocumentByEmail.data.admin !== undefined ? userDocumentByEmail.data.admin : userData.admin,
+        admin: userDocumentByEmail.data.admin ?? userData.admin,
         permissions: userDocumentByEmail.data.permissions ?? userData.permissions,
       };
       await updateCustomUserClaims(uid, userData);
@@ -77,7 +78,7 @@ export async function handleUserCreated(
  * Trigger before user creation (blocking function)
  * Creates user document in Firestore and inherits pre-registered permissions if available by email
  */
-export const created = beforeUserCreated({ region: 'asia-northeast1' }, async (event) => {
+export const created = beforeUserCreated({ region }, async (event) => {
   const userRecord = event.data;
   if (!userRecord) {
     return;
@@ -121,7 +122,7 @@ export async function handleUserWritten(uid: string, user?: UserData): Promise<v
  * Trigger fired when user document is created, updated, or deleted
  * Synchronizes Firebase Authentication user info and custom claims
  */
-export const written = onDocumentWritten({ region: 'asia-northeast1', document: userDocumentPath }, async (event) => {
+export const written = onDocumentWritten({ region, document: userDocumentPath }, async (event) => {
   const user = event.data?.after.data() as UserData | undefined;
   await handleUserWritten(event.params.uid, user);
 });

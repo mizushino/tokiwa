@@ -8,6 +8,7 @@ This guide covers backend development with Firebase Cloud Functions.
 functions/src/
 ├── index.ts              # Namespace exports for deployed functions
 ├── models/               # Firestore document and collection classes
+├── options.ts            # Shared deployment options (region)
 ├── services/             # Trigger handlers and callable handlers
 ├── test/                 # Shared test helpers
 ├── test-setup.ts         # Vitest global setup
@@ -127,7 +128,7 @@ This pattern is used by the current project trigger logic and should remain the 
 
 ### Trigger Structure
 
-Keep exported triggers thin and move the real business logic into named functions that tests can call directly.
+Keep exported triggers thin and move the real business logic into named functions that tests can call directly. Deployment options use the shared `region` constant from `src/options.ts`.
 
 ```ts
 export async function updateUserPermissions(
@@ -158,7 +159,7 @@ export async function updateUserPermissions(
 }
 
 export const written = onDocumentWritten(
-  { region: 'asia-northeast1', document: '/projects/{pid}/users/{uid}' },
+  { region, document: '/projects/{pid}/users/{uid}' },
   async (event) => {
     await updateUserPermissions(
       event.params.pid,
@@ -176,6 +177,7 @@ Place request and response types in `functions/src/types/*.ts` and keep the call
 ```ts
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 
+import { region } from 'src/options.js';
 import type { SampleRunRequest, SampleRunResponse } from 'src/types/sample.js';
 
 export async function runHandler(request: { data: SampleRunRequest }): Promise<SampleRunResponse> {
@@ -192,10 +194,7 @@ export async function runHandler(request: { data: SampleRunRequest }): Promise<S
   };
 }
 
-export const run = onCall<SampleRunRequest, Promise<SampleRunResponse>>(
-  { region: 'asia-northeast1' },
-  runHandler
-);
+export const run = onCall<SampleRunRequest, Promise<SampleRunResponse>>({ region }, runHandler);
 ```
 
 ### Blocking Auth Triggers
