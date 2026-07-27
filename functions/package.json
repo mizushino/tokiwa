@@ -24,14 +24,14 @@
   "dependencies": {
     "@mzsn/firestore": "^1.2.13",
     "@napi-rs/image": "^1.14.0",
-    "firebase-admin": "13.10.0",
-    "firebase-functions": "^7.2.5"
+    "firebase-admin": "14.2.0",
+    "firebase-functions": "^7.3.0"
   },
   "devDependencies": {
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "firebase-functions-test": "^3.5.0",
     "typescript": "~6.0.3",
-    "vite-plus": "0.2.2"
+    "vite-plus": "0.2.6"
   },
   "engines": {
     "node": "24"

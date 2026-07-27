@@ -7,6 +7,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 
 import type { UserData } from '@firestore/types/user.js';
 import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
+import { makeDocumentSnapshot } from 'src/test/make-document-snapshot.js';
 import { waitForCondition } from 'src/test/wait-for-condition.js';
 
 const testEnv = firebaseFunctionsTest(getFirebaseTestConfig());
@@ -153,11 +154,11 @@ describe('user service E2E', () => {
         updatedAt: new Date(),
       };
 
-      const beforeSnap = testEnv.firestore.makeDocumentSnapshot(
+      const beforeSnap = await makeDocumentSnapshot(
         { email: userRecord.email || '', displayName: 'Original Name' } as UserData,
         `users/${userRecord.uid}`
       );
-      const afterSnap = testEnv.firestore.makeDocumentSnapshot(userData, `users/${userRecord.uid}`);
+      const afterSnap = await makeDocumentSnapshot(userData, `users/${userRecord.uid}`);
 
       await wrapped({
         data: testEnv.makeChange(beforeSnap, afterSnap),
@@ -204,11 +205,11 @@ describe('user service E2E', () => {
         updatedAt: new Date(),
       };
 
-      const beforeSnap = testEnv.firestore.makeDocumentSnapshot(
+      const beforeSnap = await makeDocumentSnapshot(
         { email: 'test-storage@example.com', displayName: 'Storage Test' } as UserData,
         `users/${userRecord.uid}`
       );
-      const afterSnap = testEnv.firestore.makeDocumentSnapshot(userData, `users/${userRecord.uid}`);
+      const afterSnap = await makeDocumentSnapshot(userData, `users/${userRecord.uid}`);
 
       await wrapped({
         data: testEnv.makeChange(beforeSnap, afterSnap),
@@ -243,8 +244,8 @@ describe('user service E2E', () => {
         updatedAt: new Date(),
       };
 
-      const beforeSnap = testEnv.firestore.makeDocumentSnapshot({} as UserData, `users/${userRecord.uid}`);
-      const afterSnap = testEnv.firestore.makeDocumentSnapshot(userData, `users/${userRecord.uid}`);
+      const beforeSnap = await makeDocumentSnapshot({}, `users/${userRecord.uid}`);
+      const afterSnap = await makeDocumentSnapshot(userData, `users/${userRecord.uid}`);
 
       await wrapped({
         data: testEnv.makeChange(beforeSnap, afterSnap),
@@ -269,11 +270,11 @@ describe('user service E2E', () => {
 
       await auth.setCustomUserClaims(userRecord.uid, { p: { projects: ['proj1:o'] }, a: true });
 
-      const beforeSnap = testEnv.firestore.makeDocumentSnapshot(
+      const beforeSnap = await makeDocumentSnapshot(
         { email: 'test-delete@example.com', displayName: 'Delete User' } as UserData,
         `users/${userRecord.uid}`
       );
-      const afterSnap = testEnv.firestore.makeDocumentSnapshot(undefined as never, `users/${userRecord.uid}`);
+      const afterSnap = await makeDocumentSnapshot(undefined, `users/${userRecord.uid}`);
 
       await wrapped({
         data: testEnv.makeChange(beforeSnap, afterSnap),
@@ -301,8 +302,8 @@ describe('user service E2E', () => {
         updatedAt: new Date(),
       };
 
-      const beforeSnap = testEnv.firestore.makeDocumentSnapshot({} as UserData, 'users/missing-user');
-      const afterSnap = testEnv.firestore.makeDocumentSnapshot(userData, 'users/missing-user');
+      const beforeSnap = await makeDocumentSnapshot({}, 'users/missing-user');
+      const afterSnap = await makeDocumentSnapshot(userData, 'users/missing-user');
 
       await expect(
         wrapped({

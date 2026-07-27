@@ -5,6 +5,7 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import type { ProjectUserData } from '@firestore/types/project-user.js';
 import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
+import { makeDocumentSnapshot } from 'src/test/make-document-snapshot.js';
 import { waitForCondition } from 'src/test/wait-for-condition.js';
 
 const testEnv = firebaseFunctionsTest(getFirebaseTestConfig());
@@ -285,11 +286,8 @@ describe('project service E2E', () => {
       role: 'owner',
     };
 
-    const beforeSnap = testEnv.firestore.makeDocumentSnapshot(
-      undefined as never,
-      'projects/proj-trigger/users/user-trigger'
-    );
-    const afterSnap = testEnv.firestore.makeDocumentSnapshot(afterData, 'projects/proj-trigger/users/user-trigger');
+    const beforeSnap = await makeDocumentSnapshot(undefined, 'projects/proj-trigger/users/user-trigger');
+    const afterSnap = await makeDocumentSnapshot(afterData, 'projects/proj-trigger/users/user-trigger');
 
     await wrapped({
       data: testEnv.makeChange(beforeSnap, afterSnap),

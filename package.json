@@ -34,7 +34,10 @@
     "firebase-tools": "^15.22.4"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.2"
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.6",
+    "firebase-functions-test": {
+      "firebase-admin": "^14.2.0"
+    }
   },
   "engines": {
     "node": "24"
