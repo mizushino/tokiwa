@@ -106,9 +106,6 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow create: if
-        createVerifyFields(['displayName', 'createdAt', 'updatedAt'], ['email', 'image', 'lang']) &&
-        userFieldsValidTypes(request.resource.data);
       allow update: if
         updateVerifyFields(['displayName', 'email', 'image', 'lang', 'updatedAt']) &&
         userFieldsValidTypes(request.resource.data) &&

@@ -21,7 +21,7 @@ const readerMembership = {
   role: 'reader',
 };
 
-describe('project membership rules', () => {
+describe('firestore rules', () => {
   let testEnvironment: RulesTestEnvironment;
 
   beforeAll(async () => {
@@ -66,6 +66,20 @@ describe('project membership rules', () => {
       });
     });
   }
+
+  it('rejects user document creation from unauthenticated and authenticated clients', async () => {
+    const userData = {
+      displayName: 'New User',
+      email: 'new-user@example.com',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const unauthenticatedFirestore = testEnvironment.unauthenticatedContext().firestore();
+    const authenticatedFirestore = testEnvironment.authenticatedContext('new-user').firestore();
+
+    await assertFails(unauthenticatedFirestore.doc('users/new-user').set(userData));
+    await assertFails(authenticatedFirestore.doc('users/new-user').set(userData));
+  });
 
   it('allows a manager to create a non-owner membership', async () => {
     const managerFirestore = projectFirestore('manager-1', 'project-1:m');
