@@ -95,12 +95,12 @@ export class DefaultFunctions extends PageElement {
 
     this.isSubmitting = false;
 
-    if (!response) {
-      this.error = this.trans('function_call_failed');
+    if (!response.ok) {
+      this.error = `${this.trans('function_call_failed')} (${response.error.code})`;
       return;
     }
 
-    this.result = `${response.id} / ${response.name} / count=${response.count}`;
+    this.result = `${response.data.id} / ${response.data.name} / count=${response.data.count}`;
   };
 }
 

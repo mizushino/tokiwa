@@ -1,1 +1,7 @@
-export { callFirebaseFunction, initializeFunctions, type FunctionsSettings } from './functions';
+export {
+  callFirebaseFunction,
+  initializeFunctions,
+  type CallableDiagnostic,
+  type CallableResult,
+  type FunctionsSettings,
+} from './functions';

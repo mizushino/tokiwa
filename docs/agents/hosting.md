@@ -296,6 +296,25 @@ export const sample = {
 };
 ```
 
+The returned value is a discriminated result. Do not convert callable failures to `null` or retry every failure:
+
+```ts
+const result = await sample.run(request);
+if (!result.ok) {
+  console.error(result.error.code, result.error.details);
+  if (result.error.retryable) {
+    scheduleRetry(request);
+  }
+  return;
+}
+
+useResponse(result.data);
+```
+
+The adapter preserves Firebase's error `code`, `message`, and `details`. It marks only `functions/unavailable` as
+retryable by default. `functions/deadline-exceeded` is deliberately not retryable because a mutating callable may have
+completed even when its response timed out.
+
 ### Transition Directive
 
 Use the `transition` directive from `@app/transition` for enter and leave animations driven by Tailwind classes.

@@ -1,5 +1,12 @@
 import type { FirebaseApp } from 'firebase/app';
-import { connectFunctionsEmulator, getFunctions, httpsCallable, type Functions } from 'firebase/functions';
+import {
+  connectFunctionsEmulator,
+  FunctionsError,
+  getFunctions,
+  httpsCallable,
+  type Functions,
+  type FunctionsErrorCode,
+} from 'firebase/functions';
 
 let firebaseFunctions: Functions | undefined;
 
@@ -12,6 +19,38 @@ function getInitializedFunctions(): Functions {
 
 export interface FunctionsSettings {
   region?: string;
+}
+
+export interface CallableDiagnostic {
+  code: FunctionsErrorCode;
+  message: string;
+  details?: unknown;
+  retryable: boolean;
+}
+
+export type CallableResult<T> = { ok: true; data: T } | { ok: false; error: CallableDiagnostic };
+
+/**
+ * Convert Firebase's callable error into a stable diagnostic for UI and service layers.
+ * Only `unavailable` is marked retryable by default. In particular, a timed-out
+ * mutation may already have completed and must not be retried blindly.
+ */
+function toCallableDiagnostic(error: unknown): CallableDiagnostic {
+  if (error instanceof FunctionsError) {
+    const code = error.code as FunctionsErrorCode;
+    return {
+      code,
+      message: error.message,
+      details: error.details,
+      retryable: code === 'functions/unavailable',
+    };
+  }
+
+  return {
+    code: 'functions/unknown',
+    message: error instanceof Error ? error.message : 'Unknown callable function error',
+    retryable: false,
+  };
 }
 
 /**
@@ -35,16 +74,14 @@ export function initializeFunctions(app: FirebaseApp, settings?: FunctionsSettin
   return firebaseFunctions;
 }
 
-export function callFirebaseFunction<T, U>(name: string): (data: T) => Promise<U | null> {
+export function callFirebaseFunction<T, U>(name: string): (data: T) => Promise<CallableResult<U>> {
   return async (data: T) => {
     try {
       const callable = httpsCallable<T, U>(getInitializedFunctions(), name);
       const result = await callable(data);
-      return result?.data ?? null;
-    } catch (e) {
-      console.warn(e);
+      return { ok: true, data: result.data };
+    } catch (error) {
+      return { ok: false, error: toCallableDiagnostic(error) };
     }
-
-    return null;
   };
 }
