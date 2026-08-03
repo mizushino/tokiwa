@@ -57,6 +57,15 @@ describe('firestore rules', () => {
     });
   }
 
+  async function seedProject(): Promise<void> {
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().doc('projects/project-1').set({
+        name: 'Project',
+        code: 'project-code',
+      });
+    });
+  }
+
   async function seedUser(uid: string, projects: string[]): Promise<void> {
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
       await context.firestore().doc(`users/${uid}`).set({
@@ -85,7 +94,7 @@ describe('firestore rules', () => {
     const firestore = testEnvironment.unauthenticatedContext().firestore();
 
     await assertSucceeds(
-      firestore.doc('samples/sample-1').set({
+      firestore.doc('samples/sample').set({
         name: 'Sample',
         count: 0,
         createdAt: new Date(),
@@ -103,15 +112,28 @@ describe('firestore rules', () => {
       updatedAt: new Date(),
     };
 
-    await assertFails(firestore.doc('samples/sample-1').set({ ...baseData, name: 'x'.repeat(101) }));
-    await assertFails(firestore.doc('samples/sample-2').set({ ...baseData, count: 1 }));
+    await assertFails(firestore.doc('samples/sample').set({ ...baseData, name: 'x'.repeat(101) }));
+    await assertFails(firestore.doc('samples/sample').set({ ...baseData, count: 1 }));
     await assertFails(firestore.doc(`samples/${'x'.repeat(65)}`).set(baseData));
+  });
+
+  it('rejects public writes outside the fixed demo document', async () => {
+    const firestore = testEnvironment.unauthenticatedContext().firestore();
+
+    await assertFails(
+      firestore.doc('samples/another-sample').set({
+        name: 'Sample',
+        count: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+    );
   });
 
   it('allows public sample name updates but rejects counter updates', async () => {
     const firestore = testEnvironment.unauthenticatedContext().firestore();
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
-      await context.firestore().doc('samples/sample-1').set({
+      await context.firestore().doc('samples/sample').set({
         name: 'Before',
         count: 3,
         createdAt: new Date(),
@@ -119,8 +141,19 @@ describe('firestore rules', () => {
       });
     });
 
-    await assertSucceeds(firestore.doc('samples/sample-1').update({ name: 'After', updatedAt: new Date() }));
-    await assertFails(firestore.doc('samples/sample-1').update({ count: 4, updatedAt: new Date() }));
+    await assertSucceeds(firestore.doc('samples/sample').update({ name: 'After', updatedAt: new Date() }));
+    await assertFails(firestore.doc('samples/sample').update({ count: 4, updatedAt: new Date() }));
+  });
+
+  it('allows a reader to read their project but rejects unrelated and unauthenticated users', async () => {
+    await seedProject();
+    const readerFirestore = projectFirestore('reader-1', 'project-1:r');
+    const unrelatedFirestore = projectFirestore('reader-2', 'project-2:r');
+    const unauthenticatedFirestore = testEnvironment.unauthenticatedContext().firestore();
+
+    await assertSucceeds(readerFirestore.doc('projects/project-1').get());
+    await assertFails(unrelatedFirestore.doc('projects/project-1').get());
+    await assertFails(unauthenticatedFirestore.doc('projects/project-1').get());
   });
 
   it('allows a manager to create a non-owner membership', async () => {

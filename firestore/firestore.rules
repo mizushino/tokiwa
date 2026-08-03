@@ -117,7 +117,7 @@ service cloud.firestore {
     }
 
     match /projects/{pid} {
-      allow read: if isWriter(pid);
+      allow read: if isReader(pid);
       allow update: if isManager(pid);
       allow delete: if isOwner(pid);
 
@@ -156,11 +156,12 @@ service cloud.firestore {
     match /samples/{id} {
       allow read: if true;
       allow create: if
-        id.size() <= 64 &&
+        id == 'sample' &&
         createVerifyFields(['name', 'count', 'createdAt', 'updatedAt'], []) &&
         sampleFieldsValidTypes(request.resource.data) &&
         request.resource.data.count == 0;
       allow update: if
+        id == 'sample' &&
         updateVerifyFields(['name', 'updatedAt']) &&
         sampleFieldsValidTypes(request.resource.data);
     }
