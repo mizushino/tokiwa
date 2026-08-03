@@ -62,6 +62,46 @@ describe('calculateProjectPermissions', () => {
       calculateProjectPermissions(undefined, 'proj1', { displayName: 'U', email: 'u@example.com', role: 'reader' })
     ).toEqual(['proj1:r']);
   });
+
+  it('allows adding the 30th project', async () => {
+    const { calculateProjectPermissions, MAX_PROJECTS_PER_USER } = await import('./project.js');
+    const currentPermissions = Array.from({ length: MAX_PROJECTS_PER_USER - 1 }, (_, index) => `proj-${index}:r`);
+
+    expect(
+      calculateProjectPermissions(currentPermissions, 'proj-last', {
+        displayName: 'U',
+        email: 'u@example.com',
+        role: 'reader',
+      })
+    ).toHaveLength(MAX_PROJECTS_PER_USER);
+  });
+
+  it('rejects adding the 31st project', async () => {
+    const { calculateProjectPermissions, MAX_PROJECTS_PER_USER, ProjectLimitExceededError } =
+      await import('./project.js');
+    const currentPermissions = Array.from({ length: MAX_PROJECTS_PER_USER }, (_, index) => `proj-${index}:r`);
+
+    expect(() =>
+      calculateProjectPermissions(currentPermissions, 'proj-overflow', {
+        displayName: 'U',
+        email: 'u@example.com',
+        role: 'reader',
+      })
+    ).toThrow(ProjectLimitExceededError);
+  });
+
+  it('allows changing a role when the user already has 30 projects', async () => {
+    const { calculateProjectPermissions, MAX_PROJECTS_PER_USER } = await import('./project.js');
+    const currentPermissions = Array.from({ length: MAX_PROJECTS_PER_USER }, (_, index) => `proj-${index}:r`);
+
+    expect(
+      calculateProjectPermissions(currentPermissions, 'proj-0', {
+        displayName: 'U',
+        email: 'u@example.com',
+        role: 'owner',
+      })
+    ).toHaveLength(MAX_PROJECTS_PER_USER);
+  });
 });
 
 describe('project service E2E', () => {
@@ -291,6 +331,41 @@ describe('project service E2E', () => {
     const resultDoc = new UserDocument({ uid: 'user-concurrent' });
     await resultDoc.get();
     expect(resultDoc.data.permissions?.projects).toEqual(expect.arrayContaining(['proj-a:o', 'proj-b:r']));
+  });
+
+  it('keeps only one of two concurrent additions at the project limit', async () => {
+    const { MAX_PROJECTS_PER_USER, syncCurrentProjectPermission } = await import('./project.js');
+    const { UserDocument } = await import('../../models/user.js');
+    const existingProjects = Array.from({ length: MAX_PROJECTS_PER_USER - 1 }, (_, index) => `existing-${index}:r`);
+    const userDocument = new UserDocument(
+      { uid: 'user-at-limit' },
+      {
+        ...UserDocument.defaultData,
+        email: 'limit@example.com',
+        displayName: 'Limit User',
+        permissions: { projects: existingProjects },
+      }
+    );
+    await userDocument.save();
+
+    const membership: ProjectUserData = {
+      displayName: 'Limit User',
+      email: 'limit@example.com',
+      role: 'reader',
+    };
+    const firstMembership = db.doc('projects/overflow-a/users/user-at-limit');
+    const secondMembership = db.doc('projects/overflow-b/users/user-at-limit');
+    await Promise.all([firstMembership.set(membership), secondMembership.set(membership)]);
+
+    await Promise.all([
+      syncCurrentProjectPermission('overflow-a', 'user-at-limit'),
+      syncCurrentProjectPermission('overflow-b', 'user-at-limit'),
+    ]);
+
+    await userDocument.get();
+    expect(userDocument.data.permissions?.projects).toHaveLength(MAX_PROJECTS_PER_USER);
+    const membershipResults = await Promise.all([firstMembership.get(), secondMembership.get()]);
+    expect(membershipResults.filter((snapshot) => snapshot.exists)).toHaveLength(1);
   });
 
   it('exports written trigger function', async () => {

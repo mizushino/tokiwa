@@ -1,9 +1,21 @@
 import { getFirestore, type Transaction } from 'firebase-admin/firestore';
+import { logger } from 'firebase-functions';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 
 import { projectUserDocumentPath, type ProjectUserData } from '@firestore/types/project-user.js';
 import { UserDocument } from 'src/models/user.js';
 import { region } from 'src/options.js';
+
+import { CustomClaimsTooLargeError, getCustomUserClaims } from '../user/custom-claims.js';
+
+export const MAX_PROJECTS_PER_USER = 30;
+
+export class ProjectLimitExceededError extends Error {
+  public constructor() {
+    super(`A user cannot belong to more than ${MAX_PROJECTS_PER_USER} projects.`);
+    this.name = 'ProjectLimitExceededError';
+  }
+}
 
 const roleTable = new Map<string, string>([
   ['owner', 'o'],
@@ -25,6 +37,9 @@ export function calculateProjectPermissions(
 
   const roleCode = projectUserData ? roleTable.get(projectUserData.role) : undefined;
   if (roleCode) {
+    if (projects.length >= MAX_PROJECTS_PER_USER) {
+      throw new ProjectLimitExceededError();
+    }
     projects.push(`${pid}:${roleCode}`);
   }
 
@@ -54,6 +69,7 @@ async function updateUserPermissionsInTransaction(
       },
     }
   );
+  getCustomUserClaims(updatedDocument.data);
   await updatedDocument.save(false, transaction);
 }
 
@@ -79,11 +95,27 @@ export async function syncCurrentProjectPermission(pid: string, uid: string): Pr
   const firestore = getFirestore();
   const membershipReference = firestore.doc(`projects/${pid}/users/${uid}`);
 
-  await firestore.runTransaction(async (transaction) => {
+  const rejectionMessage = await firestore.runTransaction(async (transaction) => {
     const membership = await transaction.get(membershipReference);
     const projectUserData = membership.exists ? (membership.data() as ProjectUserData) : null;
-    await updateUserPermissionsInTransaction(transaction, pid, uid, projectUserData);
+    try {
+      await updateUserPermissionsInTransaction(transaction, pid, uid, projectUserData);
+      return null;
+    } catch (error) {
+      if (
+        membership.exists &&
+        (error instanceof ProjectLimitExceededError || error instanceof CustomClaimsTooLargeError)
+      ) {
+        transaction.delete(membershipReference);
+        return error.message;
+      }
+      throw error;
+    }
   });
+
+  if (rejectionMessage) {
+    logger.warn(`Removed project membership projects/${pid}/users/${uid}: ${rejectionMessage}`);
+  }
 }
 
 /**

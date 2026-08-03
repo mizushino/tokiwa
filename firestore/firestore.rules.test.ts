@@ -8,7 +8,7 @@ import {
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { afterAll, afterEach, beforeAll, describe, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest';
 
 const projectId = process.env.GCLOUD_PROJECT ?? 'tokiwa-template';
 const rules = readFileSync(new URL('./firestore.rules', import.meta.url), 'utf8');
@@ -35,6 +35,10 @@ describe('project membership rules', () => {
     await testEnvironment.clearFirestore();
   });
 
+  beforeEach(async () => {
+    await seedUser('member-1', []);
+  });
+
   afterAll(async () => {
     await testEnvironment.cleanup();
   });
@@ -50,6 +54,16 @@ describe('project membership rules', () => {
   async function seedMembership(data: Record<string, unknown>, path = membershipPath): Promise<void> {
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
       await context.firestore().doc(path).set(data);
+    });
+  }
+
+  async function seedUser(uid: string, projects: string[]): Promise<void> {
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().doc(`users/${uid}`).set({
+        displayName: 'Member',
+        email: 'member@example.com',
+        permissions: { projects },
+      });
     });
   }
 
@@ -83,6 +97,7 @@ describe('project membership rules', () => {
   it('prevents a manager from granting, changing, or deleting their own membership', async () => {
     const ownMembershipPath = 'projects/project-1/users/manager-1';
     const managerFirestore = projectFirestore('manager-1', 'project-1:m');
+    await seedUser('manager-1', []);
 
     await assertFails(managerFirestore.doc(ownMembershipPath).set({ ...readerMembership, role: 'manager' }));
 
@@ -114,6 +129,26 @@ describe('project membership rules', () => {
 
     await assertFails(ownerFirestore.doc(membershipPath).set({ ...readerMembership, role: 'guest' }));
     await assertFails(ownerFirestore.doc(membershipPath).set({ ...readerMembership, admin: true }));
+  });
+
+  it('allows creating the 30th project membership', async () => {
+    await seedUser(
+      'member-1',
+      Array.from({ length: 29 }, (_, index) => `project-${index}:r`)
+    );
+    const managerFirestore = projectFirestore('manager-1', 'project-1:m');
+
+    await assertSucceeds(managerFirestore.doc(membershipPath).set(readerMembership));
+  });
+
+  it('rejects creating the 31st project membership', async () => {
+    await seedUser(
+      'member-1',
+      Array.from({ length: 30 }, (_, index) => `project-${index}:r`)
+    );
+    const managerFirestore = projectFirestore('manager-1', 'project-1:m');
+
+    await assertFails(managerFirestore.doc(membershipPath).set(readerMembership));
   });
 
   it('does not treat a legacy raw project claim as a project role', async () => {

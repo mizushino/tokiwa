@@ -85,6 +85,26 @@ service cloud.firestore {
         resource.data.role == request.resource.data.role;
     }
 
+    function projectPermissions(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data
+        .get('permissions', {})
+        .get('projects', []);
+    }
+
+    function canAddProjectMembership(uid, pid) {
+      // Keep this limit in sync with MAX_PROJECTS_PER_USER in the project service.
+      return exists(/databases/$(database)/documents/users/$(uid)) &&
+        (
+          projectPermissions(uid).size() < 30 ||
+          projectPermissions(uid).hasAny([
+            pid + ':o',
+            pid + ':m',
+            pid + ':w',
+            pid + ':r'
+          ])
+        );
+    }
+
     match /users/{uid} {
       allow create: if
         createVerifyFields(['displayName', 'createdAt', 'updatedAt'], ['email', 'image', 'lang']) &&
@@ -106,6 +126,7 @@ service cloud.firestore {
         allow read: if isReader(pid);
         allow create: if
           isDifferentSignedInUser(uid) &&
+          canAddProjectMembership(uid, pid) &&
           projectUserFieldsValid(request.resource.data) &&
           (
             isOwner(pid) ||
