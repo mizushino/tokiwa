@@ -223,7 +223,7 @@ describe('firestore rules', () => {
   it('allows creating the 30th project membership', async () => {
     await seedUser(
       'member-1',
-      Array.from({ length: 29 }, (_, index) => `project-${index}:r`)
+      Array.from({ length: 29 }, (_, index) => `existing-${index}:r`)
     );
     const managerFirestore = projectFirestore('manager-1', 'project-1:m');
 
@@ -233,7 +233,7 @@ describe('firestore rules', () => {
   it('rejects creating the 31st project membership', async () => {
     await seedUser(
       'member-1',
-      Array.from({ length: 30 }, (_, index) => `project-${index}:r`)
+      Array.from({ length: 30 }, (_, index) => `existing-${index}:r`)
     );
     const managerFirestore = projectFirestore('manager-1', 'project-1:m');
 

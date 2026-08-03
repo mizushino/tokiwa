@@ -39,7 +39,13 @@ describe('project storage role rules', () => {
       })
       .storage();
 
-    await assertSucceeds(Promise.resolve(storage.ref('projects/project-1/file.txt').putString('data')));
+    await assertSucceeds(
+      Promise.resolve(
+        storage.ref('projects/project-1/file.txt').put(new Uint8Array([1]), {
+          contentType: 'text/plain',
+        })
+      )
+    );
   });
 
   it('allows a user to upload a valid avatar image', async () => {
