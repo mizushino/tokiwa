@@ -16,7 +16,7 @@ import { share } from 'lit-share';
 import { URLPattern } from 'urlpattern-polyfill';
 
 import { initializeAuth, type FirebaseAuthSettings } from '@app/auth';
-import { getFirebaseConfig } from '@app/firebase-config';
+import { allowsDemoFirebaseConfig, getFirebaseConfig } from '@app/firebase-config';
 import { type FunctionsSettings, initializeFunctions } from '@app/functions';
 import { seedPreferredLanguageIfUnset, tGlobal } from '@app/i18n';
 import { tailwindCSS } from '@app/styles';
@@ -56,7 +56,7 @@ export class AdminApp extends LitElement {
   private readonly useEmulator = import.meta.env.MODE === 'emulator' || import.meta.env.VITE_USE_EMULATOR === 'true';
 
   private firebaseConfig = getFirebaseConfig(import.meta.env as Record<string, string | undefined>, {
-    allowDemoFallback: true,
+    allowDemoFallback: allowsDemoFirebaseConfig(import.meta.env.MODE),
   }) as FirebaseOptions;
 
   private firestoreSetting = {

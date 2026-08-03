@@ -12,6 +12,7 @@ const REQUIRED_KEYS = [
 ] as const;
 
 const DEFAULT_TEMPLATE_PROJECT_ID = 'tokiwa-template';
+const DEMO_FIREBASE_MODES = new Set(['dev', 'development', 'emulator', 'test']);
 
 interface FirebaseConfigOptions {
   allowDemoFallback?: boolean;
@@ -37,6 +38,10 @@ function createDemoFirebaseConfig(env: FirebaseEnv): FirebaseOptions {
     appId: env.VITE_FIREBASE_APP_ID || `1:000000000000:web:${projectId}`,
     ...(env.VITE_FIREBASE_MEASUREMENT_ID ? { measurementId: env.VITE_FIREBASE_MEASUREMENT_ID } : {}),
   };
+}
+
+export function allowsDemoFirebaseConfig(mode: string): boolean {
+  return DEMO_FIREBASE_MODES.has(mode);
 }
 
 export function getFirebaseConfig(env: FirebaseEnv, options?: FirebaseConfigOptions): FirebaseOptions {

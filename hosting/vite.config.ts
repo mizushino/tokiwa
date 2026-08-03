@@ -1,10 +1,11 @@
-import { mkdirSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 import tailwindcss from '@tailwindcss/vite';
 import type { UserConfig } from 'vite-plus';
 import { defineConfig, loadEnv } from 'vite-plus';
 
+import { allowsDemoFirebaseConfig, getFirebaseConfig } from './src/app/firebase-config';
 import { PostBuildPlugin } from './vite-plugin-post-build';
 
 const lint = JSON.parse(readFileSync(resolve(__dirname, 'oxlint-rules.json'), 'utf8'));
@@ -14,15 +15,15 @@ let globalProperties = '';
 export default ({ mode }: { mode: string }): UserConfig => {
   const site = process.env.APP_SITE || 'default';
   process.env = { ...process.env, ...loadEnv(mode, `${process.cwd()}/src/sites/${site}`) };
+  getFirebaseConfig(process.env, { allowDemoFallback: allowsDemoFirebaseConfig(mode) });
 
   const outDir = `../../../public/${site}`;
-  const publicDir = resolve(process.cwd(), 'public', site);
 
   return defineConfig({
     lint,
     root: `src/sites/${site}`,
     envDir: resolve(__dirname),
-    publicDir,
+    publicDir: false,
     resolve: {
       alias: {
         '@firestore': resolve(__dirname, '../firestore/src'),
@@ -60,12 +61,6 @@ export default ({ mode }: { mode: string }): UserConfig => {
       },
     },
     plugins: [
-      {
-        name: 'create-output-dir',
-        buildStart() {
-          mkdirSync(publicDir, { recursive: true });
-        },
-      },
       tailwindcss(),
       {
         name: 'tailwind-split-and-inject',
