@@ -1,7 +1,6 @@
 import { LitElement, type CSSResultGroup, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import { tailwindCSS } from '@app/styles';
 import {
@@ -79,7 +78,7 @@ export class UiModal extends LitElement {
   title = '';
 
   @property({ type: String })
-  message = '';
+  message: string | TemplateResult = '';
 
   @property({ type: String })
   icon: ModalIcon = 'question';
@@ -107,9 +106,6 @@ export class UiModal extends LitElement {
 
   @property({ type: String })
   inputError = '';
-
-  @property({ type: Boolean })
-  useHtml = false;
 
   private readonly dialogRef = createRef<HTMLDialogElement>();
   private readonly inputRef = createRef<UiInput>();
@@ -283,7 +279,7 @@ export class UiModal extends LitElement {
   }
 
   protected override render(): TemplateResult {
-    const message = this.useHtml ? unsafeHTML(this.message) : this.message;
+    const messageClass = typeof this.message === 'string' ? 'whitespace-pre-wrap' : '';
 
     return html`
       <dialog
@@ -310,7 +306,7 @@ export class UiModal extends LitElement {
                 <h3 class="${overlayTitleClasses}">${this.title}</h3>
                 <div class="mt-2">
                   <p class="text-sm text-gray-500 dark:text-gray-400">
-                    <span class="${this.useHtml ? '' : 'whitespace-pre-wrap'}">${message}</span>
+                    <span class=${messageClass}>${this.message}</span>
                   </p>
                 </div>
                 ${this.showInput

@@ -1,3 +1,4 @@
+import { html } from 'lit';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { proxyShadowQueries } from '@app/../test/query-shadow-root';
@@ -272,9 +273,8 @@ describe('UiModal', () => {
     expect(cancelHandler).toHaveBeenCalled();
   });
 
-  it('renders message as HTML when useHtml is enabled', async () => {
-    element.message = '<strong>Danger</strong> zone';
-    element.useHtml = true;
+  it('renders a structured message from a Lit template', async () => {
+    element.message = html`<strong>${'Danger'}</strong> zone`;
     await element.updateComplete;
 
     const strong = element.querySelector('strong');

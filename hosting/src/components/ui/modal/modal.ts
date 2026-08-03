@@ -1,4 +1,4 @@
-import { html, render } from 'lit';
+import { html, render, type TemplateResult } from 'lit';
 
 import { tGlobal } from '@app/i18n';
 
@@ -56,7 +56,7 @@ function open(icon: ModalIcon, title: string, message: string, buttons?: ModalBu
       const template = html`
         <ui-modal
           title=${title}
-          message=${message}
+          .message=${message}
           icon=${icon}
           confirmText=${tGlobal('confirm')}
           cancelText=${tGlobal('cancel')}
@@ -102,10 +102,9 @@ async function confirm(title: string, message?: string, icon?: 'question' | 'dan
 
 async function prompt(
   title: string,
-  message: string,
+  message: string | TemplateResult,
   icon?: 'question' | 'danger' | 'warning',
-  validator?: (value: string) => string | null,
-  useHtml = false
+  validator?: (value: string) => string | null
 ): Promise<string | null> {
   return new Promise((resolve) => {
     const container = document.createElement('div');
@@ -167,14 +166,13 @@ async function prompt(
       const template = html`
         <ui-modal
           title=${title}
-          message=${message}
+          .message=${message}
           icon=${actualIcon}
           confirmText=${tGlobal('confirm')}
           cancelText=${tGlobal('cancel')}
           .showInput=${true}
           .inputValue=${inputValue}
           .inputError=${inputError}
-          .useHtml=${useHtml}
           .open=${isOpen}
           @input=${handleInputChange}
           @confirm=${handleConfirm}
@@ -204,23 +202,23 @@ async function confirmWithInput(
     variant === 'success'
       ? 'font-semibold text-success-600 dark:text-success-400'
       : 'font-semibold text-danger-600 dark:text-danger-400';
-  const keywordHtml = `<span class="${keywordClass}">${keyword}</span>`;
-  const fullMessage = `${message}<br><br>${tGlobal('confirm_keyword_message').replace('{keyword}', keywordHtml)}`;
+  const keywordMessage = tGlobal('confirm_keyword_message');
+  const keywordPlaceholderIndex = keywordMessage.indexOf('{keyword}');
+  const fullMessage =
+    keywordPlaceholderIndex === -1
+      ? html`${message}<br /><br />${keywordMessage}`
+      : html`${message}<br /><br />${keywordMessage.slice(0, keywordPlaceholderIndex)}<span class=${keywordClass}
+            >${keyword}</span
+          >${keywordMessage.slice(keywordPlaceholderIndex + '{keyword}'.length)}`;
 
   const icon = variant === 'success' ? 'warning' : 'danger';
 
-  const result = await prompt(
-    title,
-    fullMessage,
-    icon,
-    (value) => {
-      if (normalizeKeyword(value) !== normalizedKeyword) {
-        return tGlobal('confirm_keyword_error').replace('{keyword}', keyword);
-      }
-      return null;
-    },
-    true
-  );
+  const result = await prompt(title, fullMessage, icon, (value) => {
+    if (normalizeKeyword(value) !== normalizedKeyword) {
+      return tGlobal('confirm_keyword_error').replace('{keyword}', keyword);
+    }
+    return null;
+  });
   return result !== null && normalizeKeyword(result) === normalizedKeyword;
 }
 
