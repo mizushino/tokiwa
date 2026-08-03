@@ -8,7 +8,7 @@ import { defineConfig } from 'vite-plus';
 // Provided by the Firebase runtime or installed from `dependencies` on deploy.
 // Everything else (including transitive deps such as `uuid`) is bundled, matching
 // the previous esbuild setup so `package.json` stays the source of truth.
-const external = ['firebase-admin', 'firebase-functions', '@napi-rs/image'];
+const external = ['firebase-admin', 'firebase-functions'];
 const isExternal = (id: string): boolean =>
   external.some((pkg) => id === pkg || id.startsWith(`${pkg}/`)) ||
   id.startsWith('node:') ||

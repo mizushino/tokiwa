@@ -181,7 +181,6 @@ Functions tests are colocated with their service modules.
 ```text
 functions/src/services/user/user.test.ts
 functions/src/services/project/project.test.ts
-functions/src/services/storage/storage.test.ts
 functions/src/services/sample/sample.test.ts
 ```
 

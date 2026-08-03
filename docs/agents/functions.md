@@ -237,7 +237,7 @@ The root `functions/src/index.ts` exports domains as namespaces:
 ```ts
 export * as user from './services/user/user.js';
 export * as project from './services/project/project.js';
-export * as storage from './services/storage/storage.js';
+export * as sample from './services/sample/sample.js';
 ```
 
 Follow the same pattern for new service domains so deployment output stays predictable.

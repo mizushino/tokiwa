@@ -177,7 +177,7 @@ describe('user service E2E', () => {
       });
     });
 
-    it('generates Firebase Storage URL from path', async () => {
+    it('does not derive an Auth photo URL from a Storage path', async () => {
       const { written } = await import('./user.js');
       const wrapped = testEnv.wrap(written);
 
@@ -220,8 +220,7 @@ describe('user service E2E', () => {
 
       await waitForCondition(async () => {
         const user = await auth.getUser(userRecord.uid);
-        expect(user.photoURL).toContain('firebasestorage.googleapis.com');
-        expect(user.photoURL).toContain('users%2Fprofile256.webp');
+        expect(user.photoURL).toBeUndefined();
       });
     });
 

@@ -1,6 +1,5 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getStorage } from 'firebase-admin/storage';
 import { logger } from 'firebase-functions';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { beforeUserCreated } from 'firebase-functions/v2/identity';
@@ -39,18 +38,8 @@ function handleAuthSyncError(message: string, error: unknown): void {
   throw error;
 }
 
-/**
- * Generate image URL from Firebase Storage path
- * @param path - Storage path or HTTPS URL
- * @returns Firebase Storage public URL
- */
-function getFirebaseImageURL(path?: string): string {
-  if (!path || path.startsWith('https://')) {
-    return path ?? '';
-  }
-  const encodedPath = encodeURIComponent(`${path}256.webp`);
-  const bucket = getStorage().bucket().name;
-  return `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodedPath}?alt=media`;
+function getAuthPhotoURL(image?: string): string | undefined {
+  return image?.startsWith('https://') ? image : undefined;
 }
 
 /**
@@ -129,7 +118,7 @@ export const created = beforeUserCreated({ region }, async (event) => {
 export async function handleUserWritten(uid: string, user?: UserData): Promise<void> {
   if (user) {
     try {
-      const photoURL = getFirebaseImageURL(user.image);
+      const photoURL = getAuthPhotoURL(user.image);
       await getAuth().updateUser(uid, {
         displayName: user.displayName,
         ...(photoURL ? { photoURL } : {}),
