@@ -10,6 +10,8 @@ import { userDocumentPath, type UserData } from '@firestore/types/user.js';
 import { UserDocument } from 'src/models/user.js';
 import { region } from 'src/options.js';
 
+import { getCustomUserClaims, type UserCustomClaims } from './custom-claims.js';
+
 const nonRetryableAuthErrorCodes = new Set([
   'auth/user-not-found',
   'auth/claims-too-large',
@@ -50,7 +52,7 @@ function getAuthPhotoURL(image?: string): string | undefined {
  * @param user - User data (sets empty claims if undefined)
  */
 export async function updateCustomUserClaims(uid: string, user?: UserData): Promise<void> {
-  const claims = user ? { p: user.permissions ?? {}, a: user.admin ?? false } : {};
+  const claims = user ? getCustomUserClaims(user) : {};
   await getAuth().setCustomUserClaims(uid, claims);
 }
 
@@ -63,8 +65,8 @@ export async function handleUserCreated(
   email: string,
   displayName: string | null,
   photoURL: string | null
-): Promise<void> {
-  await getFirestore().runTransaction(async (transaction) => {
+): Promise<UserCustomClaims> {
+  return getFirestore().runTransaction(async (transaction) => {
     const userDocument = new UserDocument({ uid });
     await userDocument.get(transaction);
 
@@ -86,12 +88,12 @@ export async function handleUserCreated(
         admin: userDocumentByEmail.data.admin ?? userData.admin,
         permissions: userDocumentByEmail.data.permissions ?? userData.permissions,
       };
-      await updateCustomUserClaims(uid, userData);
       await userDocumentByEmail.delete(transaction);
     }
 
     const finalDocument = new UserDocument({ uid }, userData);
     await finalDocument.save(false, transaction);
+    return getCustomUserClaims(userData);
   });
 }
 
@@ -105,12 +107,13 @@ export const created = beforeUserCreated({ region }, async (event) => {
     return;
   }
 
-  await handleUserCreated(
+  const customClaims = await handleUserCreated(
     userRecord.uid,
     userRecord.email,
     userRecord.displayName ?? null,
     userRecord.photoURL ?? null
   );
+  return { customClaims };
 });
 
 /**

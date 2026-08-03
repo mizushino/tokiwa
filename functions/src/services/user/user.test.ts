@@ -431,7 +431,7 @@ describe('user service E2E', () => {
 
     it('inherits permissions from pre-registered email', async () => {
       const { UserDocument } = await import('../../models/user.js');
-      const { handleUserCreated } = await import('./user.js');
+      const { created } = await import('./user.js');
 
       const email = 'preregistered@example.com';
       const preRegDoc = new UserDocument(
@@ -446,30 +446,30 @@ describe('user service E2E', () => {
       );
       await preRegDoc.save();
 
-      const userRecord = await auth.createUser({
-        email: email,
-        password: 'password123',
+      const setClaimsSpy = vi.spyOn(auth, 'setCustomUserClaims');
+      const wrapped = wrapBlockingFunction(created);
+      const newUid = 'pending-preregistered-user';
+      const result = await wrapped({
+        data: {
+          uid: newUid,
+          email,
+          displayName: 'Actual User',
+          photoURL: null,
+        },
       });
-      createdUserIds.push(userRecord.uid);
-      const newUid = userRecord.uid;
-
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      await auth.getUser(newUid);
-
-      await handleUserCreated(newUid, email, 'Actual User', null);
 
       const resultDoc = new UserDocument({ uid: newUid });
       await resultDoc.get();
 
       expect(resultDoc.data.admin).toBe(true);
       expect(resultDoc.data.permissions).toEqual({ projects: ['proj1:o', 'proj2:m'] });
-
-      const user = await auth.getUser(newUid);
-      expect(user.customClaims).toEqual({
-        p: { projects: ['proj1:o', 'proj2:m'] },
-        a: true,
+      expect(result).toEqual({
+        customClaims: {
+          p: { projects: ['proj1:o', 'proj2:m'] },
+          a: true,
+        },
       });
+      expect(setClaimsSpy).not.toHaveBeenCalled();
 
       const deletedDoc = new UserDocument({ uid: email });
       await deletedDoc.get();
