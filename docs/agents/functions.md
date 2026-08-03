@@ -131,14 +131,14 @@ This pattern is used by the current project trigger logic and should remain the 
 Keep exported triggers thin and move the real business logic into named functions that tests can call directly. Deployment options use the shared `region` constant from `src/options.ts`.
 
 ```ts
-export async function updateUserPermissions(
+async function updateUserPermissionsInTransaction(
+  transaction: Transaction,
   pid: string,
   uid: string,
   projectUserData: ProjectUserData | null
 ): Promise<void> {
   const userDocument = new UserDocument({ uid });
-  await userDocument.get();
-
+  await userDocument.get(transaction);
   if (!userDocument.exists) {
     return;
   }
@@ -155,20 +155,49 @@ export async function updateUserPermissions(
     },
   });
 
-  await updatedDocument.save();
+  await updatedDocument.save(false, transaction);
+}
+
+export async function updateUserPermissions(
+  pid: string,
+  uid: string,
+  projectUserData: ProjectUserData | null
+): Promise<void> {
+  await getFirestore().runTransaction((transaction) =>
+    updateUserPermissionsInTransaction(transaction, pid, uid, projectUserData)
+  );
+}
+
+export async function syncCurrentProjectPermission(pid: string, uid: string): Promise<void> {
+  const firestore = getFirestore();
+  const membershipReference = firestore.doc(`projects/${pid}/users/${uid}`);
+
+  await firestore.runTransaction(async (transaction) => {
+    const membership = await transaction.get(membershipReference);
+    await updateUserPermissionsInTransaction(
+      transaction,
+      pid,
+      uid,
+      membership.exists ? (membership.data() as ProjectUserData) : null
+    );
+  });
 }
 
 export const written = onDocumentWritten(
-  { region, document: '/projects/{pid}/users/{uid}' },
+  { region, document: '/projects/{pid}/users/{uid}', retry: true },
   async (event) => {
-    await updateUserPermissions(
-      event.params.pid,
-      event.params.uid,
-      event.data?.after.data() as ProjectUserData | null
-    );
+    await syncCurrentProjectPermission(event.params.pid, event.params.uid);
   }
 );
 ```
+
+Enable retries for idempotent event-driven synchronization. Re-read the current source document instead of replaying
+the event snapshot, and rethrow transient failures so the platform can retry them. Ignore only known permanent errors
+such as a deleted Auth user or invalid claims payload.
+
+When synchronization calls an external service such as Firebase Auth, compare the source document's `updateTime`
+before and after the call. Retry from the latest document when it changed during the call, and throw after a small
+bounded number of attempts so the platform retry policy takes over.
 
 ### Callable Functions
 

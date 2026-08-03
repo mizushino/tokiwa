@@ -159,6 +159,7 @@ describe('user service E2E', () => {
         `users/${userRecord.uid}`
       );
       const afterSnap = await makeDocumentSnapshot(userData, `users/${userRecord.uid}`);
+      await db.doc(`users/${userRecord.uid}`).set(userData);
 
       await wrapped({
         data: testEnv.makeChange(beforeSnap, afterSnap),
@@ -210,6 +211,7 @@ describe('user service E2E', () => {
         `users/${userRecord.uid}`
       );
       const afterSnap = await makeDocumentSnapshot(userData, `users/${userRecord.uid}`);
+      await db.doc(`users/${userRecord.uid}`).set(userData);
 
       await wrapped({
         data: testEnv.makeChange(beforeSnap, afterSnap),
@@ -246,6 +248,7 @@ describe('user service E2E', () => {
 
       const beforeSnap = await makeDocumentSnapshot({}, `users/${userRecord.uid}`);
       const afterSnap = await makeDocumentSnapshot(userData, `users/${userRecord.uid}`);
+      await db.doc(`users/${userRecord.uid}`).set(userData);
 
       await wrapped({
         data: testEnv.makeChange(beforeSnap, afterSnap),
@@ -290,7 +293,7 @@ describe('user service E2E', () => {
     it('logs and continues when the auth user no longer exists', async () => {
       const { written } = await import('./user.js');
       const wrapped = testEnv.wrap(written);
-      const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+      const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
       const userData: UserData = {
         email: 'missing@example.com',
@@ -304,6 +307,7 @@ describe('user service E2E', () => {
 
       const beforeSnap = await makeDocumentSnapshot({}, 'users/missing-user');
       const afterSnap = await makeDocumentSnapshot(userData, 'users/missing-user');
+      await db.doc('users/missing-user').set(userData);
 
       await expect(
         wrapped({
@@ -312,7 +316,68 @@ describe('user service E2E', () => {
         })
       ).resolves.toBeUndefined();
 
-      expect(warnSpy).toHaveBeenCalled();
+      expect(errorSpy).toHaveBeenCalled();
+    });
+
+    it('enables retries for transient failures', async () => {
+      const { written } = await import('./user.js');
+      expect(written.__endpoint.eventTrigger?.retry).toBe(true);
+    });
+
+    it('rethrows transient Auth errors so the trigger can retry', async () => {
+      const { handleUserWritten } = await import('./user.js');
+      const transientError = new Error('temporary Auth failure');
+      vi.spyOn(auth, 'updateUser').mockRejectedValueOnce(transientError);
+
+      const userData: UserData = {
+        email: 'retry@example.com',
+        displayName: 'Retry User',
+        admin: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await expect(handleUserWritten('retry-user', userData)).rejects.toBe(transientError);
+    });
+
+    it('uses the current user document when a stale event is retried', async () => {
+      const { written } = await import('./user.js');
+      const wrapped = testEnv.wrap(written);
+      const userRecord = await auth.createUser({
+        email: `current-${Date.now()}@example.com`,
+        password: 'password123',
+      });
+      createdUserIds.push(userRecord.uid);
+
+      const currentData: UserData = {
+        email: userRecord.email || '',
+        displayName: 'Current Name',
+        permissions: { projects: ['current:o'] },
+        admin: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      await db.doc(`users/${userRecord.uid}`).set(currentData);
+
+      const staleData: UserData = {
+        ...currentData,
+        displayName: 'Stale Name',
+        permissions: { projects: ['stale:r'] },
+      };
+      const beforeSnap = await makeDocumentSnapshot(undefined, `users/${userRecord.uid}`);
+      const afterSnap = await makeDocumentSnapshot(staleData, `users/${userRecord.uid}`);
+      await db.doc(`users/${userRecord.uid}`).set(currentData);
+
+      await wrapped({
+        data: testEnv.makeChange(beforeSnap, afterSnap),
+        params: { uid: userRecord.uid },
+      });
+
+      await waitForCondition(async () => {
+        const user = await auth.getUser(userRecord.uid);
+        expect(user.displayName).toBe('Current Name');
+        expect(user.customClaims).toEqual({ p: { projects: ['current:o'] }, a: true });
+      });
     });
   });
 

@@ -6,31 +6,37 @@ service firebase.storage {
     }
 
     function isAdmin() {
-      return isSignedIn() && request.auth.token.a == true;
+      return isSignedIn() && request.auth.token.get('a', false) == true;
     }
 
     function isSignedInUser(uid) {
       return isSignedIn() && uid == request.auth.uid;
     }
 
+    function hasProjectRole(projectId, roleClaims) {
+      return isSignedIn() &&
+        request.auth.token.get(['p', 'projects'], []).hasAny([projectId].concat(roleClaims));
+    }
+
     function isOwner(projectId) {
-      let projects = request.auth.token.p.get('projects', []);
-      return projects.hasAny([projectId, projectId + ':o']);
+      return hasProjectRole(projectId, [projectId + ':o']);
     }
-    
+
     function isManager(projectId) {
-      let projects = request.auth.token.p.get('projects', []);
-      return projects.hasAny([projectId, projectId + ':o', projectId + ':m']);
+      return hasProjectRole(projectId, [projectId + ':o', projectId + ':m']);
     }
-    
+
     function isWriter(projectId) {
-      let projects = request.auth.token.p.get('projects', []);
-      return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w']);
+      return hasProjectRole(projectId, [projectId + ':o', projectId + ':m', projectId + ':w']);
     }
 
     function isReader(projectId) {
-      let projects = request.auth.token.p.get('projects', []);
-      return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w', projectId + ':r']);
+      return hasProjectRole(projectId, [
+        projectId + ':o',
+        projectId + ':m',
+        projectId + ':w',
+        projectId + ':r'
+      ]);
     }
 
     function isActive(meta) {

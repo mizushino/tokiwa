@@ -17,31 +17,37 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && request.auth.token.a == true;
+      return isSignedIn() && request.auth.token.get('a', false) == true;
     }
 
     function isSignedInUser(uid) {
       return isSignedIn() && uid == request.auth.uid;
     }
 
+    function hasProjectRole(projectId, roleClaims) {
+      return isSignedIn() &&
+        request.auth.token.get(['p', 'projects'], []).hasAny([projectId].concat(roleClaims));
+    }
+
     function isOwner(projectId) {
-      let projects = request.auth.token.p.get('projects', []);
-      return projects.hasAny([projectId, projectId + ':o']);
+      return hasProjectRole(projectId, [projectId + ':o']);
     }
 
     function isManager(projectId) {
-      let projects = request.auth.token.p.get('projects', []);
-      return projects.hasAny([projectId, projectId + ':o', projectId + ':m']);
+      return hasProjectRole(projectId, [projectId + ':o', projectId + ':m']);
     }
 
     function isWriter(projectId) {
-      let projects = request.auth.token.p.get('projects', []);
-      return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w']);
+      return hasProjectRole(projectId, [projectId + ':o', projectId + ':m', projectId + ':w']);
     }
 
     function isReader(projectId) {
-      let projects = request.auth.token.p.get('projects', []);
-      return projects.hasAny([projectId, projectId + ':o', projectId + ':m', projectId + ':w', projectId + ':r']);
+      return hasProjectRole(projectId, [
+        projectId + ':o',
+        projectId + ':m',
+        projectId + ':w',
+        projectId + ':r'
+      ]);
     }
 
     function sampleFieldsValidTypes(data) {
@@ -50,11 +56,11 @@ service cloud.firestore {
     }
 
     function userFieldsValidTypes(data) {
-       return (data.displayName is string) &&
-             (data.get('email', '') is string) &&
-            (data.get('image', '') is string) &&
-            (data.get('permissions', {}) is map) &&
-            (data.get('admin', false) is bool);
+      return (data.displayName is string) &&
+        (data.get('email', '') is string) &&
+        (data.get('image', '') is string) &&
+        (data.get('permissions', {}) is map) &&
+        (data.get('admin', false) is bool);
     }
 
     match /users/{uid} {
@@ -78,7 +84,7 @@ service cloud.firestore {
         allow read: if isReader(pid);
         allow write: if isManager(pid);
       }
-		}
+    }
 
     // Public demo collection: the default site reads and writes it without
     // signing in, so access is open but constrained to the expected shape.

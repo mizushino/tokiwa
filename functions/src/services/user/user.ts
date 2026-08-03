@@ -9,6 +9,36 @@ import { userDocumentPath, type UserData } from '@firestore/types/user.js';
 import { UserDocument } from 'src/models/user.js';
 import { region } from 'src/options.js';
 
+const nonRetryableAuthErrorCodes = new Set([
+  'auth/user-not-found',
+  'auth/claims-too-large',
+  'auth/invalid-claims',
+  'auth/argument-error',
+  'auth/invalid-display-name',
+  'auth/invalid-photo-url',
+  'auth/invalid-uid',
+  'auth/reserved-claim',
+]);
+const MAX_USER_SYNC_ATTEMPTS = 3;
+
+export function isNonRetryableAuthError(error: unknown): boolean {
+  return (
+    !!error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    typeof error.code === 'string' &&
+    nonRetryableAuthErrorCodes.has(error.code)
+  );
+}
+
+function handleAuthSyncError(message: string, error: unknown): void {
+  if (isNonRetryableAuthError(error)) {
+    logger.error(message, error);
+    return;
+  }
+  throw error;
+}
+
 /**
  * Generate image URL from Firebase Storage path
  * @param path - Storage path or HTTPS URL
@@ -105,24 +135,48 @@ export async function handleUserWritten(uid: string, user?: UserData): Promise<v
         ...(photoURL ? { photoURL } : {}),
       });
     } catch (error) {
-      // User might have been deleted in Auth, log and continue
-      logger.warn(`Failed to update Auth user ${uid}:`, error);
+      handleAuthSyncError(`Failed to update Auth user ${uid}:`, error);
     }
   }
 
   try {
     await updateCustomUserClaims(uid, user);
   } catch (error) {
-    // User might have been deleted in Auth, log and continue
-    logger.warn(`Failed to update custom claims for user ${uid}:`, error);
+    handleAuthSyncError(`Failed to update custom claims for user ${uid}:`, error);
   }
+}
+
+/**
+ * Re-read the current user document before syncing Firebase Auth.
+ * This keeps delayed or retried events from applying an older snapshot.
+ */
+export async function syncCurrentUser(uid: string): Promise<void> {
+  const userReference = getFirestore().doc(`users/${uid}`);
+
+  for (let attempt = 0; attempt < MAX_USER_SYNC_ATTEMPTS; attempt += 1) {
+    const before = await userReference.get();
+    await handleUserWritten(uid, before.exists ? (before.data() as UserData) : undefined);
+
+    const after = await userReference.get();
+    const unchanged =
+      (!before.exists && !after.exists) ||
+      (before.exists &&
+        after.exists &&
+        before.updateTime !== undefined &&
+        after.updateTime !== undefined &&
+        before.updateTime.isEqual(after.updateTime));
+    if (unchanged) {
+      return;
+    }
+  }
+
+  throw new Error(`User document ${uid} kept changing during Auth synchronization.`);
 }
 
 /**
  * Trigger fired when user document is created, updated, or deleted
  * Synchronizes Firebase Authentication user info and custom claims
  */
-export const written = onDocumentWritten({ region, document: userDocumentPath }, async (event) => {
-  const user = event.data?.after.data() as UserData | undefined;
-  await handleUserWritten(event.params.uid, user);
+export const written = onDocumentWritten({ region, document: userDocumentPath, retry: true }, async (event) => {
+  await syncCurrentUser(event.params.uid);
 });

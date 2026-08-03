@@ -208,6 +208,8 @@ it('updates permissions when a project role changes', async () => {
 - Clean up any Firestore or Storage state a test creates
 - Prefer immutable document updates in both implementation and tests
 - Test the exported helper when possible, and wrap the trigger only when the event shape itself is part of the behavior
+- For retryable triggers, test that delayed events read the current source document rather than replaying stale snapshots
+- Exercise concurrent updates when trigger logic uses read-modify-write on a shared document
 
 ---
 

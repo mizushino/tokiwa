@@ -1,3 +1,4 @@
+import { getFirestore, type Transaction } from 'firebase-admin/firestore';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 
 import { projectUserDocumentPath, type ProjectUserData } from '@firestore/types/project-user.js';
@@ -30,23 +31,19 @@ export function calculateProjectPermissions(
   return projects;
 }
 
-/**
- * Update user permissions based on project user changes
- * Exported for testing purposes
- */
-export async function updateUserPermissions(
+async function updateUserPermissionsInTransaction(
+  transaction: Transaction,
   pid: string,
   uid: string,
   projectUserData: ProjectUserData | null
 ): Promise<void> {
   const userDocument = new UserDocument({ uid });
-  await userDocument.get();
+  await userDocument.get(transaction);
   if (!userDocument.exists) {
     return;
   }
 
   const permissions = userDocument.data.permissions ?? {};
-
   const updatedDocument = new UserDocument(
     { uid },
     {
@@ -57,15 +54,43 @@ export async function updateUserPermissions(
       },
     }
   );
-  await updatedDocument.save();
+  await updatedDocument.save(false, transaction);
+}
+
+/**
+ * Update user permissions based on project user changes
+ * Exported for testing purposes
+ */
+export async function updateUserPermissions(
+  pid: string,
+  uid: string,
+  projectUserData: ProjectUserData | null
+): Promise<void> {
+  await getFirestore().runTransaction(async (transaction) => {
+    await updateUserPermissionsInTransaction(transaction, pid, uid, projectUserData);
+  });
+}
+
+/**
+ * Re-read the current membership before projecting it to the user document.
+ * This keeps delayed or retried events from restoring stale permissions.
+ */
+export async function syncCurrentProjectPermission(pid: string, uid: string): Promise<void> {
+  const firestore = getFirestore();
+  const membershipReference = firestore.doc(`projects/${pid}/users/${uid}`);
+
+  await firestore.runTransaction(async (transaction) => {
+    const membership = await transaction.get(membershipReference);
+    const projectUserData = membership.exists ? (membership.data() as ProjectUserData) : null;
+    await updateUserPermissionsInTransaction(transaction, pid, uid, projectUserData);
+  });
 }
 
 /**
  * Trigger fired when a project user document is created, updated, or deleted
  * Automatically updates the permissions field in the user document
  */
-export const written = onDocumentWritten({ region, document: projectUserDocumentPath }, async (event) => {
+export const written = onDocumentWritten({ region, document: projectUserDocumentPath, retry: true }, async (event) => {
   const { projectId, uid } = event.params;
-  const projectUserData = event.data?.after.data() as ProjectUserData | null;
-  await updateUserPermissions(projectId, uid, projectUserData);
+  await syncCurrentProjectPermission(projectId, uid);
 });

@@ -76,10 +76,12 @@ describe('project service E2E', () => {
 
   afterEach(async () => {
     const usersSnapshot = await db.collection('users').get();
+    const membershipsSnapshot = await db.collectionGroup('users').get();
     const projectsSnapshot = await db.collection('projects').get();
 
     const batch = db.batch();
     usersSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    membershipsSnapshot.docs.filter((doc) => doc.ref.parent.parent !== null).forEach((doc) => batch.delete(doc.ref));
     projectsSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
     await batch.commit();
   });
@@ -258,9 +260,43 @@ describe('project service E2E', () => {
     expect(userDoc.exists).toBe(false);
   });
 
+  it('preserves concurrent project permission updates', async () => {
+    const { updateUserPermissions } = await import('./project.js');
+    const { UserDocument } = await import('../../models/user.js');
+
+    const userDoc = new UserDocument(
+      { uid: 'user-concurrent' },
+      {
+        ...UserDocument.defaultData,
+        email: 'concurrent@example.com',
+        displayName: 'Concurrent User',
+        permissions: { projects: [] },
+      }
+    );
+    await userDoc.save();
+
+    await Promise.all([
+      updateUserPermissions('proj-a', 'user-concurrent', {
+        displayName: 'Concurrent User',
+        email: 'concurrent@example.com',
+        role: 'owner',
+      }),
+      updateUserPermissions('proj-b', 'user-concurrent', {
+        displayName: 'Concurrent User',
+        email: 'concurrent@example.com',
+        role: 'reader',
+      }),
+    ]);
+
+    const resultDoc = new UserDocument({ uid: 'user-concurrent' });
+    await resultDoc.get();
+    expect(resultDoc.data.permissions?.projects).toEqual(expect.arrayContaining(['proj-a:o', 'proj-b:r']));
+  });
+
   it('exports written trigger function', async () => {
     const { written } = await import('./project.js');
     expect(written).toBeDefined();
+    expect(written.__endpoint.eventTrigger?.retry).toBe(true);
   });
 
   it('updates user permissions when written trigger receives a project user change', async () => {
@@ -285,6 +321,7 @@ describe('project service E2E', () => {
       email: 'trigger@example.com',
       role: 'owner',
     };
+    await db.doc('projects/proj-trigger/users/user-trigger').set(afterData);
 
     const beforeSnap = await makeDocumentSnapshot(undefined, 'projects/proj-trigger/users/user-trigger');
     const afterSnap = await makeDocumentSnapshot(afterData, 'projects/proj-trigger/users/user-trigger');
@@ -301,5 +338,40 @@ describe('project service E2E', () => {
       expect(resultDoc.data.permissions?.projects).toContain('proj-trigger:o');
       expect(resultDoc.data.permissions?.projects).toContain('other:r');
     });
+  });
+
+  it('uses the current membership when a stale event is retried', async () => {
+    const { written } = await import('./project.js');
+    const { UserDocument } = await import('../../models/user.js');
+    const wrapped = testEnv.wrap(written);
+
+    const userDoc = new UserDocument(
+      { uid: 'user-stale' },
+      {
+        ...UserDocument.defaultData,
+        email: 'stale@example.com',
+        displayName: 'Stale Event User',
+        permissions: { projects: ['proj-stale:o', 'other:r'] },
+      }
+    );
+    await userDoc.save();
+
+    const staleMembership: ProjectUserData = {
+      displayName: 'Stale Event User',
+      email: 'stale@example.com',
+      role: 'owner',
+    };
+    const beforeSnap = await makeDocumentSnapshot(undefined, 'projects/proj-stale/users/user-stale');
+    const afterSnap = await makeDocumentSnapshot(staleMembership, 'projects/proj-stale/users/user-stale');
+    await db.doc('projects/proj-stale/users/user-stale').delete();
+
+    await wrapped({
+      data: testEnv.makeChange(beforeSnap, afterSnap),
+      params: { projectId: 'proj-stale', uid: 'user-stale' },
+    });
+
+    const resultDoc = new UserDocument({ uid: 'user-stale' });
+    await resultDoc.get();
+    expect(resultDoc.data.permissions?.projects).toEqual(['other:r']);
   });
 });
