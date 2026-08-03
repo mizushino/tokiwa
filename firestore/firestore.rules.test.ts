@@ -81,6 +81,48 @@ describe('firestore rules', () => {
     await assertFails(authenticatedFirestore.doc('users/new-user').set(userData));
   });
 
+  it('allows a constrained public sample create', async () => {
+    const firestore = testEnvironment.unauthenticatedContext().firestore();
+
+    await assertSucceeds(
+      firestore.doc('samples/sample-1').set({
+        name: 'Sample',
+        count: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+    );
+  });
+
+  it('rejects oversized public sample data and an arbitrary initial count', async () => {
+    const firestore = testEnvironment.unauthenticatedContext().firestore();
+    const baseData = {
+      name: 'Sample',
+      count: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await assertFails(firestore.doc('samples/sample-1').set({ ...baseData, name: 'x'.repeat(101) }));
+    await assertFails(firestore.doc('samples/sample-2').set({ ...baseData, count: 1 }));
+    await assertFails(firestore.doc(`samples/${'x'.repeat(65)}`).set(baseData));
+  });
+
+  it('allows public sample name updates but rejects counter updates', async () => {
+    const firestore = testEnvironment.unauthenticatedContext().firestore();
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().doc('samples/sample-1').set({
+        name: 'Before',
+        count: 3,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    });
+
+    await assertSucceeds(firestore.doc('samples/sample-1').update({ name: 'After', updatedAt: new Date() }));
+    await assertFails(firestore.doc('samples/sample-1').update({ count: 4, updatedAt: new Date() }));
+  });
+
   it('allows a manager to create a non-owner membership', async () => {
     const managerFirestore = projectFirestore('manager-1', 'project-1:m');
 

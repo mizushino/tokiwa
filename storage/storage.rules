@@ -56,20 +56,41 @@ service firebase.storage {
       return isActive(meta) && isWithinDateRange(meta);
     }
 
+    function isRasterImageUpload() {
+      return request.resource.contentType != null &&
+        request.resource.contentType.matches('image/(jpeg|png|gif|webp|avif)');
+    }
+
+    function isValidAvatarUpload() {
+      return request.resource.size <= 5 * 1024 * 1024 &&
+        isRasterImageUpload();
+    }
+
+    function isValidProjectUpload() {
+      return request.resource.size <= 10 * 1024 * 1024 &&
+        request.resource.contentType != null &&
+        (
+          isRasterImageUpload() ||
+          request.resource.contentType.matches('(application/(pdf|json)|text/(plain|csv))(;.*)?')
+        );
+    }
+
     match /users/{uid}/avatar/{filename} {
       allow get: if true;
       allow list: if isSignedInUser(uid);
-      allow write: if isSignedInUser(uid);
+      allow create, update: if isSignedInUser(uid) && isValidAvatarUpload();
+      allow delete: if isSignedInUser(uid);
     }
 
     match /projects/{pid} {
       allow read: if isWriter(pid);
-      allow update: if isManager(pid);
+      allow update: if isManager(pid) && isValidProjectUpload();
       allow delete: if isOwner(pid);
 
       match /{allPaths=**} {
         allow read: if isReader(pid) && hasAccess(resource.metadata);
-        allow write: if isManager(pid);
+        allow create, update: if isManager(pid) && isValidProjectUpload();
+        allow delete: if isManager(pid);
       }
     }
 
