@@ -14,7 +14,7 @@
     "build": "npm -w hosting run build && npm -w functions run build",
     "lint": "npm -w hosting run lint && npm -w functions run lint && npm run lint:rules",
     "lint:rules": "vp lint -c functions/oxlint-rules.json --tsconfig functions/tsconfig.json firestore/firestore.rules.test.ts storage/storage.rules.test.ts",
-    "fmt": "npm -w hosting run fmt && npm -w functions run fmt && oxfmt firestore storage",
+    "fmt": "npm -w hosting run fmt && npm -w functions run fmt && vp fmt -c .oxfmtrc.json firestore storage",
     "test": "npm -w hosting run test && npm -w functions run test",
     "test:hosting": "npm -w hosting run test",
     "test:functions": "npm -w functions run test",
