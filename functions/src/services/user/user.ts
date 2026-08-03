@@ -123,10 +123,10 @@ export const created = beforeUserCreated({ region }, async (event) => {
 export async function handleUserWritten(uid: string, user?: UserData): Promise<void> {
   if (user) {
     try {
-      const photoURL = getAuthPhotoURL(user.image);
+      const photoURL = user.image ? getAuthPhotoURL(user.image) : null;
       await getAuth().updateUser(uid, {
         displayName: user.displayName,
-        ...(photoURL ? { photoURL } : {}),
+        ...(photoURL !== undefined ? { photoURL } : {}),
       });
     } catch (error) {
       handleAuthSyncError(`Failed to update Auth user ${uid}:`, error);

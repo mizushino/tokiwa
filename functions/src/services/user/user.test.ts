@@ -260,6 +260,7 @@ describe('user service E2E', () => {
       const userRecord = await auth.createUser({
         email: `test-no-image-${Date.now()}@example.com`,
         password: 'password123',
+        photoURL: 'https://example.com/old-image.jpg',
       });
       createdUserIds.push(userRecord.uid);
 
