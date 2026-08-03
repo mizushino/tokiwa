@@ -33,11 +33,12 @@
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.1",
-    "firebase-tools": "^15.22.4",
-    "vite-plus": "0.2.6"
+    "firebase-functions": "^7.3.2",
+    "firebase-tools": "^15.25.1",
+    "vite-plus": "0.2.7"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.6",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.7",
     "firebase-functions-test": {
       "firebase-admin": "^14.2.0"
     }
