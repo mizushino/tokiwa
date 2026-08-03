@@ -92,4 +92,26 @@ describe('sample service E2E', () => {
     expect(savedDocument.data.name).toBe('After');
     expect(savedDocument.data.count).toBe(4);
   });
+
+  it('preserves every increment from concurrent requests', async () => {
+    const { runHandler } = await import('./sample.js');
+    const { SampleDocument } = await import('../../models/sample.js');
+    const requestCount = 10;
+
+    const results = await Promise.all(
+      Array.from({ length: requestCount }, () =>
+        runHandler({
+          data: { id: 'sample-concurrent', name: 'Concurrent' },
+        })
+      )
+    );
+
+    const savedDocument = new SampleDocument({ id: 'sample-concurrent' });
+    await savedDocument.get();
+
+    expect(savedDocument.data.count).toBe(requestCount);
+    expect(results.map((result) => result.count).toSorted((a, b) => a - b)).toEqual(
+      Array.from({ length: requestCount }, (_, index) => index + 1)
+    );
+  });
 });

@@ -1,3 +1,4 @@
+import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 
 import { SampleDocument } from 'src/models/sample.js';
@@ -27,18 +28,20 @@ export async function runHandler(request: SampleRunHandlerRequest): Promise<Samp
     throw new HttpsError('invalid-argument', 'name is required');
   }
 
-  const sampleDocument = new SampleDocument({ id });
-  await sampleDocument.get();
+  return getFirestore().runTransaction(async (transaction) => {
+    const sampleDocument = new SampleDocument({ id });
+    await sampleDocument.get(transaction);
 
-  const baseData = sampleDocument.exists ? sampleDocument.data : SampleDocument.defaultData;
-  const updatedDocument = new SampleDocument({ id }, { ...baseData, name, count: baseData.count + 1 });
-  await updatedDocument.save();
+    const baseData = sampleDocument.exists ? sampleDocument.data : SampleDocument.defaultData;
+    const updatedDocument = new SampleDocument({ id }, { ...baseData, name, count: baseData.count + 1 });
+    await updatedDocument.save(false, transaction);
 
-  return {
-    id,
-    name: updatedDocument.data.name,
-    count: updatedDocument.data.count,
-  };
+    return {
+      id,
+      name: updatedDocument.data.name,
+      count: updatedDocument.data.count,
+    };
+  });
 }
 
 /**
