@@ -56,6 +56,7 @@ interface AuthState {
   resolver?: PopupRedirectResolver;
   isLoadingState: boolean;
   unsubscribeAuthStateChanged?: Unsubscribe;
+  unsubscribeLoadUser?: Unsubscribe;
   currentUserValue: User | null | undefined;
 }
 
@@ -132,6 +133,9 @@ export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuth
   const persistence = settings?.persistence || [indexedDBLocalPersistence, browserLocalPersistence];
   const resolver = settings?.popupRedirectResolver || browserPopupRedirectResolver;
 
+  state.unsubscribeAuthStateChanged?.();
+  state.unsubscribeLoadUser?.();
+
   state.auth = initializeFirebaseAuth(firebaseApp, {
     persistence,
     popupRedirectResolver: resolver,
@@ -142,7 +146,7 @@ export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuth
     connectAuthEmulator(state.auth, settings.emulatorUrl);
   }
 
-  state.auth.onAuthStateChanged((user) => {
+  state.unsubscribeAuthStateChanged = state.auth.onAuthStateChanged((user) => {
     syncPreferredLanguageFromUser(user);
     notifyUserChange(user);
   });
@@ -263,7 +267,10 @@ export async function loadUser(): Promise<User | null> {
   state.isLoadingState = true;
 
   await new Promise((resolve) => {
-    state.unsubscribeAuthStateChanged = auth.onAuthStateChanged((user) => {
+    state.unsubscribeLoadUser?.();
+    state.unsubscribeLoadUser = auth.onAuthStateChanged((user) => {
+      state.unsubscribeLoadUser?.();
+      state.unsubscribeLoadUser = undefined;
       resolve(user);
     });
   });
@@ -275,6 +282,10 @@ export async function loadUser(): Promise<User | null> {
 
 export function destroy(): void {
   state.unsubscribeAuthStateChanged?.();
+  state.unsubscribeLoadUser?.();
+  state.unsubscribeAuthStateChanged = undefined;
+  state.unsubscribeLoadUser = undefined;
   state.auth = undefined;
   state.resolver = undefined;
+  state.currentUserValue = undefined;
 }

@@ -50,12 +50,14 @@ describe('Auth', () => {
   let authStateListeners: ((user: User | null) => void)[];
   let currentUserValue: User | null;
   let onAuthStateChangedMock: ReturnType<typeof vi.fn>;
+  let authStateUnsubscribes: ReturnType<typeof vi.fn>[];
   let signOutMock: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
 
     authStateListeners = [];
+    authStateUnsubscribes = [];
     currentUserValue = null;
 
     mockUser = {
@@ -67,7 +69,9 @@ describe('Auth', () => {
 
     onAuthStateChangedMock = vi.fn((callback: (user: User | null) => void) => {
       authStateListeners.push(callback);
-      return vi.fn();
+      const unsubscribe = vi.fn();
+      authStateUnsubscribes.push(unsubscribe);
+      return unsubscribe;
     });
     signOutMock = vi.fn().mockResolvedValue(undefined);
 
@@ -113,6 +117,17 @@ describe('Auth', () => {
       initializeAuth(mockApp);
 
       expect(onAuthStateChangedMock).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    it('unsubscribes the previous auth state listener when reinitialized', () => {
+      const mockApp = {} as FirebaseApp;
+      initializeAuth(mockApp);
+      const firstUnsubscribe = authStateUnsubscribes[0];
+
+      initializeAuth(mockApp);
+
+      expect(firstUnsubscribe).toHaveBeenCalledOnce();
+      expect(onAuthStateChangedMock).toHaveBeenCalledTimes(2);
     });
 
     it('syncs the Firestore language preference on auth changes', async () => {
