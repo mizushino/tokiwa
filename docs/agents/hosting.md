@@ -422,4 +422,3 @@ npm run e2e
 - Firebase SDK v12+
 - Modular imports for tree-shaking
 - IndexedDB persistence for offline support
-- Automatic ID token refresh (55-minute interval)
