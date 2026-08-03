@@ -144,7 +144,7 @@ export class Navigate extends Directive {
       path = `${path}/`;
     }
 
-    return path;
+    return `${path}${pathname.slice(pathEnd)}`;
   }
 
   private static async scrollToHashIfNeeded(): Promise<void> {

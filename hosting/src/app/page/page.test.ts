@@ -404,7 +404,8 @@ describe('Page', () => {
 
       await Navigate.to('/test-page?foo=bar');
 
-      expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/');
+      expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/?foo=bar');
+      expect(gotoMock).toHaveBeenCalledWith('/test-page/?foo=bar');
 
       history.pushState(null, '', originalPathname);
     });
@@ -416,7 +417,8 @@ describe('Page', () => {
 
       await Navigate.to('/test-page#section');
 
-      expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/');
+      expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/#section');
+      expect(gotoMock).toHaveBeenCalledWith('/test-page/#section');
 
       history.pushState(null, '', originalPathname);
     });
@@ -428,7 +430,8 @@ describe('Page', () => {
 
       await Navigate.to('/test-page?foo=bar#section');
 
-      expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/');
+      expect(pushStateSpy).toHaveBeenCalledWith(undefined, '', '/test-page/?foo=bar#section');
+      expect(gotoMock).toHaveBeenCalledWith('/test-page/?foo=bar#section');
 
       history.pushState(null, '', originalPathname);
     });
