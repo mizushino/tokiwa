@@ -282,7 +282,7 @@ import { tailwindCSS } from '@app/styles';
 ```ts
 // ✅ Good: Named constants
 const MAX_RETRY_COUNT = 3;
-const TOKEN_REFRESH_INTERVAL = 55 * 60 * 1000; // 55 minutes
+const REQUEST_TIMEOUT = 30 * 1000; // 30 seconds
 
 for (let i = 0; i < MAX_RETRY_COUNT; i++) {
   // ...
@@ -292,5 +292,5 @@ for (let i = 0; i < MAX_RETRY_COUNT; i++) {
 for (let i = 0; i < 3; i++) {
   // ...
 }
-setTimeout(refreshToken, 3300000);
+setTimeout(cancelRequest, 30000);
 ```

@@ -32,7 +32,6 @@ vi.mock('firebase/auth', async () => {
     signInWithRedirect: vi.fn(),
     sendPasswordResetEmail: vi.fn(),
     getRedirectResult: vi.fn(),
-    getIdToken: vi.fn(),
     AuthErrorCodes: {
       USER_DELETED: 'auth/user-not-found',
       INVALID_PASSWORD: 'auth/wrong-password',
@@ -180,9 +179,8 @@ describe('Auth', () => {
       const mockApp = {} as FirebaseApp;
       initializeAuth(mockApp);
 
-      const { signInWithEmailAndPassword, getIdToken } = await import('firebase/auth');
+      const { signInWithEmailAndPassword } = await import('firebase/auth');
       (signInWithEmailAndPassword as ReturnType<typeof vi.fn>).mockResolvedValue({ user: mockUser });
-      (getIdToken as ReturnType<typeof vi.fn>).mockResolvedValue('mock-token');
 
       currentUserValue = mockUser;
 

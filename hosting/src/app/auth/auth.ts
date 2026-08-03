@@ -5,7 +5,6 @@ import {
   browserLocalPersistence,
   browserPopupRedirectResolver,
   connectAuthEmulator,
-  getIdToken,
   getRedirectResult,
   indexedDBLocalPersistence,
   initializeAuth as initializeFirebaseAuth,
@@ -19,8 +18,6 @@ import {
 import { seedPreferredLanguageFromUser } from '@app/i18n';
 
 export type { User } from 'firebase/auth';
-
-const TOKEN_REFRESH_INTERVAL = 55 * 60 * 1000;
 
 export type AuthErrorCode =
   | 'EMAIL_REQUIRED'
@@ -58,7 +55,6 @@ interface AuthState {
   auth?: Auth;
   resolver?: PopupRedirectResolver;
   isLoadingState: boolean;
-  autoRefreshIdToken?: ReturnType<typeof setTimeout>;
   unsubscribeAuthStateChanged?: Unsubscribe;
   currentUserValue: User | null | undefined;
 }
@@ -79,7 +75,7 @@ function notifyUserChange(user: User | null): void {
  * Creates an async generator that yields user state changes.
  *
  * First yields the current user value immediately, then yields each time
- * the user state changes (sign in, sign out, token refresh, etc).
+ * the user state changes (sign in and sign out).
  *
  * This is designed to work with lit-async's track() directive:
  * @example
@@ -132,32 +128,6 @@ function handleAuthError(error: unknown, specificErrorCodes?: string[], specific
   throw new AuthError(AuthErrorCode.LoginFailed);
 }
 
-function stopAutoRefresh(): void {
-  if (state.autoRefreshIdToken) {
-    clearTimeout(state.autoRefreshIdToken);
-    state.autoRefreshIdToken = undefined;
-  }
-}
-
-async function refreshToken(): Promise<void> {
-  const auth = getAuth();
-  if (auth.currentUser) {
-    await getIdToken(auth.currentUser, true);
-    startAutoRefreshIdToken();
-  }
-}
-
-function startAutoRefreshIdToken(): void {
-  stopAutoRefresh();
-
-  const auth = getAuth();
-  if (!auth.currentUser) {
-    return;
-  }
-
-  state.autoRefreshIdToken = setTimeout(() => refreshToken(), TOKEN_REFRESH_INTERVAL);
-}
-
 export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuthSettings): void {
   const persistence = settings?.persistence || [indexedDBLocalPersistence, browserLocalPersistence];
   const resolver = settings?.popupRedirectResolver || browserPopupRedirectResolver;
@@ -175,18 +145,9 @@ export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuth
   state.auth.onAuthStateChanged((user) => {
     seedPreferredLanguageFromUser(user);
     notifyUserChange(user);
-    if (user) {
-      startAutoRefreshIdToken();
-    }
   });
 
-  getRedirectResult(state.auth, resolver)
-    .then(async (result) => {
-      if (result?.user) {
-        startAutoRefreshIdToken();
-      }
-    })
-    .catch(console.error);
+  getRedirectResult(state.auth, resolver).catch(console.error);
 }
 
 export function getFirebaseAuth(): Auth {
@@ -232,8 +193,6 @@ export async function signInWithEmail(email: string, password: string): Promise<
       AuthErrorCode.InvalidCredentials
     );
   }
-
-  startAutoRefreshIdToken();
 }
 
 export async function signInWithCustomToken(token: string): Promise<void> {
@@ -244,8 +203,6 @@ export async function signInWithCustomToken(token: string): Promise<void> {
   } catch (error: unknown) {
     handleAuthError(error, [AuthErrorCodes.INVALID_CUSTOM_TOKEN], AuthErrorCode.InvalidCredentials);
   }
-
-  startAutoRefreshIdToken();
 }
 
 export async function signInWithProvider(
@@ -262,7 +219,6 @@ export async function signInWithProvider(
     } catch (error: unknown) {
       handleAuthError(error);
     }
-    startAutoRefreshIdToken();
     return;
   }
 
@@ -274,7 +230,6 @@ export async function signInWithProvider(
 }
 
 export async function signOut(): Promise<void> {
-  stopAutoRefresh();
   const auth = getAuth();
 
   try {
@@ -309,9 +264,6 @@ export async function loadUser(): Promise<User | null> {
 
   await new Promise((resolve) => {
     state.unsubscribeAuthStateChanged = auth.onAuthStateChanged((user) => {
-      if (user) {
-        startAutoRefreshIdToken();
-      }
       resolve(user);
     });
   });
@@ -323,7 +275,6 @@ export async function loadUser(): Promise<User | null> {
 
 export function destroy(): void {
   state.unsubscribeAuthStateChanged?.();
-  stopAutoRefresh();
   state.auth = undefined;
   state.resolver = undefined;
 }
