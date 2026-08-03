@@ -244,7 +244,7 @@ Follow the same pattern for new service domains so deployment output stays predi
 
 ## Local Development and Testing
 
-Use Node.js 24.
+Use Node.js 24 or 26. Cloud Functions deployments currently use the Node.js 24 runtime configured in `firebase.json`.
 
 ```bash
 nvm use

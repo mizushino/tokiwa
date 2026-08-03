@@ -43,13 +43,6 @@
     }
   },
   "engines": {
-    "node": "24"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "npm",
-      "version": "11.18.0",
-      "onFail": "download"
-    }
+    "node": "24 || 26"
   }
 }
