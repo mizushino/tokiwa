@@ -12,7 +12,8 @@
     "dev": "npm -w hosting run dev -- --mode dev",
     "prod": "npm -w hosting run dev -- --mode prod",
     "build": "npm -w hosting run build && npm -w functions run build",
-    "lint": "npm -w hosting run lint && npm -w functions run lint",
+    "lint": "npm -w hosting run lint && npm -w functions run lint && npm run lint:rules",
+    "lint:rules": "vp lint -c functions/oxlint-rules.json --tsconfig functions/tsconfig.json firestore/firestore.rules.test.ts storage/storage.rules.test.ts",
     "fmt": "npm -w hosting run fmt && npm -w functions run fmt && oxfmt firestore storage",
     "test": "npm -w hosting run test && npm -w functions run test",
     "test:hosting": "npm -w hosting run test",
@@ -31,7 +32,9 @@
     "lint:admin": "APP_SITE=admin npm run lint"
   },
   "devDependencies": {
-    "firebase-tools": "^15.22.4"
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "firebase-tools": "^15.22.4",
+    "vite-plus": "0.2.6"
   },
   "overrides": {
     "vite": "npm:@voidzero-dev/vite-plus-core@0.2.6",

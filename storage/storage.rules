@@ -13,25 +13,25 @@ service firebase.storage {
       return isSignedIn() && uid == request.auth.uid;
     }
 
-    function hasProjectRole(projectId, roleClaims) {
+    function hasProjectRole(roleClaims) {
       return isSignedIn() &&
-        request.auth.token.get(['p', 'projects'], []).hasAny([projectId].concat(roleClaims));
+        request.auth.token.get(['p', 'projects'], []).hasAny(roleClaims);
     }
 
     function isOwner(projectId) {
-      return hasProjectRole(projectId, [projectId + ':o']);
+      return hasProjectRole([projectId + ':o']);
     }
 
     function isManager(projectId) {
-      return hasProjectRole(projectId, [projectId + ':o', projectId + ':m']);
+      return hasProjectRole([projectId + ':o', projectId + ':m']);
     }
 
     function isWriter(projectId) {
-      return hasProjectRole(projectId, [projectId + ':o', projectId + ':m', projectId + ':w']);
+      return hasProjectRole([projectId + ':o', projectId + ':m', projectId + ':w']);
     }
 
     function isReader(projectId) {
-      return hasProjectRole(projectId, [
+      return hasProjectRole([
         projectId + ':o',
         projectId + ':m',
         projectId + ':w',

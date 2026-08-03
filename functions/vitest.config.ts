@@ -8,6 +8,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     globalSetup: './src/test-setup.ts',
+    include: ['src/**/*.test.ts', '../firestore/**/*.test.ts', '../storage/**/*.test.ts'],
     // Ensure tests run sequentially to avoid emulator conflicts
     fileParallelism: false,
     pool: 'forks',
