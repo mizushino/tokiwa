@@ -1,154 +1,109 @@
 import type { User } from 'firebase/auth';
+import type { Unsubscribe } from 'firebase/firestore';
 
-export type SupportedLanguage = 'ja' | 'en';
+import type { UserLanguage } from '@firestore/types/user.js';
+import { saveUserLanguage, subscribeToUserDocument } from '@models/user';
 
-const LANGUAGE_STORAGE_KEY = 'preferredLanguage';
+import { getLocale, setLocale } from './localization';
 
-let cachedLanguage: SupportedLanguage = 'ja';
-let initialized = false;
-let hasStoredValue = false;
-const listeners = new Set<(lang: SupportedLanguage) => void>();
+export type SupportedLanguage = UserLanguage;
 
-function canUseStorage(): boolean {
-  try {
-    return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
-  } catch {
-    return false;
-  }
+let cachedLanguage = getLocale() as SupportedLanguage;
+let siteDefaultLanguage = cachedLanguage;
+let siteDefaultSeeded = false;
+let activeUid: string | null = null;
+let hasUserLanguage = false;
+let userGeneration = 0;
+let unsubscribeUser: Unsubscribe | undefined;
+
+const listeners = new Set<(language: SupportedLanguage) => void>();
+
+function isSupportedLanguage(value: unknown): value is SupportedLanguage {
+  return value === 'en' || value === 'ja';
 }
 
-function readFromStorage(): SupportedLanguage | null {
-  if (!canUseStorage()) {
-    return null;
-  }
-
-  const value = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  if (value === 'ja' || value === 'en') {
-    hasStoredValue = true;
-    return value;
-  }
-
-  return null;
-}
-
-function writeToStorage(lang: SupportedLanguage): void {
-  if (!canUseStorage()) {
-    return;
-  }
-
-  window.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
-  hasStoredValue = true;
-}
-
-function ensureInitialized(): void {
-  if (initialized) {
-    return;
-  }
-
-  const stored = readFromStorage();
-  if (stored) {
-    cachedLanguage = stored;
-  }
-
-  initialized = true;
-}
-
-function notifyListeners(lang: SupportedLanguage): void {
+function notifyListeners(language: SupportedLanguage): void {
   listeners.forEach((listener) => {
     try {
-      listener(lang);
+      listener(language);
     } catch (error) {
       console.error('Preferred language listener failed:', error);
     }
   });
 }
 
+async function applyLanguage(language: SupportedLanguage): Promise<void> {
+  if (getLocale() !== language) {
+    await setLocale(language);
+  }
+
+  cachedLanguage = language;
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = language;
+  }
+  notifyListeners(language);
+}
+
 export function getPreferredLanguage(): SupportedLanguage {
-  ensureInitialized();
   return cachedLanguage;
 }
 
-export function setPreferredLanguage(lang: SupportedLanguage): void {
-  ensureInitialized();
-  cachedLanguage = lang;
-  writeToStorage(lang);
-  notifyListeners(lang);
+export async function setPreferredLanguage(language: SupportedLanguage): Promise<void> {
+  await applyLanguage(language);
+
+  const uid = activeUid;
+  if (uid) {
+    await saveUserLanguage(uid, language);
+  }
 }
 
-export function subscribePreferredLanguage(listener: (lang: SupportedLanguage) => void): () => void {
+export function subscribePreferredLanguage(listener: (language: SupportedLanguage) => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
 
-if (typeof window !== 'undefined') {
-  window.addEventListener('storage', (event: StorageEvent) => {
-    if (event.key !== LANGUAGE_STORAGE_KEY) {
+export function seedPreferredLanguageIfUnset(language: SupportedLanguage): void {
+  siteDefaultLanguage = language;
+  if (siteDefaultSeeded || hasUserLanguage) {
+    return;
+  }
+
+  siteDefaultSeeded = true;
+  void applyLanguage(language);
+}
+
+export function syncPreferredLanguageFromUser(user: User | null): void {
+  userGeneration += 1;
+  const generation = userGeneration;
+
+  unsubscribeUser?.();
+  unsubscribeUser = undefined;
+  activeUid = user?.uid ?? null;
+  hasUserLanguage = false;
+
+  if (!user) {
+    void applyLanguage(siteDefaultLanguage);
+    return;
+  }
+
+  unsubscribeUser = subscribeToUserDocument(user.uid, (userData) => {
+    if (generation !== userGeneration || !isSupportedLanguage(userData?.lang)) {
       return;
     }
 
-    const newValue = event.newValue;
-    if (newValue === 'ja' || newValue === 'en') {
-      cachedLanguage = newValue;
-      hasStoredValue = true;
-      notifyListeners(cachedLanguage);
-    }
-  });
-
-  window.addEventListener('pageshow', (event: PageTransitionEvent) => {
-    if (event.persisted) {
-      const stored = readFromStorage();
-      if (stored && stored !== cachedLanguage) {
-        cachedLanguage = stored;
-        notifyListeners(cachedLanguage);
-      }
-    }
+    hasUserLanguage = true;
+    void applyLanguage(userData.lang);
   });
 }
 
-/**
- * Seed a default language for a site when the visitor has no stored preference yet.
- *
- * Unlike {@link setPreferredLanguage} this does not persist to storage, so it acts as a
- * soft per-site default: a public site can seed `'en'` while the module default stays `'ja'`.
- * Once the visitor explicitly picks a language (which persists), this becomes a no-op.
- */
-export function seedPreferredLanguageIfUnset(lang: SupportedLanguage): void {
-  ensureInitialized();
-  if (hasStoredValue || cachedLanguage === lang) {
-    return;
-  }
-  cachedLanguage = lang;
-  notifyListeners(lang);
-}
-
-export function seedPreferredLanguageFromUser(user: User | null): void {
-  if (hasStoredValue || !user?.displayName) {
-    return;
-  }
-
-  const { language } = parseDisplayNameWithLanguage(user.displayName);
-  cachedLanguage = language;
-  writeToStorage(language);
-  notifyListeners(language);
-}
-
-export function parseDisplayNameWithLanguage(raw: string | null): { name: string; language: SupportedLanguage } {
-  if (!raw) {
-    return { name: '', language: 'ja' };
-  }
-
-  const match = raw.match(/^(.*)\s\[(en|ja)\]$/i);
-  if (match) {
-    const name = match[1].trim();
-    const suffix = match[2].toLowerCase();
-    return { name, language: suffix === 'en' ? 'en' : 'ja' };
-  }
-
-  return { name: raw.trim(), language: 'ja' };
-}
-
-export function clearPreferredLanguageCache(): void {
-  initialized = false;
-  hasStoredValue = false;
-  cachedLanguage = 'ja';
+export async function clearPreferredLanguageCache(): Promise<void> {
+  userGeneration += 1;
+  unsubscribeUser?.();
+  unsubscribeUser = undefined;
+  activeUid = null;
+  hasUserLanguage = false;
+  siteDefaultLanguage = 'en';
+  siteDefaultSeeded = false;
+  listeners.clear();
+  await applyLanguage('en');
 }

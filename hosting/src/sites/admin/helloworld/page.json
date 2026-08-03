@@ -1,13 +1,5 @@
 {
   "title": "Hello World - Admin Panel",
   "description": "A simple Hello World example for the admin site.",
-  "translations": {
-    "en": {
-      "hero_desc": "Admin panel sample page."
-    },
-    "ja": {
-      "description": "管理サイト向けのシンプルな Hello World の例です。",
-      "hero_desc": "管理パネルのサンプルページです。"
-    }
-  }
+  "localizationId": "admin.helloworld"
 }

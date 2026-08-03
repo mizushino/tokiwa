@@ -18,7 +18,7 @@ import { URLPattern } from 'urlpattern-polyfill';
 import { initializeAuth, type FirebaseAuthSettings } from '@app/auth';
 import { getFirebaseConfig } from '@app/firebase-config';
 import { type FunctionsSettings, initializeFunctions } from '@app/functions';
-import { getPreferredLanguage, seedPreferredLanguageIfUnset, tGlobal } from '@app/i18n';
+import { seedPreferredLanguageIfUnset, tGlobal } from '@app/i18n';
 import { tailwindCSS } from '@app/styles';
 
 import './index';
@@ -81,7 +81,7 @@ export class DefaultApp extends LitElement {
     this,
     [{ path: '/*', render: () => html`<default-index class="block h-full w-full"></default-index>` }],
     {
-      fallback: { render: () => html`${tGlobal('not_found', getPreferredLanguage())}` },
+      fallback: { render: () => html`${tGlobal('not_found')}` },
     }
   );
 

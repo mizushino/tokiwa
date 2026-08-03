@@ -40,6 +40,10 @@ vi.mock('firebase/auth', async () => {
   };
 });
 
+vi.mock('@app/i18n', () => ({
+  syncPreferredLanguageFromUser: vi.fn(),
+}));
+
 describe('Auth', () => {
   let mockAuth: Auth;
   let mockUser: User;
@@ -109,6 +113,16 @@ describe('Auth', () => {
       initializeAuth(mockApp);
 
       expect(onAuthStateChangedMock).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    it('syncs the Firestore language preference on auth changes', async () => {
+      const mockApp = {} as FirebaseApp;
+      initializeAuth(mockApp);
+
+      authStateListeners.forEach((listener) => listener(mockUser));
+
+      const { syncPreferredLanguageFromUser } = await import('@app/i18n');
+      expect(syncPreferredLanguageFromUser).toHaveBeenCalledWith(mockUser);
     });
 
     it('handles redirect result with user', async () => {

@@ -48,6 +48,14 @@ export class UiLanguageSwitcher extends LitElement {
     this.unsubscribeLanguage = undefined;
   }
 
+  private switchLanguage = async (language: SupportedLanguage): Promise<void> => {
+    try {
+      await setPreferredLanguage(language);
+    } catch (error) {
+      console.error('Failed to save preferred language:', error);
+    }
+  };
+
   protected override render(): TemplateResult {
     const target: SupportedLanguage = getPreferredLanguage() === 'en' ? 'ja' : 'en';
     const label = target === 'ja' ? '日本語' : 'English';
@@ -56,7 +64,7 @@ export class UiLanguageSwitcher extends LitElement {
         size="sm"
         variant=${this.variant}
         ?fullWidth=${this.fullWidth}
-        @click=${() => setPreferredLanguage(target)}
+        @click=${() => void this.switchLanguage(target)}
         >${label}</ui-button
       >
     `;

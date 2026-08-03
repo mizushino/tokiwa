@@ -7,6 +7,5 @@
   "sortTailwindcss": {
     "stylesheet": "./hosting/src/app/styles/tailwind.css"
   },
-  "sortPackageJson": false,
-  "ignorePatterns": []
+  "sortPackageJson": false
 }

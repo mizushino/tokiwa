@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { clearPreferredLanguageCache, getPreferredLanguage, setPreferredLanguage } from '@app/i18n';
 import { proxyShadowQueries } from '@app/../test/query-shadow-root';
@@ -12,19 +12,17 @@ describe('UiLanguageSwitcher', () => {
   let element: UiLanguageSwitcher;
   let container: HTMLElement;
 
-  beforeEach(() => {
-    window.localStorage.clear();
-    clearPreferredLanguageCache();
+  beforeEach(async () => {
+    await clearPreferredLanguageCache();
     container = document.createElement('div');
     document.body.appendChild(container);
     element = proxyShadowQueries(document.createElement('ui-language-switcher') as UiLanguageSwitcher);
     container.appendChild(element);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     container.remove();
-    window.localStorage.clear();
-    clearPreferredLanguageCache();
+    await clearPreferredLanguageCache();
   });
 
   it('renders with default properties', async () => {
@@ -33,32 +31,32 @@ describe('UiLanguageSwitcher', () => {
     expect(element.fullWidth).toBe(false);
   });
 
-  it('shows the other language name (English when current is ja)', async () => {
-    await element.updateComplete;
-    const button = element.querySelector('ui-button');
-    expect(button?.textContent?.trim()).toBe('English');
-  });
-
-  it('shows 日本語 when current language is en', async () => {
-    setPreferredLanguage('en');
+  it('shows the other language name (Japanese when current is en)', async () => {
     await element.updateComplete;
     const button = element.querySelector('ui-button');
     expect(button?.textContent?.trim()).toBe('日本語');
+  });
+
+  it('shows English when current language is ja', async () => {
+    await setPreferredLanguage('ja');
+    await element.updateComplete;
+    const button = element.querySelector('ui-button');
+    expect(button?.textContent?.trim()).toBe('English');
   });
 
   it('switches the preferred language on click', async () => {
     await element.updateComplete;
     const button = element.querySelector('ui-button') as UiButton;
     button.click();
-    expect(getPreferredLanguage()).toBe('en');
+    await vi.waitFor(() => expect(getPreferredLanguage()).toBe('ja'));
   });
 
   it('re-renders when the preferred language changes externally', async () => {
     await element.updateComplete;
-    setPreferredLanguage('en');
+    await setPreferredLanguage('ja');
     await element.updateComplete;
     const button = element.querySelector('ui-button');
-    expect(button?.textContent?.trim()).toBe('日本語');
+    expect(button?.textContent?.trim()).toBe('English');
   });
 
   it('passes variant and fullWidth to the inner button', async () => {
@@ -73,7 +71,7 @@ describe('UiLanguageSwitcher', () => {
   it('stops listening for language changes after disconnect', async () => {
     await element.updateComplete;
     element.remove();
-    setPreferredLanguage('en');
+    await setPreferredLanguage('ja');
     expect(element.isUpdatePending).toBe(false);
   });
 });

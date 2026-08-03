@@ -1,6 +1,6 @@
 import { html, render } from 'lit';
 
-import { getPreferredLanguage, tGlobal } from '@app/i18n';
+import { tGlobal } from '@app/i18n';
 
 import type { ModalButton, ModalIcon } from './ui-modal';
 import './ui-modal';
@@ -52,16 +52,14 @@ function open(icon: ModalIcon, title: string, message: string, buttons?: ModalBu
       container.remove();
     };
 
-    const lang = getPreferredLanguage();
-
     const renderModal = (): void => {
       const template = html`
         <ui-modal
           title=${title}
           message=${message}
           icon=${icon}
-          confirmText=${tGlobal('confirm', lang)}
-          cancelText=${tGlobal('cancel', lang)}
+          confirmText=${tGlobal('confirm')}
+          cancelText=${tGlobal('cancel')}
           .buttons=${buttons}
           .open=${isOpen}
           @button-click=${handleButtonClick}
@@ -165,16 +163,14 @@ async function prompt(
     };
 
     const actualIcon = icon || 'warning';
-    const lang = getPreferredLanguage();
-
     const renderModal = (): void => {
       const template = html`
         <ui-modal
           title=${title}
           message=${message}
           icon=${actualIcon}
-          confirmText=${tGlobal('confirm', lang)}
-          cancelText=${tGlobal('cancel', lang)}
+          confirmText=${tGlobal('confirm')}
+          cancelText=${tGlobal('cancel')}
           .showInput=${true}
           .inputValue=${inputValue}
           .inputError=${inputError}
@@ -208,9 +204,8 @@ async function confirmWithInput(
     variant === 'success'
       ? 'font-semibold text-success-600 dark:text-success-400'
       : 'font-semibold text-danger-600 dark:text-danger-400';
-  const lang = getPreferredLanguage();
   const keywordHtml = `<span class="${keywordClass}">${keyword}</span>`;
-  const fullMessage = `${message}<br><br>${tGlobal('confirm_keyword_message', lang).replace('{keyword}', keywordHtml)}`;
+  const fullMessage = `${message}<br><br>${tGlobal('confirm_keyword_message').replace('{keyword}', keywordHtml)}`;
 
   const icon = variant === 'success' ? 'warning' : 'danger';
 
@@ -220,7 +215,7 @@ async function confirmWithInput(
     icon,
     (value) => {
       if (normalizeKeyword(value) !== normalizedKeyword) {
-        return tGlobal('confirm_keyword_error', lang).replace('{keyword}', keyword);
+        return tGlobal('confirm_keyword_error').replace('{keyword}', keyword);
       }
       return null;
     },

@@ -1,38 +1,5 @@
 {
   "title": "Lit-Async - Sample Site",
   "description": "Demonstration of using the lit-async library for handling async operations reactively in Lit.",
-  "translations": {
-    "en": {
-      "hero_title": "lit-async Demo",
-      "hero_desc": "lit-async is a lightweight collection of directives and decorators for handling asynchronous operations directly in your Lit templates without boilerplate.",
-      "promise_desc": "Binds a Promise directly in the template. The template automatically updates when the Promise resolves.",
-      "loading_promise": "Loading promise...",
-      "fetch_quote": "Fetch Next Quote",
-      "generator_desc": "Binds an async generator. Re-renders reactively whenever a new value is yielded.",
-      "seconds_elapsed": "seconds elapsed",
-      "generator_stopped": "Generator Stopped",
-      "pause": "Pause",
-      "resume": "Resume",
-      "loading_helper_desc": "The loading helper yields a placeholder value (like a spinner or text) until the promise resolves.",
-      "simulating_slow": "Simulating slow network request (2s)…",
-      "trigger_slow": "Trigger Slow Request"
-    },
-    "ja": {
-      "title": "Lit-Async - サンプルサイト",
-      "description": "lit-async ライブラリで非同期処理を Lit 上でリアクティブに扱う方法のデモです。",
-      "hero_title": "lit-async デモ",
-      "hero_desc": "lit-async は、非同期処理をボイラープレートなしで Lit テンプレート内に直接記述するための、軽量なディレクティブとデコレーターのコレクションです。",
-      "promise_desc": "Promise をテンプレートに直接バインドします。Promise が解決するとテンプレートが自動的に更新されます。",
-      "loading_promise": "Promise を読み込み中…",
-      "fetch_quote": "次の名言を取得",
-      "generator_desc": "非同期ジェネレーターをバインドします。新しい値が yield されるたびにリアクティブに再描画します。",
-      "seconds_elapsed": "経過秒数",
-      "generator_stopped": "ジェネレーター停止中",
-      "pause": "一時停止",
-      "resume": "再開",
-      "loading_helper_desc": "loading ヘルパーは、Promise が解決するまでプレースホルダー（スピナーやテキストなど）を返します。",
-      "simulating_slow": "低速なネットワークリクエストをシミュレート中（2秒）…",
-      "trigger_slow": "低速リクエストを実行"
-    }
-  }
+  "localizationId": "default.lit-async"
 }

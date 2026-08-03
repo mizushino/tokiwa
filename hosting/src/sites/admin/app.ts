@@ -18,6 +18,7 @@ import { URLPattern } from 'urlpattern-polyfill';
 import { initializeAuth, type FirebaseAuthSettings } from '@app/auth';
 import { getFirebaseConfig } from '@app/firebase-config';
 import { type FunctionsSettings, initializeFunctions } from '@app/functions';
+import { seedPreferredLanguageIfUnset, tGlobal } from '@app/i18n';
 import { tailwindCSS } from '@app/styles';
 
 import './index';
@@ -80,12 +81,14 @@ export class AdminApp extends LitElement {
     this,
     [{ path: '/*', render: () => html`<admin-index class="block h-full w-full"></admin-index>` }],
     {
-      fallback: { render: () => html`Not Found` },
+      fallback: { render: () => html`${tGlobal('not_found')}` },
     }
   );
 
   public override connectedCallback(): void {
     super.connectedCallback();
+
+    seedPreferredLanguageIfUnset('ja');
 
     this.firebaseApp = initializeApp(this.firebaseConfig);
     const firestore = initializeFirestore(this.firebaseApp, this.firestoreSetting);

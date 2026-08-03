@@ -1,0 +1,927 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<file target-language="ja" source-language="en" original="lit-localize-inputs" datatype="plaintext">
+<body>
+<trans-unit id="admin.access_denied_message">
+  <source>This page is only accessible to administrators.</source>
+  <target>このページは管理者のみアクセス可能です。</target>
+</trans-unit>
+<trans-unit id="admin.access_denied_title">
+  <source>Access denied</source>
+  <target>アクセス権限がありません</target>
+</trans-unit>
+<trans-unit id="admin.checking_permission">
+  <source>Checking permissions…</source>
+  <target>権限を確認中...</target>
+</trans-unit>
+<trans-unit id="admin.description">
+  <source>Manage your application through the admin panel.</source>
+  <target>Manage your application through the admin panel.</target>
+</trans-unit>
+<trans-unit id="admin.helloworld.description">
+  <source>A simple Hello World example for the admin site.</source>
+  <target>管理サイト向けのシンプルな Hello World の例です。</target>
+</trans-unit>
+<trans-unit id="admin.helloworld.hero_desc">
+  <source>Admin panel sample page.</source>
+  <target>管理パネルのサンプルページです。</target>
+</trans-unit>
+<trans-unit id="admin.helloworld.title">
+  <source>Hello World - Admin Panel</source>
+  <target>Hello World - Admin Panel</target>
+</trans-unit>
+<trans-unit id="admin.login.description">
+  <source>Access the admin panel by logging in here.</source>
+  <target>こちらからログインして管理パネルにアクセスします。</target>
+</trans-unit>
+<trans-unit id="admin.login.err_account_linking">
+  <source>This account needs to be linked with your existing sign-in method.</source>
+  <target>既存のログイン方法とアカウントの連携が必要です。</target>
+</trans-unit>
+<trans-unit id="admin.login.err_email_not_verified">
+  <source>Your email address has not been verified.</source>
+  <target>メールアドレスが確認されていません。</target>
+</trans-unit>
+<trans-unit id="admin.login.err_email_required">
+  <source>Please enter your email address.</source>
+  <target>メールアドレスを入力してください。</target>
+</trans-unit>
+<trans-unit id="admin.login.err_generic">
+  <source>An error occurred.</source>
+  <target>エラーが発生しました。</target>
+</trans-unit>
+<trans-unit id="admin.login.err_google_login">
+  <source>Google sign-in failed. Please try again.</source>
+  <target>Googleログインに失敗しました。もう一度お試しください。</target>
+</trans-unit>
+<trans-unit id="admin.login.err_invalid_credentials">
+  <source>The email address or password is incorrect.</source>
+  <target>メールアドレスまたはパスワードが正しくありません。</target>
+</trans-unit>
+<trans-unit id="admin.login.err_login_failed">
+  <source>Sign-in failed. Please try again.</source>
+  <target>ログインに失敗しました。もう一度お試しください。</target>
+</trans-unit>
+<trans-unit id="admin.login.err_password_required">
+  <source>Please enter your password.</source>
+  <target>パスワードを入力してください。</target>
+</trans-unit>
+<trans-unit id="admin.login.err_twitter_login">
+  <source>Twitter sign-in failed. Please try again.</source>
+  <target>Twitterログインに失敗しました。もう一度お試しください。</target>
+</trans-unit>
+<trans-unit id="admin.login.logging_in">
+  <source>Signing in…</source>
+  <target>ログイン中...</target>
+</trans-unit>
+<trans-unit id="admin.login.login">
+  <source>Sign in</source>
+  <target>ログイン</target>
+</trans-unit>
+<trans-unit id="admin.login.or_continue_with">
+  <source>Or continue with</source>
+  <target>または次の方法でログイン</target>
+</trans-unit>
+<trans-unit id="admin.login.remember_me">
+  <source>Remember me</source>
+  <target>ログイン状態を保持</target>
+</trans-unit>
+<trans-unit id="admin.login.sign_in_title">
+  <source>Sign in to your account</source>
+  <target>アカウントにログイン</target>
+</trans-unit>
+<trans-unit id="admin.login.title">
+  <source>Login - Admin Panel</source>
+  <target>ログイン - 管理パネル</target>
+</trans-unit>
+<trans-unit id="admin.nav_dashboard">
+  <source>Dashboard</source>
+  <target>ダッシュボード</target>
+</trans-unit>
+<trans-unit id="admin.nav_helloworld">
+  <source>Hello World</source>
+  <target>Hello World</target>
+</trans-unit>
+<trans-unit id="admin.title">
+  <source>Admin Panel</source>
+  <target>Admin Panel</target>
+</trans-unit>
+<trans-unit id="default.buttons.button_group">
+  <source>Button Group</source>
+  <target>ボタングループ</target>
+</trans-unit>
+<trans-unit id="default.buttons.confirmation_dialog">
+  <source>Confirmation Dialog</source>
+  <target>確認ダイアログ</target>
+</trans-unit>
+<trans-unit id="default.buttons.confirmation_message">
+  <source>Are you sure you want to delete this item? This action cannot be undone.</source>
+  <target>この項目を削除してもよろしいですか？この操作は取り消せません。</target>
+</trans-unit>
+<trans-unit id="default.buttons.description">
+  <source>A showcase of button components with various styles and states.</source>
+  <target>さまざまなスタイルと状態を持つボタンコンポーネントのショーケースです。</target>
+</trans-unit>
+<trans-unit id="default.buttons.edit">
+  <source>Edit</source>
+  <target>編集</target>
+</trans-unit>
+<trans-unit id="default.buttons.form_actions">
+  <source>Form Actions</source>
+  <target>フォームの操作</target>
+</trans-unit>
+<trans-unit id="default.buttons.full_width">
+  <source>Full Width</source>
+  <target>全幅</target>
+</trans-unit>
+<trans-unit id="default.buttons.hero_desc">
+  <source>A showcase of button variants, sizes, and states.</source>
+  <target>ボタンのバリアント・サイズ・状態のショーケースです。</target>
+</trans-unit>
+<trans-unit id="default.buttons.hero_title">
+  <source>Buttons</source>
+  <target>ボタン</target>
+</trans-unit>
+<trans-unit id="default.buttons.rounded_buttons">
+  <source>Rounded Buttons</source>
+  <target>ラウンドボタン</target>
+</trans-unit>
+<trans-unit id="default.buttons.rounded_desc">
+  <source>Full rounded buttons for all sizes</source>
+  <target>すべてのサイズの全角丸ボタン</target>
+</trans-unit>
+<trans-unit id="default.buttons.rounded_title">
+  <source>Rounded</source>
+  <target>ラウンド</target>
+</trans-unit>
+<trans-unit id="default.buttons.save_changes">
+  <source>Save Changes</source>
+  <target>変更を保存</target>
+</trans-unit>
+<trans-unit id="default.buttons.sizes_desc">
+  <source>Five button sizes from XS to XL with full-width option</source>
+  <target>XS から XL までの5サイズと全幅オプション</target>
+</trans-unit>
+<trans-unit id="default.buttons.sizes_title">
+  <source>Sizes</source>
+  <target>サイズ</target>
+</trans-unit>
+<trans-unit id="default.buttons.states_desc">
+  <source>Button states including disabled and loading</source>
+  <target>無効・ローディングを含むボタンの状態</target>
+</trans-unit>
+<trans-unit id="default.buttons.states_title">
+  <source>States</source>
+  <target>状態</target>
+</trans-unit>
+<trans-unit id="default.buttons.title">
+  <source>Buttons - Sample Site</source>
+  <target>ボタン - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.buttons.usage_desc">
+  <source>Common button usage patterns</source>
+  <target>一般的なボタンの利用パターン</target>
+</trans-unit>
+<trans-unit id="default.buttons.usage_title">
+  <source>Usage Examples</source>
+  <target>使用例</target>
+</trans-unit>
+<trans-unit id="default.buttons.variants_desc">
+  <source>All available button color variants</source>
+  <target>利用可能なすべてのボタンカラーバリアント</target>
+</trans-unit>
+<trans-unit id="default.buttons.variants_title">
+  <source>Variants</source>
+  <target>バリアント</target>
+</trans-unit>
+<trans-unit id="default.buttons.view">
+  <source>View</source>
+  <target>表示</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.checked_checkbox">
+  <source>Checked checkbox</source>
+  <target>チェック済みのチェックボックス</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.checked_disabled">
+  <source>Checked &amp; disabled</source>
+  <target>チェック済み・無効</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.description">
+  <source>A showcase of checkbox components with various sizes and states.</source>
+  <target>さまざまなサイズと状態を持つチェックボックスコンポーネントのショーケースです。</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.disabled_checkbox">
+  <source>Disabled checkbox</source>
+  <target>無効なチェックボックス</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.email_notifications">
+  <source>Email notifications</source>
+  <target>メール通知</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.feature_advanced">
+  <source>Enable advanced features</source>
+  <target>高度な機能を有効化</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.feature_beta">
+  <source>Enable beta features</source>
+  <target>ベータ機能を有効化</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.feature_experimental">
+  <source>Enable experimental features</source>
+  <target>実験的機能を有効化</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.features_title">
+  <source>Select Features</source>
+  <target>機能を選択</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.hero_desc">
+  <source>A showcase of checkbox sizes, states, and interactive examples.</source>
+  <target>チェックボックスのサイズ・状態・インタラクティブな例のショーケースです。</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.hero_title">
+  <source>Checkboxes</source>
+  <target>チェックボックス</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.indeterminate_checkbox">
+  <source>Indeterminate checkbox</source>
+  <target>不確定状態のチェックボックス</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.indeterminate_disabled">
+  <source>Indeterminate &amp; disabled</source>
+  <target>不確定・無効</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.interactive_desc">
+  <source>Click checkboxes to see state updates</source>
+  <target>チェックボックスをクリックすると状態が更新されます</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.interactive_title">
+  <source>Interactive Example</source>
+  <target>インタラクティブな例</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.keep_logged_in">
+  <source>Keep me logged in</source>
+  <target>ログインしたままにする</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.large_checkbox">
+  <source>Large checkbox</source>
+  <target>ラージ チェックボックス</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.large_checked">
+  <source>Large checked</source>
+  <target>ラージ チェック済み</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.large_disabled">
+  <source>Large disabled</source>
+  <target>ラージ 無効</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.medium_checkbox">
+  <source>Medium checkbox</source>
+  <target>ミディアム チェックボックス</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.medium_checked">
+  <source>Medium checked</source>
+  <target>ミディアム チェック済み</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.medium_disabled">
+  <source>Medium disabled</source>
+  <target>ミディアム 無効</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.none_selected">
+  <source>None selected</source>
+  <target>未選択</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.normal_checkbox">
+  <source>Normal checkbox</source>
+  <target>通常のチェックボックス</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.notifications_title">
+  <source>Notification Preferences</source>
+  <target>通知設定</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.option_1">
+  <source>Option 1</source>
+  <target>オプション 1</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.option_2">
+  <source>Option 2</source>
+  <target>オプション 2</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.option_3">
+  <source>Option 3</source>
+  <target>オプション 3</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.push_notifications">
+  <source>Push notifications</source>
+  <target>プッシュ通知</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.remember_me">
+  <source>Remember me</source>
+  <target>ログイン状態を保持</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.save_preferences">
+  <source>Save my preferences</source>
+  <target>設定を保存</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.selected_options">
+  <source>Selected Options:</source>
+  <target>選択中のオプション:</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.sizes_desc">
+  <source>Three checkbox sizes: small, medium, and large</source>
+  <target>スモール・ミディアム・ラージの3サイズ</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.sizes_title">
+  <source>Sizes</source>
+  <target>サイズ</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.small_checkbox">
+  <source>Small checkbox</source>
+  <target>スモール チェックボックス</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.small_checkboxes_title">
+  <source>Small Checkboxes</source>
+  <target>スモールチェックボックス</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.small_checked">
+  <source>Small checked</source>
+  <target>スモール チェック済み</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.small_disabled">
+  <source>Small disabled</source>
+  <target>スモール 無効</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.sms_notifications">
+  <source>SMS notifications</source>
+  <target>SMS 通知</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.states_desc">
+  <source>All available checkbox states</source>
+  <target>利用可能なすべてのチェックボックスの状態</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.states_title">
+  <source>States</source>
+  <target>状態</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.terms_agree">
+  <source>I agree to the terms and conditions</source>
+  <target>利用規約に同意します</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.terms_title">
+  <source>Terms and Conditions</source>
+  <target>利用規約</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.title">
+  <source>Checkboxes - Sample Site</source>
+  <target>チェックボックス - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.usage_desc">
+  <source>Common checkbox usage patterns</source>
+  <target>一般的なチェックボックスの利用パターン</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.usage_title">
+  <source>Usage Examples</source>
+  <target>使用例</target>
+</trans-unit>
+<trans-unit id="default.checkboxes.weekly_digest">
+  <source>Weekly digest</source>
+  <target>週次ダイジェスト</target>
+</trans-unit>
+<trans-unit id="default.counter.card_desc">
+  <source>Uses Lit's @state() decorator to reactively render state changes.</source>
+  <target>Lit の @state() デコレーターを使い、ステートの変更をリアクティブに描画します。</target>
+</trans-unit>
+<trans-unit id="default.counter.card_title">
+  <source>Counter</source>
+  <target>カウンター</target>
+</trans-unit>
+<trans-unit id="default.counter.decrement">
+  <source>Decrement [-]</source>
+  <target>デクリメント [-]</target>
+</trans-unit>
+<trans-unit id="default.counter.description">
+  <source>An interactive counter example showcasing state management in Lit.</source>
+  <target>Lit のステート管理を示すインタラクティブなカウンターの例です。</target>
+</trans-unit>
+<trans-unit id="default.counter.hero_desc">
+  <source>A sample of a reactive counter component.</source>
+  <target>リアクティブなカウンターコンポーネントのサンプルです。</target>
+</trans-unit>
+<trans-unit id="default.counter.hero_title">
+  <source>Counter</source>
+  <target>カウンター</target>
+</trans-unit>
+<trans-unit id="default.counter.increment">
+  <source>Increment [+]</source>
+  <target>インクリメント [+]</target>
+</trans-unit>
+<trans-unit id="default.counter.reset">
+  <source>Reset</source>
+  <target>リセット</target>
+</trans-unit>
+<trans-unit id="default.counter.title">
+  <source>Counter - Sample Site</source>
+  <target>カウンター - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.description">
+  <source>Welcome to the sample site. Explore various examples and demos.</source>
+  <target>サンプルサイトへようこそ。さまざまな実装例とデモをご覧いただけます。</target>
+</trans-unit>
+<trans-unit id="default.dropdown.approve">
+  <source>Approve</source>
+  <target>承認</target>
+</trans-unit>
+<trans-unit id="default.dropdown.archive">
+  <source>Archive</source>
+  <target>アーカイブ</target>
+</trans-unit>
+<trans-unit id="default.dropdown.basic_desc">
+  <source>Standard dropdown menu with actions</source>
+  <target>アクション付きの標準的なドロップダウンメニュー</target>
+</trans-unit>
+<trans-unit id="default.dropdown.basic_title">
+  <source>Basic</source>
+  <target>基本</target>
+</trans-unit>
+<trans-unit id="default.dropdown.description">
+  <source>A showcase of dropdown components with various sizes and placements.</source>
+  <target>さまざまなサイズと配置を持つドロップダウンコンポーネントのショーケースです。</target>
+</trans-unit>
+<trans-unit id="default.dropdown.duplicate">
+  <source>Duplicate</source>
+  <target>複製</target>
+</trans-unit>
+<trans-unit id="default.dropdown.edit">
+  <source>Edit</source>
+  <target>編集</target>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_and">
+  <source>and</source>
+  <target>・</target>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_aria">
+  <source>Accessible with ARIA attributes</source>
+  <target>ARIA 属性でアクセシブル</target>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_arrows_prefix">
+  <source>Use</source>
+  <target/>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_arrows_suffix">
+  <source>arrow keys to navigate menu items</source>
+  <target>の矢印キーでメニュー項目を移動</target>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_click_outside">
+  <source>Click outside to close</source>
+  <target>外側をクリックで閉じる</target>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_escape_prefix">
+  <source>Press</source>
+  <target/>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_escape_suffix">
+  <source>to close</source>
+  <target>キーで閉じる</target>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_homeend_prefix">
+  <source>Use</source>
+  <target/>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_homeend_suffix">
+  <source>to jump to first/last item</source>
+  <target>キーで先頭／末尾の項目へ移動</target>
+</trans-unit>
+<trans-unit id="default.dropdown.feature_transitions">
+  <source>Smooth transition animations</source>
+  <target>滑らかなトランジションアニメーション</target>
+</trans-unit>
+<trans-unit id="default.dropdown.features">
+  <source>Features</source>
+  <target>機能</target>
+</trans-unit>
+<trans-unit id="default.dropdown.features_desc">
+  <source>Keyboard navigation and accessibility</source>
+  <target>キーボード操作とアクセシビリティ</target>
+</trans-unit>
+<trans-unit id="default.dropdown.features_title">
+  <source>Features</source>
+  <target>機能</target>
+</trans-unit>
+<trans-unit id="default.dropdown.hero_desc">
+  <source>A showcase of dropdown menu components with various configurations.</source>
+  <target>さまざまな構成のドロップダウンメニューコンポーネントのショーケースです。</target>
+</trans-unit>
+<trans-unit id="default.dropdown.hero_title">
+  <source>Dropdown</source>
+  <target>ドロップダウン</target>
+</trans-unit>
+<trans-unit id="default.dropdown.options">
+  <source>Options</source>
+  <target>操作</target>
+</trans-unit>
+<trans-unit id="default.dropdown.placements_desc">
+  <source>Control dropdown menu alignment</source>
+  <target>ドロップダウンメニューの位置揃えを制御</target>
+</trans-unit>
+<trans-unit id="default.dropdown.placements_title">
+  <source>Placements</source>
+  <target>配置</target>
+</trans-unit>
+<trans-unit id="default.dropdown.publish">
+  <source>Publish</source>
+  <target>公開</target>
+</trans-unit>
+<trans-unit id="default.dropdown.remove">
+  <source>Remove</source>
+  <target>削除</target>
+</trans-unit>
+<trans-unit id="default.dropdown.save_as">
+  <source>Save As…</source>
+  <target>名前を付けて保存…</target>
+</trans-unit>
+<trans-unit id="default.dropdown.sizes_desc">
+  <source>Three dropdown sizes: small, medium, and large</source>
+  <target>スモール・ミディアム・ラージの3サイズ</target>
+</trans-unit>
+<trans-unit id="default.dropdown.sizes_title">
+  <source>Sizes</source>
+  <target>サイズ</target>
+</trans-unit>
+<trans-unit id="default.dropdown.title">
+  <source>Dropdown - Sample Site</source>
+  <target>ドロップダウン - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.dropdown.variants_desc">
+  <source>Dropdowns with different button styles</source>
+  <target>異なるボタンスタイルのドロップダウン</target>
+</trans-unit>
+<trans-unit id="default.dropdown.variants_title">
+  <source>Button Variants</source>
+  <target>ボタンバリアント</target>
+</trans-unit>
+<trans-unit id="default.firestore.description">
+  <source>Firestore integration example demonstrating database operations.</source>
+  <target>データベース操作を示す Firestore 連携の例です。</target>
+</trans-unit>
+<trans-unit id="default.firestore.hero_desc">
+  <source>A sample of real-time data synchronization and direct access.</source>
+  <target>リアルタイムのデータ同期と直接アクセスのサンプルです。</target>
+</trans-unit>
+<trans-unit id="default.firestore.hero_title">
+  <source>Firestore</source>
+  <target>Firestore</target>
+</trans-unit>
+<trans-unit id="default.firestore.load">
+  <source>Load</source>
+  <target>読み込み</target>
+</trans-unit>
+<trans-unit id="default.firestore.load_result">
+  <source>Load result</source>
+  <target>読み込み結果</target>
+</trans-unit>
+<trans-unit id="default.firestore.name_placeholder">
+  <source>Enter a name…</source>
+  <target>名前を入力…</target>
+</trans-unit>
+<trans-unit id="default.firestore.no_data">
+  <source>No data</source>
+  <target>データなし</target>
+</trans-unit>
+<trans-unit id="default.firestore.operations_desc">
+  <source>Access Firestore directly from the client to save and load data.</source>
+  <target>クライアントから Firestore に直接アクセスしてデータを保存・読み込みします。</target>
+</trans-unit>
+<trans-unit id="default.firestore.operations_title">
+  <source>Firestore Operations</source>
+  <target>Firestore 操作</target>
+</trans-unit>
+<trans-unit id="default.firestore.snapshot_desc">
+  <source>Using lit-async's track() to reactively monitor Firestore snapshots.</source>
+  <target>lit-async の track() を使って Firestore のスナップショットをリアクティブに監視します。</target>
+</trans-unit>
+<trans-unit id="default.firestore.snapshot_title">
+  <source>Realtime Snapshot</source>
+  <target>リアルタイムスナップショット</target>
+</trans-unit>
+<trans-unit id="default.firestore.title">
+  <source>Firestore - Sample Site</source>
+  <target>Firestore - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.functions.card_desc">
+  <source>Calls a Firebase Cloud Functions Callable Function to update the Sample document.</source>
+  <target>Firebase Cloud Functions の Callable Function を呼び出して Sample ドキュメントを更新します。</target>
+</trans-unit>
+<trans-unit id="default.functions.card_title">
+  <source>Callable Function</source>
+  <target>Callable Function</target>
+</trans-unit>
+<trans-unit id="default.functions.description">
+  <source>Callable Functions integration example for the sample framework.</source>
+  <target>サンプルフレームワークにおける Callable Functions 連携の例です。</target>
+</trans-unit>
+<trans-unit id="default.functions.function_call_failed">
+  <source>Function call failed</source>
+  <target>関数の呼び出しに失敗しました</target>
+</trans-unit>
+<trans-unit id="default.functions.hero_desc">
+  <source>A sample of calling Callable Functions.</source>
+  <target>Callable Function を呼び出すサンプルです。</target>
+</trans-unit>
+<trans-unit id="default.functions.hero_title">
+  <source>Functions</source>
+  <target>Functions</target>
+</trans-unit>
+<trans-unit id="default.functions.id">
+  <source>ID</source>
+  <target>ID</target>
+</trans-unit>
+<trans-unit id="default.functions.result_placeholder">
+  <source>Result will appear here…</source>
+  <target>ここに結果が表示されます…</target>
+</trans-unit>
+<trans-unit id="default.functions.run_sample">
+  <source>Run Sample Function</source>
+  <target>サンプル関数を実行</target>
+</trans-unit>
+<trans-unit id="default.functions.running">
+  <source>Running…</source>
+  <target>実行中…</target>
+</trans-unit>
+<trans-unit id="default.functions.title">
+  <source>Functions - Sample Site</source>
+  <target>Functions - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.helloworld.description">
+  <source>A simple Hello World example demonstrating basic Lit components.</source>
+  <target>基本的な Lit コンポーネントを示すシンプルな Hello World の例です。</target>
+</trans-unit>
+<trans-unit id="default.helloworld.hero_desc">
+  <source>A simple Lit component sample.</source>
+  <target>シンプルな Lit コンポーネントのサンプルです。</target>
+</trans-unit>
+<trans-unit id="default.helloworld.hero_title">
+  <source>Hello, World!</source>
+  <target>こんにちは、世界！</target>
+</trans-unit>
+<trans-unit id="default.helloworld.title">
+  <source>Hello World - Sample Site</source>
+  <target>Hello World - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.helloworld.welcome">
+  <source>Welcome</source>
+  <target>ようこそ</target>
+</trans-unit>
+<trans-unit id="default.helloworld.welcome_body">
+  <source>This is a simple "Hello, World!" sample page built with Lit. Components are composed using custom elements and Shadow DOM.</source>
+  <target>これは Lit で構築したシンプルな「Hello, World!」サンプルページです。カスタム要素と Shadow DOM を用いてコンポーネントを構成しています。</target>
+</trans-unit>
+<trans-unit id="default.lit-async.description">
+  <source>Demonstration of using the lit-async library for handling async operations reactively in Lit.</source>
+  <target>lit-async ライブラリで非同期処理を Lit 上でリアクティブに扱う方法のデモです。</target>
+</trans-unit>
+<trans-unit id="default.lit-async.fetch_quote">
+  <source>Fetch Next Quote</source>
+  <target>次の名言を取得</target>
+</trans-unit>
+<trans-unit id="default.lit-async.generator_desc">
+  <source>Binds an async generator. Re-renders reactively whenever a new value is yielded.</source>
+  <target>非同期ジェネレーターをバインドします。新しい値が yield されるたびにリアクティブに再描画します。</target>
+</trans-unit>
+<trans-unit id="default.lit-async.generator_stopped">
+  <source>Generator Stopped</source>
+  <target>ジェネレーター停止中</target>
+</trans-unit>
+<trans-unit id="default.lit-async.hero_desc">
+  <source>lit-async is a lightweight collection of directives and decorators for handling asynchronous operations directly in your Lit templates without boilerplate.</source>
+  <target>lit-async は、非同期処理をボイラープレートなしで Lit テンプレート内に直接記述するための、軽量なディレクティブとデコレーターのコレクションです。</target>
+</trans-unit>
+<trans-unit id="default.lit-async.hero_title">
+  <source>lit-async Demo</source>
+  <target>lit-async デモ</target>
+</trans-unit>
+<trans-unit id="default.lit-async.loading_helper_desc">
+  <source>The loading helper yields a placeholder value (like a spinner or text) until the promise resolves.</source>
+  <target>loading ヘルパーは、Promise が解決するまでプレースホルダー（スピナーやテキストなど）を返します。</target>
+</trans-unit>
+<trans-unit id="default.lit-async.loading_promise">
+  <source>Loading promise...</source>
+  <target>Promise を読み込み中…</target>
+</trans-unit>
+<trans-unit id="default.lit-async.pause">
+  <source>Pause</source>
+  <target>一時停止</target>
+</trans-unit>
+<trans-unit id="default.lit-async.promise_desc">
+  <source>Binds a Promise directly in the template. The template automatically updates when the Promise resolves.</source>
+  <target>Promise をテンプレートに直接バインドします。Promise が解決するとテンプレートが自動的に更新されます。</target>
+</trans-unit>
+<trans-unit id="default.lit-async.resume">
+  <source>Resume</source>
+  <target>再開</target>
+</trans-unit>
+<trans-unit id="default.lit-async.seconds_elapsed">
+  <source>seconds elapsed</source>
+  <target>経過秒数</target>
+</trans-unit>
+<trans-unit id="default.lit-async.simulating_slow">
+  <source>Simulating slow network request (2s)…</source>
+  <target>低速なネットワークリクエストをシミュレート中（2秒）…</target>
+</trans-unit>
+<trans-unit id="default.lit-async.title">
+  <source>Lit-Async - Sample Site</source>
+  <target>Lit-Async - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.lit-async.trigger_slow">
+  <source>Trigger Slow Request</source>
+  <target>低速リクエストを実行</target>
+</trans-unit>
+<trans-unit id="default.modal.confirm_message">
+  <source>Are you sure you want to proceed?</source>
+  <target>本当に続行してもよろしいですか？</target>
+</trans-unit>
+<trans-unit id="default.modal.confirm_title">
+  <source>Confirm Action</source>
+  <target>操作の確認</target>
+</trans-unit>
+<trans-unit id="default.modal.delete_message">
+  <source>Are you sure you want to delete this item? This action cannot be undone.</source>
+  <target>この項目を削除してもよろしいですか？この操作は取り消せません。</target>
+</trans-unit>
+<trans-unit id="default.modal.delete_title">
+  <source>Delete Item</source>
+  <target>項目を削除</target>
+</trans-unit>
+<trans-unit id="default.modal.description">
+  <source>Demonstration of the functional and component APIs for ui-modal.</source>
+  <target>ui-modal の関数 API とコンポーネント API のデモです。</target>
+</trans-unit>
+<trans-unit id="default.modal.error_message">
+  <source>Something went wrong. Please try again.</source>
+  <target>問題が発生しました。もう一度お試しください。</target>
+</trans-unit>
+<trans-unit id="default.modal.hero_desc">
+  <source>Demonstrates the Modal API with semantic methods: success(), info(), error(), and confirm().</source>
+  <target>success()・info()・error()・confirm() のセマンティックメソッドを備えた Modal API のデモです。</target>
+</trans-unit>
+<trans-unit id="default.modal.hero_title">
+  <source>Modal API</source>
+  <target>Modal API</target>
+</trans-unit>
+<trans-unit id="default.modal.info_message">
+  <source>This is some important information for you.</source>
+  <target>こちらは重要なお知らせです。</target>
+</trans-unit>
+<trans-unit id="default.modal.information">
+  <source>Information</source>
+  <target>お知らせ</target>
+</trans-unit>
+<trans-unit id="default.modal.last_action">
+  <source>Last Action:</source>
+  <target>最後の操作:</target>
+</trans-unit>
+<trans-unit id="default.modal.semantic_desc">
+  <source>Use Modal.success(), Modal.info(), Modal.error(), or Modal.confirm() for common use cases</source>
+  <target>一般的な用途には Modal.success()・Modal.info()・Modal.error()・Modal.confirm() を使用します</target>
+</trans-unit>
+<trans-unit id="default.modal.semantic_title">
+  <source>Semantic API (Recommended)</source>
+  <target>セマンティック API（推奨）</target>
+</trans-unit>
+<trans-unit id="default.modal.single_arg_button">
+  <source>Single Argument (message only)</source>
+  <target>単一引数（メッセージのみ）</target>
+</trans-unit>
+<trans-unit id="default.modal.single_arg_desc">
+  <source>When only one argument is provided, it is treated as the message (title becomes empty)</source>
+  <target>引数が1つだけ指定された場合は、それがメッセージとして扱われます（タイトルは空になります）</target>
+</trans-unit>
+<trans-unit id="default.modal.single_arg_message">
+  <source>This message has no title</source>
+  <target>このメッセージにはタイトルがありません</target>
+</trans-unit>
+<trans-unit id="default.modal.single_arg_title">
+  <source>Single Argument API</source>
+  <target>単一引数 API</target>
+</trans-unit>
+<trans-unit id="default.modal.success_message">
+  <source>Your operation completed successfully!</source>
+  <target>操作が正常に完了しました！</target>
+</trans-unit>
+<trans-unit id="default.modal.title">
+  <source>Modal - Sample Site</source>
+  <target>モーダル - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.modal.unsaved_message">
+  <source>You have unsaved changes. Do you want to discard them?</source>
+  <target>未保存の変更があります。破棄してもよろしいですか？</target>
+</trans-unit>
+<trans-unit id="default.modal.unsaved_title">
+  <source>Unsaved Changes</source>
+  <target>未保存の変更</target>
+</trans-unit>
+<trans-unit id="default.nav_buttons">
+  <source>Buttons</source>
+  <target>ボタン</target>
+</trans-unit>
+<trans-unit id="default.nav_checkboxes">
+  <source>Checkboxes</source>
+  <target>チェックボックス</target>
+</trans-unit>
+<trans-unit id="default.nav_counter">
+  <source>Counter</source>
+  <target>カウンター</target>
+</trans-unit>
+<trans-unit id="default.nav_dropdown">
+  <source>Dropdown</source>
+  <target>ドロップダウン</target>
+</trans-unit>
+<trans-unit id="default.nav_firestore">
+  <source>Firestore</source>
+  <target>Firestore</target>
+</trans-unit>
+<trans-unit id="default.nav_functions">
+  <source>Functions</source>
+  <target>Functions</target>
+</trans-unit>
+<trans-unit id="default.nav_helloworld">
+  <source>Hello World</source>
+  <target>Hello World</target>
+</trans-unit>
+<trans-unit id="default.nav_home">
+  <source>Home</source>
+  <target>ホーム</target>
+</trans-unit>
+<trans-unit id="default.nav_lit_async">
+  <source>Lit-Async</source>
+  <target>Lit-Async</target>
+</trans-unit>
+<trans-unit id="default.nav_modal">
+  <source>Modal</source>
+  <target>モーダル</target>
+</trans-unit>
+<trans-unit id="default.site_title">
+  <source>Sample Site</source>
+  <target>サンプルサイト</target>
+</trans-unit>
+<trans-unit id="default.title">
+  <source>Home - Sample Site</source>
+  <target>ホーム - サンプルサイト</target>
+</trans-unit>
+<trans-unit id="global.cancel">
+  <source>Cancel</source>
+  <target>キャンセル</target>
+</trans-unit>
+<trans-unit id="global.confirm">
+  <source>Confirm</source>
+  <target>確認</target>
+</trans-unit>
+<trans-unit id="global.confirm_keyword_error">
+  <source>Please type "{keyword}".</source>
+  <target>「{keyword}」と入力してください</target>
+</trans-unit>
+<trans-unit id="global.confirm_keyword_message">
+  <source>Type {keyword} to confirm.</source>
+  <target>確認のため{keyword}と入力してください。</target>
+</trans-unit>
+<trans-unit id="global.delete">
+  <source>Delete</source>
+  <target>削除</target>
+</trans-unit>
+<trans-unit id="global.email">
+  <source>Email address</source>
+  <target>メールアドレス</target>
+</trans-unit>
+<trans-unit id="global.error">
+  <source>Error</source>
+  <target>エラー</target>
+</trans-unit>
+<trans-unit id="global.loading">
+  <source>Loading…</source>
+  <target>読み込み中…</target>
+</trans-unit>
+<trans-unit id="global.logout">
+  <source>Logout</source>
+  <target>ログアウト</target>
+</trans-unit>
+<trans-unit id="global.name">
+  <source>Name</source>
+  <target>お名前</target>
+</trans-unit>
+<trans-unit id="global.not_found">
+  <source>Not Found</source>
+  <target>見つかりません</target>
+</trans-unit>
+<trans-unit id="global.password">
+  <source>Password</source>
+  <target>パスワード</target>
+</trans-unit>
+<trans-unit id="global.save">
+  <source>Save</source>
+  <target>保存</target>
+</trans-unit>
+<trans-unit id="global.success">
+  <source>Success</source>
+  <target>成功</target>
+</trans-unit>
+</body>
+</file>
+</xliff>

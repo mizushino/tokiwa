@@ -1,50 +1,5 @@
 {
   "title": "Modal - Sample Site",
   "description": "Demonstration of the functional and component APIs for ui-modal.",
-  "translations": {
-    "en": {
-      "hero_title": "Modal API",
-      "hero_desc": "Demonstrates the Modal API with semantic methods: success(), info(), error(), and confirm().",
-      "semantic_title": "Semantic API (Recommended)",
-      "semantic_desc": "Use Modal.success(), Modal.info(), Modal.error(), or Modal.confirm() for common use cases",
-      "single_arg_title": "Single Argument API",
-      "single_arg_desc": "When only one argument is provided, it is treated as the message (title becomes empty)",
-      "single_arg_button": "Single Argument (message only)",
-      "last_action": "Last Action:",
-      "success_message": "Your operation completed successfully!",
-      "information": "Information",
-      "info_message": "This is some important information for you.",
-      "error_message": "Something went wrong. Please try again.",
-      "confirm_title": "Confirm Action",
-      "confirm_message": "Are you sure you want to proceed?",
-      "delete_title": "Delete Item",
-      "delete_message": "Are you sure you want to delete this item? This action cannot be undone.",
-      "unsaved_title": "Unsaved Changes",
-      "unsaved_message": "You have unsaved changes. Do you want to discard them?",
-      "single_arg_message": "This message has no title"
-    },
-    "ja": {
-      "title": "モーダル - サンプルサイト",
-      "description": "ui-modal の関数 API とコンポーネント API のデモです。",
-      "hero_title": "Modal API",
-      "hero_desc": "success()・info()・error()・confirm() のセマンティックメソッドを備えた Modal API のデモです。",
-      "semantic_title": "セマンティック API（推奨）",
-      "semantic_desc": "一般的な用途には Modal.success()・Modal.info()・Modal.error()・Modal.confirm() を使用します",
-      "single_arg_title": "単一引数 API",
-      "single_arg_desc": "引数が1つだけ指定された場合は、それがメッセージとして扱われます（タイトルは空になります）",
-      "single_arg_button": "単一引数（メッセージのみ）",
-      "last_action": "最後の操作:",
-      "success_message": "操作が正常に完了しました！",
-      "information": "お知らせ",
-      "info_message": "こちらは重要なお知らせです。",
-      "error_message": "問題が発生しました。もう一度お試しください。",
-      "confirm_title": "操作の確認",
-      "confirm_message": "本当に続行してもよろしいですか？",
-      "delete_title": "項目を削除",
-      "delete_message": "この項目を削除してもよろしいですか？この操作は取り消せません。",
-      "unsaved_title": "未保存の変更",
-      "unsaved_message": "未保存の変更があります。破棄してもよろしいですか？",
-      "single_arg_message": "このメッセージにはタイトルがありません"
-    }
-  }
+  "localizationId": "default.modal"
 }

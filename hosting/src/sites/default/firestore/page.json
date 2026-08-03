@@ -1,32 +1,5 @@
 {
   "title": "Firestore - Sample Site",
   "description": "Firestore integration example demonstrating database operations.",
-  "translations": {
-    "en": {
-      "hero_title": "Firestore",
-      "hero_desc": "A sample of real-time data synchronization and direct access.",
-      "operations_title": "Firestore Operations",
-      "operations_desc": "Access Firestore directly from the client to save and load data.",
-      "name_placeholder": "Enter a name…",
-      "load": "Load",
-      "load_result": "Load result",
-      "snapshot_title": "Realtime Snapshot",
-      "snapshot_desc": "Using lit-async's track() to reactively monitor Firestore snapshots.",
-      "no_data": "No data"
-    },
-    "ja": {
-      "title": "Firestore - サンプルサイト",
-      "description": "データベース操作を示す Firestore 連携の例です。",
-      "hero_title": "Firestore",
-      "hero_desc": "リアルタイムのデータ同期と直接アクセスのサンプルです。",
-      "operations_title": "Firestore 操作",
-      "operations_desc": "クライアントから Firestore に直接アクセスしてデータを保存・読み込みします。",
-      "name_placeholder": "名前を入力…",
-      "load": "読み込み",
-      "load_result": "読み込み結果",
-      "snapshot_title": "リアルタイムスナップショット",
-      "snapshot_desc": "lit-async の track() を使って Firestore のスナップショットをリアクティブに監視します。",
-      "no_data": "データなし"
-    }
-  }
+  "localizationId": "default.firestore"
 }

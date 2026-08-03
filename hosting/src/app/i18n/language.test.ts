@@ -1,121 +1,119 @@
+import type { User } from 'firebase/auth';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import {
   clearPreferredLanguageCache,
   getPreferredLanguage,
-  parseDisplayNameWithLanguage,
-  seedPreferredLanguageFromUser,
   seedPreferredLanguageIfUnset,
   setPreferredLanguage,
   subscribePreferredLanguage,
+  syncPreferredLanguageFromUser,
   tGlobal,
 } from './index';
 
+const userMocks = vi.hoisted(() => ({
+  saveUserLanguage: vi.fn().mockResolvedValue(undefined),
+  subscribeToUserDocument: vi.fn(),
+  callback: undefined as ((user: { lang: 'en' | 'ja' } | null) => void) | undefined,
+  unsubscribe: vi.fn(),
+}));
+
+vi.mock('@models/user', () => ({
+  saveUserLanguage: userMocks.saveUserLanguage,
+  subscribeToUserDocument: userMocks.subscribeToUserDocument,
+}));
+
 describe('language preferences', () => {
-  beforeEach(() => {
-    clearPreferredLanguageCache();
-    window.localStorage.clear();
+  beforeEach(async () => {
+    await clearPreferredLanguageCache();
+    vi.clearAllMocks();
+    userMocks.callback = undefined;
+    userMocks.subscribeToUserDocument.mockImplementation((_uid, callback) => {
+      userMocks.callback = callback;
+      return userMocks.unsubscribe;
+    });
   });
 
-  afterEach(() => {
-    clearPreferredLanguageCache();
-    window.localStorage.clear();
+  afterEach(async () => {
+    await clearPreferredLanguageCache();
     vi.restoreAllMocks();
   });
 
-  it('defaults to Japanese when nothing is stored', () => {
-    expect(getPreferredLanguage()).toBe('ja');
+  it('uses the source locale when no site or user preference is set', () => {
+    expect(getPreferredLanguage()).toBe('en');
+    expect(document.documentElement.lang).toBe('en');
   });
 
-  it('stores updates and notifies subscribers', () => {
+  it('updates the locale and notifies subscribers without local persistence', async () => {
     const listener = vi.fn();
     const unsubscribe = subscribePreferredLanguage(listener);
 
-    setPreferredLanguage('en');
+    await setPreferredLanguage('ja');
 
-    expect(getPreferredLanguage()).toBe('en');
-    expect(window.localStorage.getItem('preferredLanguage')).toBe('en');
-    expect(listener).toHaveBeenCalledWith('en');
+    expect(getPreferredLanguage()).toBe('ja');
+    expect(document.documentElement.lang).toBe('ja');
+    expect(listener).toHaveBeenCalledWith('ja');
+    expect(userMocks.saveUserLanguage).not.toHaveBeenCalled();
 
     unsubscribe();
-    setPreferredLanguage('ja');
-    expect(listener).toHaveBeenCalledTimes(1);
   });
 
-  it('updates the cache from storage events', () => {
-    const listener = vi.fn();
-    subscribePreferredLanguage(listener);
+  it('loads the signed-in user preference from Firestore', async () => {
+    syncPreferredLanguageFromUser({ uid: 'user-1' } as User);
 
-    window.dispatchEvent(
-      new StorageEvent('storage', {
-        key: 'preferredLanguage',
-        newValue: 'en',
-      })
-    );
+    expect(userMocks.subscribeToUserDocument).toHaveBeenCalledWith('user-1', expect.any(Function));
+    userMocks.callback?.({ lang: 'ja' });
 
-    expect(getPreferredLanguage()).toBe('en');
-    expect(listener).toHaveBeenCalledWith('en');
+    await vi.waitFor(() => expect(getPreferredLanguage()).toBe('ja'));
   });
 
-  it('refreshes cached language on persisted pageshow', () => {
-    setPreferredLanguage('ja');
-    window.localStorage.setItem('preferredLanguage', 'en');
+  it('saves explicit changes to the signed-in user preference', async () => {
+    syncPreferredLanguageFromUser({ uid: 'user-1' } as User);
 
-    const event = new Event('pageshow');
-    Object.defineProperty(event, 'persisted', { value: true });
-    window.dispatchEvent(event);
+    await setPreferredLanguage('ja');
 
-    expect(getPreferredLanguage()).toBe('en');
+    expect(userMocks.saveUserLanguage).toHaveBeenCalledWith('user-1', 'ja');
   });
 
-  it('seeds preferred language from display name when nothing is stored', () => {
-    const listener = vi.fn();
-    subscribePreferredLanguage(listener);
+  it('uses a soft site default until Firestore provides a preference', async () => {
+    seedPreferredLanguageIfUnset('ja');
+    await vi.waitFor(() => expect(getPreferredLanguage()).toBe('ja'));
 
-    seedPreferredLanguageFromUser({ displayName: 'Alice [en]' } as never);
+    syncPreferredLanguageFromUser({ uid: 'user-1' } as User);
+    userMocks.callback?.({ lang: 'en' });
 
-    expect(getPreferredLanguage()).toBe('en');
-    expect(window.localStorage.getItem('preferredLanguage')).toBe('en');
-    expect(listener).toHaveBeenCalledWith('en');
+    await vi.waitFor(() => expect(getPreferredLanguage()).toBe('en'));
   });
 
-  it('does not override an explicit stored language from the user profile', () => {
-    setPreferredLanguage('ja');
+  it('does not overwrite the site default when the user has no lang field', async () => {
+    seedPreferredLanguageIfUnset('ja');
+    await vi.waitFor(() => expect(getPreferredLanguage()).toBe('ja'));
 
-    seedPreferredLanguageFromUser({ displayName: 'Alice [en]' } as never);
+    syncPreferredLanguageFromUser({ uid: 'user-1' } as User);
+    userMocks.callback?.(null);
 
     expect(getPreferredLanguage()).toBe('ja');
+    expect(userMocks.saveUserLanguage).not.toHaveBeenCalled();
   });
 
-  it('soft-seeds a site default without persisting when nothing is stored', () => {
-    const listener = vi.fn();
-    subscribePreferredLanguage(listener);
+  it('returns to the site default after sign-out', async () => {
+    seedPreferredLanguageIfUnset('ja');
+    syncPreferredLanguageFromUser({ uid: 'user-1' } as User);
+    userMocks.callback?.({ lang: 'en' });
+    await vi.waitFor(() => expect(getPreferredLanguage()).toBe('en'));
 
-    seedPreferredLanguageIfUnset('en');
+    syncPreferredLanguageFromUser(null);
 
-    expect(getPreferredLanguage()).toBe('en');
-    expect(window.localStorage.getItem('preferredLanguage')).toBeNull();
-    expect(listener).toHaveBeenCalledWith('en');
+    await vi.waitFor(() => expect(getPreferredLanguage()).toBe('ja'));
+    expect(userMocks.unsubscribe).toHaveBeenCalled();
   });
 
-  it('does not override an explicit stored language when soft-seeding', () => {
-    setPreferredLanguage('ja');
+  it('uses Lit Localize messages and falls back to the code when missing', async () => {
+    expect(tGlobal('cancel')).toBe('Cancel');
 
-    seedPreferredLanguageIfUnset('en');
+    await setPreferredLanguage('ja');
 
-    expect(getPreferredLanguage()).toBe('ja');
-  });
-
-  it('parses display names with language suffixes and trims fallback names', () => {
-    expect(parseDisplayNameWithLanguage('Alice [en]')).toEqual({ name: 'Alice', language: 'en' });
-    expect(parseDisplayNameWithLanguage('太郎 [ja]')).toEqual({ name: '太郎', language: 'ja' });
-    expect(parseDisplayNameWithLanguage('  Bob  ')).toEqual({ name: 'Bob', language: 'ja' });
-    expect(parseDisplayNameWithLanguage(null)).toEqual({ name: '', language: 'ja' });
-  });
-
-  it('returns global translations and falls back to the code when missing', () => {
-    expect(tGlobal('cancel', 'ja')).toBe('キャンセル');
-    expect(tGlobal('cancel', 'en')).toBe('Cancel');
-    expect(tGlobal('missing-key', 'ja')).toBe('missing-key');
+    expect(tGlobal('cancel')).toBe('キャンセル');
+    expect(tGlobal('missing-key')).toBe('missing-key');
   });
 });

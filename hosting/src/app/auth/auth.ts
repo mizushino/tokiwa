@@ -15,7 +15,7 @@ import {
   signInWithRedirect,
 } from 'firebase/auth';
 
-import { seedPreferredLanguageFromUser } from '@app/i18n';
+import { syncPreferredLanguageFromUser } from '@app/i18n';
 
 export type { User } from 'firebase/auth';
 
@@ -143,7 +143,7 @@ export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuth
   }
 
   state.auth.onAuthStateChanged((user) => {
-    seedPreferredLanguageFromUser(user);
+    syncPreferredLanguageFromUser(user);
     notifyUserChange(user);
   });
 

@@ -1,58 +1,40 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { globalTranslations } from './translations';
+import { messageIds } from './messages';
+import { templates as japaneseTemplates } from '../../generated/locales/ja';
 
 interface PageJson {
-  translations?: {
-    en?: Record<string, string>;
-    ja?: Record<string, string>;
-  };
+  localizationId: string;
+  title: string;
+  description: string;
+  translations?: unknown;
 }
 
 const modules = import.meta.glob<{ default: PageJson }>('../../sites/**/page.json', { eager: true });
 
-const META_KEYS = new Set(['title', 'description']);
-const contentKeys = (map: Record<string, string> = {}): string[] =>
-  Object.keys(map)
-    .filter((key) => !META_KEYS.has(key))
-    .sort();
-
-describe('page.json translations', () => {
-  it('discovers page.json files', () => {
-    expect(Object.keys(modules).length).toBeGreaterThan(0);
+describe('Lit Localize messages', () => {
+  it('discovers page.json files with unique localization IDs', () => {
+    const pages = Object.values(modules).map((module) => module.default);
+    expect(pages.length).toBeGreaterThan(0);
+    expect(new Set(pages.map((page) => page.localizationId)).size).toBe(pages.length);
   });
 
-  for (const [path, mod] of Object.entries(modules)) {
-    const translations = mod.default.translations;
-    if (!translations) {
-      continue;
-    }
-
-    describe(path, () => {
-      it('defines both en and ja maps', () => {
-        expect(translations.en, 'missing en translations').toBeDefined();
-        expect(translations.ja, 'missing ja translations').toBeDefined();
-      });
-
-      it('has matching content keys across en and ja', () => {
-        expect(contentKeys(translations.ja)).toEqual(contentKeys(translations.en));
-      });
-
-      it('has no blank translation values', () => {
-        for (const map of [translations.en, translations.ja]) {
-          for (const [key, value] of Object.entries(map ?? {})) {
-            if (value === '' && key.startsWith('feature_')) continue;
-            expect(value, `${key} is blank`).not.toBe('');
-          }
-        }
-      });
+  for (const [path, module] of Object.entries(modules)) {
+    it(`${path} delegates translations to Lit Localize`, () => {
+      const page = module.default;
+      expect(page.localizationId).toBeTruthy();
+      expect(page.translations).toBeUndefined();
+      expect(messageIds).toContain(`${page.localizationId}.title`);
+      expect(messageIds).toContain(`${page.localizationId}.description`);
     });
   }
-});
 
-describe('globalTranslations', () => {
-  it('exposes the shared labels the pages rely on in both languages', () => {
-    const sharedKeys = [
+  it('provides a Japanese template for every source message', () => {
+    expect(Object.keys(japaneseTemplates).sort()).toEqual([...messageIds].sort());
+  });
+
+  it('contains the shared messages used by components', () => {
+    for (const key of [
       'cancel',
       'delete',
       'save',
@@ -63,10 +45,8 @@ describe('globalTranslations', () => {
       'success',
       'loading',
       'logout',
-    ];
-    for (const key of sharedKeys) {
-      expect(globalTranslations.en[key], `en.${key}`).toBeTruthy();
-      expect(globalTranslations.ja[key], `ja.${key}`).toBeTruthy();
+    ]) {
+      expect(messageIds).toContain(`global.${key}`);
     }
   });
 });

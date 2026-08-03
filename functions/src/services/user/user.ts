@@ -1,3 +1,5 @@
+import { isDeepStrictEqual } from 'node:util';
+
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
@@ -163,9 +165,32 @@ export async function syncCurrentUser(uid: string): Promise<void> {
 }
 
 /**
+ * Return whether a user document change affects Firebase Auth or custom claims.
+ * Profile preferences such as language do not need Auth synchronization.
+ */
+export function hasAuthRelevantUserChange(before?: UserData, after?: UserData): boolean {
+  if (!before || !after) {
+    return true;
+  }
+
+  return (
+    before.displayName !== after.displayName ||
+    before.image !== after.image ||
+    before.admin !== after.admin ||
+    !isDeepStrictEqual(before.permissions, after.permissions)
+  );
+}
+
+/**
  * Trigger fired when user document is created, updated, or deleted
  * Synchronizes Firebase Authentication user info and custom claims
  */
 export const written = onDocumentWritten({ region, document: userDocumentPath, retry: true }, async (event) => {
+  const before = event.data?.before.data() as UserData | undefined;
+  const after = event.data?.after.data() as UserData | undefined;
+  if (!hasAuthRelevantUserChange(before, after)) {
+    return;
+  }
+
   await syncCurrentUser(event.params.uid);
 });

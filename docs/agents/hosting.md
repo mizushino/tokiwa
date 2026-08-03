@@ -69,11 +69,12 @@ hosting/src/sites/{site-name}/{path}/
 ```json
 {
   "title": "Hello, World!",
-  "description": "A simple example page for the default site."
+  "description": "A simple example page for the default site.",
+  "localizationId": "default.helloworld"
 }
 ```
 
-`PageElement` also supports optional `translations` for page-local strings.
+`localizationId` is the prefix used by Lit Localize messages for the page.
 
 ### Step 2: Create `index.ts`
 
@@ -165,13 +166,15 @@ If you want the default wrapper, override `renderContents()`. If the page needs 
 
 ### Internationalization (i18n)
 
-`src/app/i18n/` owns the preferred-language state and translation lookup. Supported languages are `'ja'` and `'en'` (`SupportedLanguage`), and the module default is `'ja'`.
+`src/app/i18n/` configures the official `@lit/localize` runtime. Supported languages are `'en'` and `'ja'`
+(`SupportedLanguage`), with English as the source locale.
 
 #### Language State
 
-- `getPreferredLanguage()` returns the current language; `setPreferredLanguage(lang)` updates it, persists it to `localStorage` (`preferredLanguage`), and notifies subscribers
+- `getPreferredLanguage()` returns the active locale; `setPreferredLanguage(lang)` updates Lit Localize and returns a promise
 - `subscribePreferredLanguage(listener)` registers a change listener and returns an unsubscribe function
-- Cross-tab changes (`storage` events) and back/forward-cache restores (`pageshow`) are synchronized automatically by the module
+- Signed-in preferences are stored in the `lang` field of `users/{uid}` and synchronized by its Firestore listener
+- Signed-out language changes are session-only and are not written to browser storage
 
 `PageElement` already subscribes: on a language change it re-applies page metadata and re-renders, so pages usually need no extra wiring. A non-page component that renders language-dependent output must subscribe itself, following the same pattern as `ui-language-switcher`:
 
@@ -190,35 +193,50 @@ public override disconnectedCallback(): void {
 }
 ```
 
-#### Language Seeding
+#### Language Preference
 
-Two helpers choose an initial language for visitors who have not picked one yet. Both are no-ops once an explicit preference is stored.
+`seedPreferredLanguageIfUnset(lang)` applies a soft site default before Auth finishes. The default sample site seeds
+English and the admin site seeds Japanese. `syncPreferredLanguageFromUser(user)` is called by the Auth layer and starts
+or stops the Firestore preference subscription.
 
-- `seedPreferredLanguageIfUnset(lang)`: soft per-site default. Does not persist, so a site can seed `'en'` (the default site does this in its `app.ts`) while the module default stays `'ja'`
-- `seedPreferredLanguageFromUser(user)`: called from the auth layer on sign-in. Parses a `[en]` / `[ja]` suffix from the Auth `displayName` via `parseDisplayNameWithLanguage()` and persists the result
+The user document has this optional preference field:
 
-Effective priority: explicit stored choice → user-profile seed → site seed → module default `'ja'`.
+```ts
+{ lang?: 'en' | 'ja' }
+```
+
+Effective priority is Firestore user preference → site default → English source locale. Language-only user document
+updates are excluded from the Firebase Auth/custom-claims synchronization trigger. Do not encode preferences in Firebase
+Auth profile fields or persist them to `localStorage`.
 
 #### Translation Lookup
 
-- Page-local strings live in the page's `page.json` under `translations`, and `this.trans(code)` in `PageElement` resolves them. Fallback order: page translation → `globalTranslations` → the code itself
-- `translations` may also localize `title` and `description`; `PageElement` applies them to the document title and meta tags per language
-- Shared UI labels (submit, cancel, close, …) live in `globalTranslations` in `src/app/i18n/translations.ts`; use `tGlobal(code, lang)` outside a `PageElement` context. Placeholders such as `{keyword}` are plain strings the caller replaces
+- Source messages use `msg()` in `src/app/i18n/messages.ts`, with stable IDs such as `default.helloworld.hero_title`
+- Japanese translations live in `hosting/xliff/ja.xlf`; generated runtime modules live under `src/generated/`
+- `this.trans(code)` prefixes the code with the page's `localizationId`, then falls back to a `global.*` message and finally the code itself
+- `PageElement` localizes `title` and `description` through the same message catalog and reapplies document metadata after locale changes
+- Shared UI labels use `tGlobal(code)`. Placeholders such as `{keyword}` remain plain strings the caller replaces
 
 ```json
 {
   "title": "Hello, World!",
-  "translations": {
-    "en": { "title": "Hello, World!", "greeting": "Hello" },
-    "ja": { "title": "こんにちは、世界！", "greeting": "こんにちは" }
-  }
+  "description": "A simple example page.",
+  "localizationId": "default.helloworld"
 }
 ```
 
 ```ts
 protected override render(): TemplateResult {
-  return html`<h1>${this.trans('greeting')}</h1>`;
+  return html`<h1>${this.trans('hero_title')}</h1>`;
 }
+```
+
+After editing source messages, update the XLIFF and generated runtime module:
+
+```bash
+npm -w hosting run localize:extract
+# Translate hosting/xliff/ja.xlf
+npm -w hosting run localize:build
 ```
 
 #### Language Switcher

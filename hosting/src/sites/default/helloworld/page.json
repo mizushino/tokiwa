@@ -1,20 +1,5 @@
 {
   "title": "Hello World - Sample Site",
   "description": "A simple Hello World example demonstrating basic Lit components.",
-  "translations": {
-    "en": {
-      "hero_title": "Hello, World!",
-      "hero_desc": "A simple Lit component sample.",
-      "welcome": "Welcome",
-      "welcome_body": "This is a simple \"Hello, World!\" sample page built with Lit. Components are composed using custom elements and Shadow DOM."
-    },
-    "ja": {
-      "title": "Hello World - サンプルサイト",
-      "description": "基本的な Lit コンポーネントを示すシンプルな Hello World の例です。",
-      "hero_title": "こんにちは、世界！",
-      "hero_desc": "シンプルな Lit コンポーネントのサンプルです。",
-      "welcome": "ようこそ",
-      "welcome_body": "これは Lit で構築したシンプルな「Hello, World!」サンプルページです。カスタム要素と Shadow DOM を用いてコンポーネントを構成しています。"
-    }
-  }
+  "localizationId": "default.helloworld"
 }

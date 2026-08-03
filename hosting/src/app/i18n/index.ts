@@ -1,11 +1,10 @@
-export { globalTranslations, tGlobal } from './translations';
+export { tGlobal } from './translations';
 export {
   getPreferredLanguage,
   setPreferredLanguage,
   subscribePreferredLanguage,
   seedPreferredLanguageIfUnset,
-  seedPreferredLanguageFromUser,
-  parseDisplayNameWithLanguage,
+  syncPreferredLanguageFromUser,
   clearPreferredLanguageCache,
   type SupportedLanguage,
 } from './language';

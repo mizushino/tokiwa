@@ -1,7 +1,13 @@
 import { FirestoreCollection, firestore } from '@mzsn/firestore/web';
-import { doc, onSnapshot, type Unsubscribe } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, type Unsubscribe } from 'firebase/firestore';
 
-import { userCollectionPath, userDocumentPath, type UserData, type UserKey } from '@firestore/types/user.js';
+import {
+  userCollectionPath,
+  userDocumentPath,
+  type UserData,
+  type UserKey,
+  type UserLanguage,
+} from '@firestore/types/user.js';
 
 import { TimestampedDocument, timestampDefaults } from './timestamped-document';
 
@@ -42,6 +48,13 @@ export function subscribeToUserDocument(uid: string, callback: (data: UserData |
       callback(null);
     }
   );
+}
+
+export async function saveUserLanguage(uid: string, language: UserLanguage): Promise<void> {
+  await updateDoc(doc(firestore(), userCollectionPath, uid), {
+    lang: language,
+    updatedAt: new Date(),
+  });
 }
 
 export class UserDocument extends TimestampedDocument<UserKey, UserData> {

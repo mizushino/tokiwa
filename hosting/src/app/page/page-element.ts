@@ -1,6 +1,7 @@
 import { LitElement, css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 
-import { getPreferredLanguage, subscribePreferredLanguage, tGlobal } from '@app/i18n';
+import { subscribePreferredLanguage, tGlobal } from '@app/i18n';
+import { translateMessage } from '@app/i18n/messages';
 import { tailwindCSS } from '@app/styles';
 
 import { Navigate } from './navigate';
@@ -8,7 +9,7 @@ import { Navigate } from './navigate';
 export interface PageMetadata {
   title?: string;
   description?: string;
-  translations?: Record<'en' | 'ja', Record<string, string>>;
+  localizationId: string;
 }
 
 /**
@@ -67,9 +68,8 @@ export class PageElement extends LitElement {
   }
 
   protected setPageMetadata(metadata: PageMetadata): void {
-    const lang = getPreferredLanguage();
     const localized = (key: 'title' | 'description'): string =>
-      metadata.translations?.[lang]?.[key] ?? metadata[key] ?? '';
+      translateMessage(`${metadata.localizationId}.${key}`) ?? metadata[key] ?? '';
 
     const title = localized('title');
     const description = localized('description');
@@ -81,10 +81,9 @@ export class PageElement extends LitElement {
   }
 
   protected trans(code: string): string {
-    const lang = getPreferredLanguage();
-    const pageValue = this.pageMetadata?.translations?.[lang]?.[code];
+    const pageValue = this.pageMetadata ? translateMessage(`${this.pageMetadata.localizationId}.${code}`) : undefined;
     if (pageValue !== undefined) return pageValue;
-    return tGlobal(code, lang);
+    return tGlobal(code);
   }
 
   protected async navigateTo(pathname: string, state?: unknown): Promise<void> {

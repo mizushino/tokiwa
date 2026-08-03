@@ -59,16 +59,17 @@ service cloud.firestore {
       return (data.displayName is string) &&
         (data.get('email', '') is string) &&
         (data.get('image', '') is string) &&
+        (data.get('lang', 'en') in ['en', 'ja']) &&
         (data.get('permissions', {}) is map) &&
         (data.get('admin', false) is bool);
     }
 
     match /users/{uid} {
       allow create: if
-        createVerifyFields(['displayName', 'createdAt', 'updatedAt'], ['email', 'image']) &&
+        createVerifyFields(['displayName', 'createdAt', 'updatedAt'], ['email', 'image', 'lang']) &&
         userFieldsValidTypes(request.resource.data);
       allow update: if
-        updateVerifyFields(['displayName', 'email', 'image', 'updatedAt']) &&
+        updateVerifyFields(['displayName', 'email', 'image', 'lang', 'updatedAt']) &&
         userFieldsValidTypes(request.resource.data) &&
         isSignedInUser(uid);
       allow read: if

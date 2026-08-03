@@ -20,6 +20,7 @@ class TestPage extends PageElement {
   protected pageMetadata: PageMetadata = {
     title: 'Test Page',
     description: 'Test Description',
+    localizationId: 'test',
   };
 
   protected override render(): TemplateResult {
@@ -47,10 +48,7 @@ class TestPageCustom extends PageElement {
 @customElement('test-page-translated')
 class TestPageTranslated extends PageElement {
   protected pageMetadata: PageMetadata = {
-    translations: {
-      en: { greeting: 'Hello' },
-      ja: { greeting: 'こんにちは' },
-    },
+    localizationId: 'default.helloworld',
   };
 
   public exposeTrans(code: string): string {
@@ -103,9 +101,9 @@ describe('Page', () => {
     }
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     container.remove();
-    clearPreferredLanguageCache();
+    await clearPreferredLanguageCache();
     vi.clearAllMocks();
     vi.restoreAllMocks();
   });
@@ -191,17 +189,17 @@ describe('Page', () => {
     });
 
     it('prefers page translations over global translations', async () => {
-      setPreferredLanguage('en');
+      await setPreferredLanguage('en');
 
       const element = document.createElement('test-page-translated') as TestPageTranslated;
       container.appendChild(element);
       await element.updateComplete;
 
-      expect(element.exposeTrans('greeting')).toBe('Hello');
+      expect(element.exposeTrans('hero_title')).toBe('Hello, World!');
     });
 
     it('falls back to global translations when page translation is missing', async () => {
-      setPreferredLanguage('ja');
+      await setPreferredLanguage('ja');
 
       const element = document.createElement('test-page-translated') as TestPageTranslated;
       container.appendChild(element);

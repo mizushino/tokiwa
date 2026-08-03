@@ -125,6 +125,35 @@ describe('user service E2E', () => {
   });
 
   describe('written trigger', () => {
+    it('skips Auth synchronization for a language-only change', async () => {
+      const { written } = await import('./user.js');
+      const wrapped = testEnv.wrap(written);
+      const updateUserSpy = vi.spyOn(auth, 'updateUser');
+      const setClaimsSpy = vi.spyOn(auth, 'setCustomUserClaims');
+      const baseData: UserData = {
+        email: 'language@example.com',
+        displayName: 'Language User',
+        lang: 'en',
+        permissions: { projects: ['project-1:r'] },
+        admin: false,
+        createdAt: new Date(),
+        updatedAt: new Date('2026-01-01'),
+      };
+      const beforeSnap = await makeDocumentSnapshot(baseData, 'users/language-user');
+      const afterSnap = await makeDocumentSnapshot(
+        { ...baseData, lang: 'ja', updatedAt: new Date('2026-01-02') },
+        'users/language-user'
+      );
+
+      await wrapped({
+        data: testEnv.makeChange(beforeSnap, afterSnap),
+        params: { uid: 'language-user' },
+      });
+
+      expect(updateUserSpy).not.toHaveBeenCalled();
+      expect(setClaimsSpy).not.toHaveBeenCalled();
+    });
+
     it('updates Auth user info and syncs custom claims', async () => {
       const { written } = await import('./user.js');
       const wrapped = testEnv.wrap(written);
