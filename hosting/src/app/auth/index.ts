@@ -15,7 +15,10 @@ export {
   signInWithEmail,
   signInWithProvider,
   signOut,
+  subscribeUserState,
   userSnapshot,
+  type AuthUserState,
   type FirebaseAuthSettings,
   type User,
+  type UserSnapshot,
 } from './auth';

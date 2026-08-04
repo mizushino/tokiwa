@@ -4,9 +4,8 @@ import type { Unsubscribe } from 'firebase/firestore';
 import { Gauge, Globe } from 'lucide';
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { track } from 'lit-async';
 
-import { signOut, userSnapshot } from '@app/auth';
+import { signOut, subscribeUserState } from '@app/auth';
 import { PageElement } from '@app/page';
 import type { SidebarNavItem } from '@components/ui/sidebar/ui-sidebar';
 import { subscribeToUserDocument } from '@models/user';
@@ -24,7 +23,8 @@ import './helloworld';
 export class AdminIndex extends PageElement {
   protected pageMetadata = pageMetadata;
 
-  protected currentUser: User | null = null;
+  @state()
+  protected currentUser: User | null | undefined = undefined;
 
   @state()
   protected isAdmin: boolean | undefined = undefined;
@@ -33,10 +33,26 @@ export class AdminIndex extends PageElement {
 
   private unsubscribeUserDoc: Unsubscribe | null = null;
 
+  private unsubscribeAuthState?: Unsubscribe;
+
   private adminCheckGeneration = 0;
+
+  public override connectedCallback(): void {
+    super.connectedCallback();
+    this.unsubscribeAuthState = subscribeUserState((user) => {
+      this.currentUser = user;
+      if (user) {
+        this.startUserDocSubscription(user.uid);
+      } else {
+        this.stopUserDocSubscription();
+      }
+    });
+  }
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
+    this.unsubscribeAuthState?.();
+    this.unsubscribeAuthState = undefined;
     this.stopUserDocSubscription();
   }
 
@@ -55,6 +71,7 @@ export class AdminIndex extends PageElement {
     }
 
     this.stopUserDocSubscription();
+    this.isAdmin = undefined;
 
     this.subscribedUid = uid;
     this.unsubscribeUserDoc = subscribeToUserDocument(uid, (userData) => {
@@ -176,38 +193,28 @@ export class AdminIndex extends PageElement {
     `;
   }
 
-  protected user = userSnapshot();
-
   protected override render(): TemplateResult {
-    return html`${track(this.user, (user) => {
-      if (user === undefined) {
-        return this.renderFullScreenCenter(
-          html`<div class="text-gray-500 dark:text-gray-400">${this.trans('loading')}</div>`
-        );
-      }
+    if (this.currentUser === undefined) {
+      return this.renderFullScreenCenter(
+        html`<div class="text-gray-500 dark:text-gray-400">${this.trans('loading')}</div>`
+      );
+    }
 
-      this.currentUser = user as unknown as User;
+    if (!this.currentUser) {
+      return html`<admin-login></admin-login>`;
+    }
 
-      if (!user) {
-        this.stopUserDocSubscription();
-        this.isAdmin = undefined;
-        return html`<admin-login></admin-login>`;
-      }
+    if (this.isAdmin === undefined) {
+      return this.renderFullScreenCenter(
+        html`<div class="text-gray-500 dark:text-gray-400">${this.trans('checking_permission')}</div>`
+      );
+    }
 
-      this.startUserDocSubscription(user.uid);
+    if (!this.isAdmin) {
+      return this.renderAccessDenied();
+    }
 
-      if (this.isAdmin === undefined) {
-        return this.renderFullScreenCenter(
-          html`<div class="text-gray-500 dark:text-gray-400">${this.trans('checking_permission')}</div>`
-        );
-      }
-
-      if (!this.isAdmin) {
-        return this.renderAccessDenied();
-      }
-
-      return this.renderContents();
-    })}`;
+    return this.renderContents();
   }
 }
 
