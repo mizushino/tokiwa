@@ -112,21 +112,56 @@ export class UiModal extends LitElement {
   private readonly dialogRef = createRef<HTMLDialogElement>();
   private readonly inputRef = createRef<UiInput>();
   private mouseDownTarget: EventTarget | null = null;
+  private closeTimer?: ReturnType<typeof setTimeout>;
+  private focusFrame?: number;
 
   protected override updated(changedProperties: Map<string, unknown>): void {
     if (changedProperties.has('open') && this.dialogRef.value) {
       if (this.open) {
-        this.dialogRef.value?.showModal();
+        this.cancelPendingClose();
+        if (!this.dialogRef.value.open) {
+          this.dialogRef.value.showModal();
+        }
         if (this.showInput) {
-          requestAnimationFrame(() => {
-            this.inputRef.value?.focus();
+          this.cancelPendingFocus();
+          this.focusFrame = requestAnimationFrame(() => {
+            this.focusFrame = undefined;
+            if (this.open && this.isConnected) {
+              this.inputRef.value?.focus();
+            }
           });
         }
       } else {
-        setTimeout(() => {
-          this.dialogRef.value?.close();
+        this.cancelPendingFocus();
+        this.cancelPendingClose();
+        const dialog = this.dialogRef.value;
+        this.closeTimer = setTimeout(() => {
+          this.closeTimer = undefined;
+          if (!this.open) {
+            dialog.close();
+          }
         }, overlayLeaveDurationMs);
       }
+    }
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.cancelPendingClose();
+    this.cancelPendingFocus();
+  }
+
+  private cancelPendingClose(): void {
+    if (this.closeTimer !== undefined) {
+      clearTimeout(this.closeTimer);
+      this.closeTimer = undefined;
+    }
+  }
+
+  private cancelPendingFocus(): void {
+    if (this.focusFrame !== undefined) {
+      cancelAnimationFrame(this.focusFrame);
+      this.focusFrame = undefined;
     }
   }
 

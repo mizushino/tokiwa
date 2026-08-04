@@ -44,6 +44,8 @@ export class UiDropdown extends LitElement {
   private readonly menuRef = createRef<HTMLElement>();
   private readonly triggerRef = createRef<HTMLElement>();
   private readonly triggerSlotRef = createRef<HTMLSlotElement>();
+  private outsideClickFrame?: number;
+  private listenerGeneration = 0;
 
   private closeOnClickOutside = (event: MouseEvent): void => {
     if (!event.composedPath().includes(this)) {
@@ -96,13 +98,22 @@ export class UiDropdown extends LitElement {
   }
 
   private addEventListeners(): void {
+    const generation = ++this.listenerGeneration;
     document.addEventListener('keydown', this.handleKeyDown);
-    requestAnimationFrame(() => {
-      document.addEventListener('click', this.closeOnClickOutside);
+    this.outsideClickFrame = requestAnimationFrame(() => {
+      this.outsideClickFrame = undefined;
+      if (this.isOpen && this.isConnected && generation === this.listenerGeneration) {
+        document.addEventListener('click', this.closeOnClickOutside);
+      }
     });
   }
 
   private removeEventListeners(): void {
+    this.listenerGeneration += 1;
+    if (this.outsideClickFrame !== undefined) {
+      cancelAnimationFrame(this.outsideClickFrame);
+      this.outsideClickFrame = undefined;
+    }
     document.removeEventListener('click', this.closeOnClickOutside);
     document.removeEventListener('keydown', this.handleKeyDown);
   }

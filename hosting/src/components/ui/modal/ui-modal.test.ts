@@ -70,6 +70,24 @@ describe('UiModal', () => {
     expect(dialog).toBeTruthy();
   });
 
+  it('cancels a pending close when reopened during the leave delay', async () => {
+    vi.useFakeTimers();
+    const closeSpy = vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(() => undefined);
+    vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(() => undefined);
+
+    element.open = true;
+    await element.updateComplete;
+    element.open = false;
+    await element.updateComplete;
+    element.open = true;
+    await element.updateComplete;
+
+    vi.advanceTimersByTime(200);
+
+    expect(closeSpy).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
   it('emits confirm event when confirm button is clicked', async () => {
     element.title = 'Confirm Action';
     element.message = 'Do you want to proceed?';

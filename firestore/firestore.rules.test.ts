@@ -72,6 +72,8 @@ describe('firestore rules', () => {
         displayName: 'Member',
         email: 'member@example.com',
         permissions: { projects },
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     });
   }
@@ -97,6 +99,12 @@ describe('firestore rules', () => {
       firestore.doc('users/member-1').update({ displayName: 'Updated Member', updatedAt: new Date() })
     );
     await assertFails(firestore.doc('users/member-1').update({ email: 'spoofed@example.com', updatedAt: new Date() }));
+  });
+
+  it('rejects non-timestamp user update timestamps', async () => {
+    const firestore = testEnvironment.authenticatedContext('member-1').firestore();
+
+    await assertFails(firestore.doc('users/member-1').update({ displayName: 'Updated Member', updatedAt: 'now' }));
   });
 
   it('allows a constrained public sample create', async () => {
@@ -126,6 +134,19 @@ describe('firestore rules', () => {
     await assertFails(firestore.doc(`samples/${'x'.repeat(65)}`).set(baseData));
   });
 
+  it('rejects non-timestamp sample timestamps', async () => {
+    const firestore = testEnvironment.unauthenticatedContext().firestore();
+    const baseData = {
+      name: 'Sample',
+      count: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await assertFails(firestore.doc('samples/sample').set({ ...baseData, createdAt: 'now' }));
+    await assertFails(firestore.doc('samples/sample').set({ ...baseData, updatedAt: 'now' }));
+  });
+
   it('rejects public writes outside the fixed demo document', async () => {
     const firestore = testEnvironment.unauthenticatedContext().firestore();
 
@@ -152,6 +173,7 @@ describe('firestore rules', () => {
 
     await assertSucceeds(firestore.doc('samples/sample').update({ name: 'After', updatedAt: new Date() }));
     await assertFails(firestore.doc('samples/sample').update({ count: 4, updatedAt: new Date() }));
+    await assertFails(firestore.doc('samples/sample').update({ name: 'Invalid time', updatedAt: 'now' }));
   });
 
   it('allows a reader to read their project but rejects unrelated and unauthenticated users', async () => {

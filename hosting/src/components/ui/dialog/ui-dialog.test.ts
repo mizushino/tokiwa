@@ -115,6 +115,22 @@ describe('UiDialog', () => {
     vi.useRealTimers();
   });
 
+  it('cancels a pending close when reopened during the leave delay', async () => {
+    vi.useFakeTimers();
+
+    element.open = true;
+    await element.updateComplete;
+    element.open = false;
+    await element.updateComplete;
+    element.open = true;
+    await element.updateComplete;
+
+    vi.advanceTimersByTime(200);
+
+    expect(closeSpy).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
   it('closes only when both pointer events target the backdrop', async () => {
     element.open = true;
     await element.updateComplete;

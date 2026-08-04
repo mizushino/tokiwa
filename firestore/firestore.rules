@@ -54,7 +54,9 @@ service cloud.firestore {
       return (data.name is string) &&
         (data.name.size() <= 100) &&
         (data.count is int) &&
-        (data.count >= 0);
+        (data.count >= 0) &&
+        (data.createdAt is timestamp) &&
+        (data.updatedAt is timestamp);
     }
 
     function userFieldsValidTypes(data) {
@@ -67,7 +69,9 @@ service cloud.firestore {
         (data.get('lang', 'en') in ['en', 'ja']) &&
         (data.get('permissions', {}) is map) &&
         (data.get('admin', false) is bool) &&
-        (data.get('claimsUpdatedAt', request.time) is timestamp);
+        (data.get('claimsUpdatedAt', request.time) is timestamp) &&
+        (data.createdAt is timestamp) &&
+        (data.updatedAt is timestamp);
     }
 
     function projectFieldsValid(data) {

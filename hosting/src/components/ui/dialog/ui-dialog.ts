@@ -59,6 +59,7 @@ export class UiDialog extends LitElement {
   private readonly dialogRef = createRef<HTMLDialogElement>();
 
   private mouseDownTarget: EventTarget | null = null;
+  private closeTimer?: ReturnType<typeof setTimeout>;
 
   private get dialog(): HTMLDialogElement | undefined {
     return this.dialogRef.value ?? undefined;
@@ -67,12 +68,32 @@ export class UiDialog extends LitElement {
   protected override updated(changedProperties: Map<string, unknown>): void {
     if (changedProperties.has('open') && this.dialog) {
       if (this.open) {
-        this.dialog.showModal();
+        this.cancelPendingClose();
+        if (!this.dialog.open) {
+          this.dialog.showModal();
+        }
       } else {
-        setTimeout(() => {
-          this.dialog?.close();
+        this.cancelPendingClose();
+        const dialog = this.dialog;
+        this.closeTimer = setTimeout(() => {
+          this.closeTimer = undefined;
+          if (!this.open) {
+            dialog.close();
+          }
         }, overlayLeaveDurationMs);
       }
+    }
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.cancelPendingClose();
+  }
+
+  private cancelPendingClose(): void {
+    if (this.closeTimer !== undefined) {
+      clearTimeout(this.closeTimer);
+      this.closeTimer = undefined;
     }
   }
 

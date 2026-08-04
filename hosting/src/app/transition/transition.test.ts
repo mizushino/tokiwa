@@ -107,6 +107,56 @@ describe('transition directive', () => {
     expect(target?.classList.contains('opacity-100')).toBe(true);
   });
 
+  it('ignores transition events bubbling from child elements', async () => {
+    const element = document.createElement('test-transition-fixture') as TestTransitionFixture;
+    container.appendChild(element);
+    await element.updateComplete;
+
+    const target = element.shadowRoot?.querySelector<HTMLElement>('#target');
+    const child = document.createElement('span');
+    target?.appendChild(child);
+    element.visible = false;
+    await element.updateComplete;
+
+    child.dispatchEvent(new TransitionEvent('transitionend', { bubbles: true }));
+    await Promise.resolve();
+
+    expect(target?.classList.contains('hidden')).toBe(false);
+  });
+
+  it('finishes a leave transition when the browser emits no transition event', async () => {
+    vi.useFakeTimers();
+    const element = document.createElement('test-transition-fixture') as TestTransitionFixture;
+    container.appendChild(element);
+    await element.updateComplete;
+
+    const target = element.shadowRoot?.querySelector<HTMLElement>('#target');
+    element.visible = false;
+    await element.updateComplete;
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    expect(target?.classList.contains('hidden')).toBe(true);
+    vi.useRealTimers();
+  });
+
+  it('keeps the latest state when the direction changes during a transition', async () => {
+    const element = document.createElement('test-transition-fixture') as TestTransitionFixture;
+    container.appendChild(element);
+    await element.updateComplete;
+
+    const target = element.shadowRoot?.querySelector<HTMLElement>('#target');
+    element.visible = false;
+    await element.updateComplete;
+    element.visible = true;
+    await element.updateComplete;
+
+    target?.dispatchEvent(new TransitionEvent('transitionend', { bubbles: true }));
+    await Promise.resolve();
+
+    expect(target?.classList.contains('hidden')).toBe(false);
+    expect(target?.classList.contains('opacity-100')).toBe(true);
+  });
+
   it('throws when constructed outside an element part', () => {
     const partInfo = { type: PartType.ATTRIBUTE } as PartInfo;
     expect(() => new TransitionDirective(partInfo)).toThrow('transition directive can only be used on elements');

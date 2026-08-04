@@ -34,7 +34,8 @@ export class TransitionDirective extends AsyncDirective {
   private element?: HTMLElement;
   private currentDirection: 'enter' | 'leave' | null = null;
   private initialized = false;
-  private transitionHandler?: (event: TransitionEvent) => void;
+  private transitionGeneration = 0;
+  private cancelTransitionWait?: () => void;
 
   constructor(partInfo: PartInfo) {
     super(partInfo);
@@ -79,11 +80,8 @@ export class TransitionDirective extends AsyncDirective {
   private async transition(direction: 'enter' | 'leave', options: TransitionOptions): Promise<void> {
     if (!this.element) return;
 
-    if (this.transitionHandler) {
-      this.element.removeEventListener('transitionend', this.transitionHandler);
-      this.transitionHandler = undefined;
-    }
-
+    const generation = ++this.transitionGeneration;
+    this.cancelTransitionWait?.();
     this.currentDirection = direction;
 
     if (direction === 'enter') {
@@ -97,11 +95,12 @@ export class TransitionDirective extends AsyncDirective {
       this.applyClasses(options.enterFrom);
 
       await this.nextFrame();
+      if (!this.isCurrentTransition(generation)) return;
 
       this.removeClasses(options.enterFrom);
       this.applyClasses(options.enterTo);
 
-      await this.waitForTransition();
+      await this.waitForTransition(generation);
     } else {
       this.removeClasses(options.enter);
       this.removeClasses(options.enterFrom);
@@ -111,14 +110,21 @@ export class TransitionDirective extends AsyncDirective {
       this.applyClasses(options.leaveFrom);
 
       await this.nextFrame();
+      if (!this.isCurrentTransition(generation)) return;
 
       this.removeClasses(options.leaveFrom);
       this.applyClasses(options.leaveTo);
 
-      await this.waitForTransition();
+      await this.waitForTransition(generation);
+      if (!this.isCurrentTransition(generation)) return;
 
       this.element.classList.add('hidden');
     }
+  }
+
+  protected override disconnected(): void {
+    this.transitionGeneration += 1;
+    this.cancelTransitionWait?.();
   }
 
   private nextFrame(): Promise<void> {
@@ -129,24 +135,62 @@ export class TransitionDirective extends AsyncDirective {
     });
   }
 
-  private waitForTransition(): Promise<void> {
+  private waitForTransition(generation: number): Promise<void> {
     return new Promise((resolve) => {
-      if (!this.element) {
+      const element = this.element;
+      if (!element || !this.isCurrentTransition(generation)) {
         resolve();
         return;
       }
 
-      this.transitionHandler = (event: TransitionEvent): void => {
-        if (this.element && this.transitionHandler) {
-          this.element.removeEventListener('transitionend', this.transitionHandler);
-          this.transitionHandler = undefined;
+      let settled = false;
+      const finish = (): void => {
+        if (settled) return;
+        settled = true;
+        element.removeEventListener('transitionend', handleTransitionEnd);
+        element.removeEventListener('transitioncancel', handleTransitionEnd);
+        clearTimeout(timeout);
+        if (this.cancelTransitionWait === finish) {
+          this.cancelTransitionWait = undefined;
         }
-        event.stopPropagation();
         resolve();
       };
 
-      this.element.addEventListener('transitionend', this.transitionHandler);
+      const handleTransitionEnd = (event: TransitionEvent): void => {
+        if (event.target !== element) return;
+        event.stopPropagation();
+        finish();
+      };
+
+      const timeout = setTimeout(finish, this.getTransitionTimeout(element));
+      this.cancelTransitionWait = finish;
+      element.addEventListener('transitionend', handleTransitionEnd);
+      element.addEventListener('transitioncancel', handleTransitionEnd);
     });
+  }
+
+  private isCurrentTransition(generation: number): boolean {
+    return generation === this.transitionGeneration && this.element?.isConnected === true;
+  }
+
+  private getTransitionTimeout(element: HTMLElement): number {
+    const style = getComputedStyle(element);
+    const durations = style.transitionDuration.split(',').map((value) => this.parseTime(value));
+    const delays = style.transitionDelay.split(',').map((value) => this.parseTime(value));
+    const count = Math.max(durations.length, delays.length);
+    let maximum = 0;
+
+    for (let index = 0; index < count; index += 1) {
+      maximum = Math.max(maximum, (durations[index % durations.length] ?? 0) + (delays[index % delays.length] ?? 0));
+    }
+
+    return maximum + 50;
+  }
+
+  private parseTime(value: string): number {
+    const parsed = Number.parseFloat(value);
+    if (!Number.isFinite(parsed)) return 0;
+    return value.trim().endsWith('ms') ? parsed : parsed * 1_000;
   }
 
   private applyClasses(classString?: string): void {

@@ -7,6 +7,7 @@ import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { beforeUserCreated, beforeUserSignedIn } from 'firebase-functions/v2/identity';
 
 import { userDocumentPath, type UserData } from '@firestore/types/user.js';
+import { getPreRegisteredUserKey, normalizeEmail, PreRegisteredUserDocument } from 'src/models/pre-registered-user.js';
 import { UserDocument } from 'src/models/user.js';
 import { region } from 'src/options.js';
 
@@ -23,6 +24,10 @@ const nonRetryableAuthErrorCodes = new Set([
   'auth/reserved-claim',
 ]);
 const MAX_USER_SYNC_ATTEMPTS = 3;
+
+function isSafeLegacyUserDocumentId(value: string): boolean {
+  return value !== '' && value !== '.' && value !== '..' && !value.includes('/') && Buffer.byteLength(value) <= 1_500;
+}
 
 export function isNonRetryableAuthError(error: unknown): boolean {
   return (
@@ -77,6 +82,7 @@ export async function handleUserCreated(
   emailVerified = false
 ): Promise<UserCustomClaims> {
   return getFirestore().runTransaction(async (transaction) => {
+    const normalizedEmail = normalizeEmail(email);
     const userDocument = new UserDocument({ uid });
     await userDocument.get(transaction);
 
@@ -86,9 +92,15 @@ export async function handleUserCreated(
       userData = {
         ...UserDocument.defaultData,
         displayName: displayName ?? '',
-        email,
+        email: normalizedEmail,
         image: photoURL ?? '',
       };
+    } else if (userData.email !== normalizedEmail) {
+      userData = {
+        ...userData,
+        email: normalizedEmail,
+      };
+      shouldSave = true;
     }
 
     if (!emailVerified) {
@@ -100,16 +112,35 @@ export async function handleUserCreated(
         };
         shouldSave = true;
       }
-    } else if (email) {
-      const userDocumentByEmail = new UserDocument({ uid: email });
-      await userDocumentByEmail.get(transaction);
-      if (userDocumentByEmail.exists) {
+    } else if (normalizedEmail) {
+      const preRegisteredUserDocument = new PreRegisteredUserDocument(getPreRegisteredUserKey(normalizedEmail));
+      await preRegisteredUserDocument.get(transaction);
+      let matchingPreRegistration: PreRegisteredUserDocument | UserDocument | undefined;
+      if (
+        preRegisteredUserDocument.exists &&
+        normalizeEmail(preRegisteredUserDocument.data.email) === normalizedEmail
+      ) {
+        matchingPreRegistration = preRegisteredUserDocument;
+      } else {
+        // Read path-safe legacy records during migration from users/{email}.
+        const legacyDocumentIds = [...new Set([email.trim(), normalizedEmail])].filter(isSafeLegacyUserDocumentId);
+        for (const legacyDocumentId of legacyDocumentIds) {
+          const legacyDocument = new UserDocument({ uid: legacyDocumentId });
+          await legacyDocument.get(transaction);
+          if (legacyDocument.exists && normalizeEmail(legacyDocument.data.email) === normalizedEmail) {
+            matchingPreRegistration = legacyDocument;
+            break;
+          }
+        }
+      }
+
+      if (matchingPreRegistration) {
         userData = {
           ...userData,
-          admin: userDocumentByEmail.data.admin ?? userData.admin,
-          permissions: userDocumentByEmail.data.permissions ?? userData.permissions,
+          admin: matchingPreRegistration.data.admin ?? userData.admin,
+          permissions: matchingPreRegistration.data.permissions ?? userData.permissions,
         };
-        await userDocumentByEmail.delete(transaction);
+        await matchingPreRegistration.delete(transaction);
         shouldSave = true;
       }
     }

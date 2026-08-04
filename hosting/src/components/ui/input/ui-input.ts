@@ -69,6 +69,12 @@ export class UiInput extends LitElement {
   @property({ type: Boolean })
   required = false;
 
+  private readonly generatedInputId = `ui-input-${globalThis.crypto.randomUUID()}`;
+
+  private get resolvedInputId(): string {
+    return this.inputId || this.generatedInputId;
+  }
+
   private handleInput = (e: Event): void => {
     e.stopPropagation();
     this.value = (e.target as HTMLInputElement).value;
@@ -113,16 +119,16 @@ export class UiInput extends LitElement {
   }
 
   protected override render(): TemplateResult {
+    const inputId = this.resolvedInputId;
+    const errorId = `${inputId}-error`;
     return html`
       ${this.label
-        ? html`<label
-            for="${ifDefined(this.inputId || undefined)}"
-            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+        ? html`<label for="${inputId}" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >${this.label}</label
           >`
         : ''}
       <input
-        id="${ifDefined(this.inputId || undefined)}"
+        id="${inputId}"
         class="${this.getInputClasses()}"
         type="${this.type}"
         .value=${this.value}
@@ -131,10 +137,14 @@ export class UiInput extends LitElement {
         .autocomplete=${this.autocomplete}
         ?disabled=${this.disabled}
         ?required=${this.required}
+        aria-invalid="${ifDefined(this.error ? 'true' : undefined)}"
+        aria-describedby="${ifDefined(this.error ? errorId : undefined)}"
         @input=${this.handleInput}
         @change=${this.handleChange}
       />
-      ${this.error ? html`<p class="mt-2 text-sm text-danger-600 dark:text-danger-400">${this.error}</p>` : ''}
+      ${this.error
+        ? html`<p id="${errorId}" class="mt-2 text-sm text-danger-600 dark:text-danger-400">${this.error}</p>`
+        : ''}
     `;
   }
 }

@@ -38,6 +38,7 @@ describe('UiDropdown', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     container.remove();
   });
 
@@ -378,6 +379,31 @@ describe('UiDropdown', () => {
     expect(spy).toHaveBeenCalledWith('keydown', expect.any(Function));
 
     spy.mockRestore();
+  });
+
+  it('does not register the outside-click listener after closing before the next frame', async () => {
+    const frameCallbacks: FrameRequestCallback[] = [];
+    const frameSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frameCallbacks.push(callback);
+      return 1;
+    });
+    const addListenerSpy = vi.spyOn(document, 'addEventListener');
+    await element.updateComplete;
+    const trigger = element.querySelector('[data-dropdown-trigger]') as HTMLElement;
+
+    trigger.click();
+    await element.updateComplete;
+    trigger.click();
+    await element.updateComplete;
+    while (frameCallbacks.length > 0) {
+      const callbacks = frameCallbacks.splice(0);
+      callbacks.forEach((callback) => callback(0));
+      await Promise.resolve();
+    }
+
+    expect(addListenerSpy).not.toHaveBeenCalledWith('click', expect.any(Function));
+    addListenerSpy.mockRestore();
+    frameSpy.mockRestore();
   });
 });
 

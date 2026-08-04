@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { getFirestore, Timestamp, type Firestore } from 'firebase-admin/firestore';
@@ -31,9 +33,13 @@ describe('user service E2E', () => {
   });
 
   afterEach(async () => {
-    const usersSnapshot = await db.collection('users').get();
+    const [usersSnapshot, preRegisteredUsersSnapshot] = await Promise.all([
+      db.collection('users').get(),
+      db.collection('preRegisteredUsers').get(),
+    ]);
     const batch = db.batch();
     usersSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    preRegisteredUsersSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
     await batch.commit();
 
     for (const uid of createdUserIds) {
@@ -482,6 +488,29 @@ describe('user service E2E', () => {
       expect(deletedDoc.exists).toBe(false);
     });
 
+    it('inherits pre-registered permissions through a normalized hashed email key', async () => {
+      const { handleUserCreated } = await import('./user.js');
+
+      const registeredEmail = 'Case.Sensitive/Path@Example.com';
+      const signInEmail = 'case.sensitive/path@example.com';
+      const emailHash = createHash('sha256').update(signInEmail).digest('hex');
+      await db.doc(`preRegisteredUsers/${emailHash}`).set({
+        email: signInEmail,
+        permissions: { projects: ['safe-project:o'] },
+        admin: true,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      });
+
+      await expect(
+        handleUserCreated('safe-email-path-user', registeredEmail, 'Safe User', null, true)
+      ).resolves.toEqual({ p: { projects: ['safe-project:o'] }, a: true });
+
+      const userDoc = await db.doc('users/safe-email-path-user').get();
+      expect(userDoc.get('email')).toBe(signInEmail);
+      expect((await db.doc(`preRegisteredUsers/${emailHash}`).get()).exists).toBe(false);
+    });
+
     it('rejects pre-registered permissions exceeding the project limit', async () => {
       const { UserDocument } = await import('../../models/user.js');
       const { MAX_PROJECTS_PER_USER, ProjectLimitExceededError } = await import('../project/constants.js');
@@ -678,6 +707,27 @@ describe('user service E2E', () => {
       expect(resultDoc.data.image).toBe('existing-image');
       expect(resultDoc.data.permissions).toEqual({ projects: ['proj-existing:o'] });
       expect(resultDoc.data.admin).toBe(true);
+    });
+
+    it('synchronizes an existing user document with the normalized Auth email', async () => {
+      const { UserDocument } = await import('../../models/user.js');
+      const { handleUserCreated } = await import('./user.js');
+
+      const existingUid = 'changed-email-user';
+      await new UserDocument(
+        { uid: existingUid },
+        {
+          ...UserDocument.defaultData,
+          email: 'old@example.com',
+          displayName: 'Existing User',
+        }
+      ).save();
+
+      await handleUserCreated(existingUid, ' New.Email@Example.COM ', 'Ignored Name', null, true);
+
+      const resultDoc = new UserDocument({ uid: existingUid });
+      await resultDoc.get();
+      expect(resultDoc.data.email).toBe('new.email@example.com');
     });
   });
 });

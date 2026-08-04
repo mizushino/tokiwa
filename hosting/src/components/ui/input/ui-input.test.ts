@@ -48,7 +48,24 @@ describe('UiInput', () => {
     element.label = 'Name';
     await element.updateComplete;
     const label = element.querySelector('label');
+    const input = element.querySelector('input');
     expect(label?.textContent?.trim()).toBe('Name');
+    expect(input?.id).not.toBe('');
+    expect(label?.htmlFor).toBe(input?.id);
+  });
+
+  it('generates different input IDs for separate components', async () => {
+    element.label = 'First';
+    const second = proxyShadowQueries(document.createElement('ui-input') as UiInput);
+    second.label = 'Second';
+    container.appendChild(second);
+    await Promise.all([element.updateComplete, second.updateComplete]);
+
+    const firstInput = element.querySelector('input');
+    const secondInput = second.querySelector('input');
+    expect(firstInput?.id).not.toBe('');
+    expect(secondInput?.id).not.toBe('');
+    expect(firstInput?.id).not.toBe(secondInput?.id);
   });
 
   it('reflects the type property to the input', async () => {
@@ -121,6 +138,8 @@ describe('UiInput', () => {
     expect(input?.className).toContain('border-danger-500');
     const message = element.querySelector('p');
     expect(message?.textContent?.trim()).toBe('Required');
+    expect(input?.getAttribute('aria-invalid')).toBe('true');
+    expect(input?.getAttribute('aria-describedby')).toBe(message?.id);
   });
 
   it('emits input event with value detail on typing', async () => {

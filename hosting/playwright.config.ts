@@ -1,11 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
 
+import { getFirebaseProjectId } from './src/test/firebase-project-id';
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
 const isCI = Boolean(env.CI);
-const firebaseProjectId = env.FIREBASE_PROJECT_ID || 'tokiwa-template';
+const firebaseProjectId = getFirebaseProjectId(env.FIREBASE_PROJECT_ID);
 
 export default defineConfig({
   testDir: './src',
@@ -70,7 +72,9 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: [
     {
-      command: `bash -lc 'npm --prefix .. run emulators:kill; mkdir -p ../.artifacts/firebase && cd ../.artifacts/firebase && exec npx firebase --config ../../firebase.json emulators:start --project ${firebaseProjectId} --only auth,firestore,storage'`,
+      command:
+        'bash -lc \'npm --prefix .. run emulators:kill; mkdir -p ../.artifacts/firebase && cd ../.artifacts/firebase && exec npx firebase --config ../../firebase.json emulators:start --project "$FIREBASE_PROJECT_ID" --only auth,firestore,storage\'',
+      env: { FIREBASE_PROJECT_ID: firebaseProjectId },
       url: 'http://localhost:4000',
       reuseExistingServer: !isCI,
       timeout: 120 * 1000,
