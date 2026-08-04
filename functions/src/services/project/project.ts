@@ -7,15 +7,9 @@ import { UserDocument } from 'src/models/user.js';
 import { region } from 'src/options.js';
 
 import { CustomClaimsTooLargeError, getCustomUserClaims } from '../user/custom-claims.js';
+import { MAX_PROJECTS_PER_USER, ProjectLimitExceededError } from './constants.js';
 
-export const MAX_PROJECTS_PER_USER = 30;
-
-export class ProjectLimitExceededError extends Error {
-  public constructor() {
-    super(`A user cannot belong to more than ${MAX_PROJECTS_PER_USER} projects.`);
-    this.name = 'ProjectLimitExceededError';
-  }
-}
+export { MAX_PROJECTS_PER_USER, ProjectLimitExceededError } from './constants.js';
 
 const roleTable = new Map<string, string>([
   ['owner', 'o'],

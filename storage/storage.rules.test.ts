@@ -53,7 +53,31 @@ describe('project storage role rules', () => {
 
     await assertSucceeds(
       Promise.resolve(
-        storage.ref('users/user-1/avatar/profile.png').put(new Uint8Array([137, 80, 78, 71]), {
+        storage.ref('users/user-1/avatar/profile').put(new Uint8Array([137, 80, 78, 71]), {
+          contentType: 'image/png',
+        })
+      )
+    );
+  });
+
+  it('rejects additional avatar filenames', async () => {
+    const storage = testEnvironment.authenticatedContext('user-1').storage();
+
+    await assertFails(
+      Promise.resolve(
+        storage.ref('users/user-1/avatar/another-profile').put(new Uint8Array([137, 80, 78, 71]), {
+          contentType: 'image/png',
+        })
+      )
+    );
+  });
+
+  it("rejects writing another user's fixed avatar", async () => {
+    const storage = testEnvironment.authenticatedContext('user-1').storage();
+
+    await assertFails(
+      Promise.resolve(
+        storage.ref('users/user-2/avatar/profile').put(new Uint8Array([137, 80, 78, 71]), {
           contentType: 'image/png',
         })
       )
@@ -65,7 +89,7 @@ describe('project storage role rules', () => {
 
     await assertFails(
       Promise.resolve(
-        storage.ref('users/user-1/avatar/profile.svg').put(new Uint8Array([1]), {
+        storage.ref('users/user-1/avatar/profile').put(new Uint8Array([1]), {
           contentType: 'image/svg+xml',
         })
       )
@@ -77,7 +101,7 @@ describe('project storage role rules', () => {
 
     await assertFails(
       Promise.resolve(
-        storage.ref('users/user-1/avatar/profile.png').put(new Uint8Array(5 * mebibyte + 1), {
+        storage.ref('users/user-1/avatar/profile').put(new Uint8Array(5 * mebibyte + 1), {
           contentType: 'image/png',
         })
       )

@@ -78,7 +78,10 @@ service firebase.storage {
     match /users/{uid}/avatar/{filename} {
       allow get: if true;
       allow list: if isSignedInUser(uid);
-      allow create, update: if isSignedInUser(uid) && isValidAvatarUpload();
+      allow create, update: if
+        filename == 'profile' &&
+        isSignedInUser(uid) &&
+        isValidAvatarUpload();
       allow delete: if isSignedInUser(uid);
     }
 

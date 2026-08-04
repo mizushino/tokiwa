@@ -481,6 +481,36 @@ describe('user service E2E', () => {
       expect(deletedDoc.exists).toBe(false);
     });
 
+    it('rejects pre-registered permissions exceeding the project limit', async () => {
+      const { UserDocument } = await import('../../models/user.js');
+      const { MAX_PROJECTS_PER_USER, ProjectLimitExceededError } = await import('../project/constants.js');
+      const { handleUserCreated } = await import('./user.js');
+
+      const email = 'too-many-projects@example.com';
+      const projects = Array.from({ length: MAX_PROJECTS_PER_USER + 1 }, (_, index) => `project-${index}:r`);
+      await new UserDocument(
+        { uid: email },
+        {
+          ...UserDocument.defaultData,
+          email,
+          displayName: 'Pre-registered',
+          permissions: { projects },
+        }
+      ).save();
+
+      await expect(handleUserCreated('too-many-projects-user', email, 'Actual User', null, true)).rejects.toThrow(
+        ProjectLimitExceededError
+      );
+
+      const preRegisteredDoc = new UserDocument({ uid: email });
+      await preRegisteredDoc.get();
+      expect(preRegisteredDoc.exists).toBe(true);
+
+      const userDoc = new UserDocument({ uid: 'too-many-projects-user' });
+      await userDoc.get();
+      expect(userDoc.exists).toBe(false);
+    });
+
     it('does not inherit pre-registered permissions before email verification', async () => {
       const { UserDocument } = await import('../../models/user.js');
       const { created } = await import('./user.js');

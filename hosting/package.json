@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vp dev --open",
+    "dev": "vp dev",
     "localize:extract": "lit-localize extract",
     "localize:build": "lit-localize build",
     "postlocalize:build": "vp fmt -c ../.oxfmtrc.json src/generated",
