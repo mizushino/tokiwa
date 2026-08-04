@@ -70,7 +70,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: [
     {
-      command: `bash -lc 'lsof -ti:8080,9099,9199,4000 | xargs -r kill -9 2>/dev/null || true; mkdir -p ../.artifacts/firebase && cd ../.artifacts/firebase && exec npx firebase --config ../../firebase.json emulators:start --project ${firebaseProjectId} --only auth,firestore,storage'`,
+      command: `bash -lc 'npm --prefix .. run emulators:kill; mkdir -p ../.artifacts/firebase && cd ../.artifacts/firebase && exec npx firebase --config ../../firebase.json emulators:start --project ${firebaseProjectId} --only auth,firestore,storage'`,
       url: 'http://localhost:4000',
       reuseExistingServer: !isCI,
       timeout: 120 * 1000,

@@ -13,7 +13,7 @@
     "preemulators:exec": "npm run emulators:kill",
     "emulators": "mkdir -p ../.artifacts/firebase && cd ../.artifacts/firebase && FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-tokiwa-template} FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET:-${FIREBASE_PROJECT_ID:-tokiwa-template}.appspot.com} firebase --config ../../firebase.functions-test.json emulators:start --project \"${FIREBASE_PROJECT_ID:-tokiwa-template}\" --only auth,firestore,storage",
     "emulators:exec": "mkdir -p ../.artifacts/firebase && cd ../.artifacts/firebase && FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-tokiwa-template} FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET:-${FIREBASE_PROJECT_ID:-tokiwa-template}.appspot.com} firebase --config ../../firebase.functions-test.json emulators:exec --project \"${FIREBASE_PROJECT_ID:-tokiwa-template}\" --only auth,firestore,storage",
-    "emulators:kill": "lsof -ti:8080,9099,9199 | xargs kill -9 2>/dev/null || true; sleep 1",
+    "emulators:kill": "npm --prefix .. run emulators:kill",
     "test": "npm run emulators:exec -- 'vp test run -c ../../functions/vitest.config.ts'",
     "serve": "npm run build && mkdir -p ../.artifacts/firebase && cd ../.artifacts/firebase && FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-tokiwa-template} firebase --config ../../firebase.json emulators:start --project \"${FIREBASE_PROJECT_ID:-tokiwa-template}\" --only functions",
     "shell": "npm run build && firebase functions:shell",

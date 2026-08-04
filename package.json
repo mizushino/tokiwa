@@ -21,7 +21,7 @@
     "e2e": "npm -w hosting run e2e",
     "e2e:ui": "npm -w hosting run e2e:ui",
     "emulators": "npm run emulators:kill && mkdir -p .artifacts/firebase && cd .artifacts/firebase && firebase --config ../../firebase.json emulators:start --project \"${FIREBASE_PROJECT_ID:-tokiwa-template}\"",
-    "emulators:kill": "lsof -ti :8080 | xargs -r kill -9 && lsof -ti :9099 | xargs -r kill -9 && lsof -ti :9199 | xargs -r kill -9 && lsof -ti :4000 | xargs -r kill -9",
+    "emulators:kill": "bash scripts/kill-firebase-emulators.sh",
     "dev:default": "APP_SITE=default npm run dev",
     "prod:default": "APP_SITE=default npm run prod",
     "build:default": "APP_SITE=default npm run build",
