@@ -70,6 +70,12 @@ describe('hosting security policy', () => {
       const headers = hosting.headers.find(({ source }) => source === '**')?.headers ?? [];
       const headerNames = headers.map(({ key }) => key);
       const csp = headers.find(({ key }) => key === 'Content-Security-Policy')?.value;
+      const cspDirectives = Object.fromEntries(
+        (csp ?? '').split(';').map((directive) => {
+          const [name, ...sources] = directive.trim().split(/\s+/);
+          return [name, sources];
+        })
+      );
 
       expect(headerNames).toEqual(
         expect.arrayContaining([
@@ -82,6 +88,14 @@ describe('hosting security policy', () => {
       );
       expect(csp).toContain("object-src 'none'");
       expect(csp).toContain("frame-ancestors 'none'");
+      expect(cspDirectives['script-src']).toContain('https://www.googletagmanager.com');
+      expect(cspDirectives['connect-src']).toEqual(
+        expect.arrayContaining([
+          'https://www.googletagmanager.com',
+          'https://*.google-analytics.com',
+          'https://*.analytics.google.com',
+        ])
+      );
     }
   });
 });
