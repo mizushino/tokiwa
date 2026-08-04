@@ -18,6 +18,13 @@ const roleTable = new Map<string, string>([
   ['reader', 'r'],
 ]);
 
+export class InvalidProjectIdError extends Error {
+  public constructor() {
+    super('Project IDs cannot contain a colon.');
+    this.name = 'InvalidProjectIdError';
+  }
+}
+
 /**
  * Calculate updated project permissions for a user
  * Pure function for testing
@@ -27,7 +34,12 @@ export function calculateProjectPermissions(
   pid: string,
   projectUserData: ProjectUserData | null
 ): string[] {
-  const projects = (currentPermissions ?? []).filter((project) => !project.startsWith(`${pid}:`));
+  if (projectUserData && pid.includes(':')) {
+    throw new InvalidProjectIdError();
+  }
+
+  const currentProjectPermissions = new Set([...roleTable.values()].map((roleCode) => `${pid}:${roleCode}`));
+  const projects = (currentPermissions ?? []).filter((project) => !currentProjectPermissions.has(project));
 
   const roleCode = projectUserData ? roleTable.get(projectUserData.role) : undefined;
   if (roleCode) {
@@ -98,7 +110,9 @@ export async function syncCurrentProjectPermission(pid: string, uid: string): Pr
     } catch (error) {
       if (
         membership.exists &&
-        (error instanceof ProjectLimitExceededError || error instanceof CustomClaimsTooLargeError)
+        (error instanceof ProjectLimitExceededError ||
+          error instanceof CustomClaimsTooLargeError ||
+          error instanceof InvalidProjectIdError)
       ) {
         transaction.delete(membershipReference);
         return error.message;

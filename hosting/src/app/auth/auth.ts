@@ -60,6 +60,8 @@ interface AuthState {
   isLoadingState: boolean;
   unsubscribeAuthStateChanged?: Unsubscribe;
   unsubscribeLoadUser?: Unsubscribe;
+  loadUserPromise?: Promise<User | null>;
+  resolveLoadUser?: (user: User | null) => void;
   currentUserValue: User | null | undefined;
 }
 
@@ -69,6 +71,16 @@ const state: AuthState = {
 };
 
 const userListeners = new Set<(user: User | null) => void>();
+
+function resolvePendingLoadUser(user: User | null): void {
+  const resolve = state.resolveLoadUser;
+  state.unsubscribeLoadUser?.();
+  state.unsubscribeLoadUser = undefined;
+  state.loadUserPromise = undefined;
+  state.resolveLoadUser = undefined;
+  state.isLoadingState = false;
+  resolve?.(user);
+}
 
 function notifyUserChange(user: User | null): void {
   state.currentUserValue = user;
@@ -143,7 +155,7 @@ export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuth
   const resolver = settings?.popupRedirectResolver || browserPopupRedirectResolver;
 
   state.unsubscribeAuthStateChanged?.();
-  state.unsubscribeLoadUser?.();
+  resolvePendingLoadUser(null);
 
   state.auth = initializeFirebaseAuth(firebaseApp, {
     persistence,
@@ -289,27 +301,26 @@ export async function loadUser(): Promise<User | null> {
     return auth.currentUser;
   }
 
+  if (state.loadUserPromise) {
+    return state.loadUserPromise;
+  }
+
   state.isLoadingState = true;
 
-  await new Promise((resolve) => {
-    state.unsubscribeLoadUser?.();
+  state.loadUserPromise = new Promise<User | null>((resolve) => {
+    state.resolveLoadUser = resolve;
     state.unsubscribeLoadUser = auth.onAuthStateChanged((user) => {
-      state.unsubscribeLoadUser?.();
-      state.unsubscribeLoadUser = undefined;
-      resolve(user);
+      resolvePendingLoadUser(user);
     });
   });
 
-  state.isLoadingState = false;
-
-  return auth.currentUser;
+  return state.loadUserPromise;
 }
 
 export function destroy(): void {
   state.unsubscribeAuthStateChanged?.();
-  state.unsubscribeLoadUser?.();
+  resolvePendingLoadUser(null);
   state.unsubscribeAuthStateChanged = undefined;
-  state.unsubscribeLoadUser = undefined;
   state.auth = undefined;
   state.resolver = undefined;
   state.redirectAuthError = undefined;

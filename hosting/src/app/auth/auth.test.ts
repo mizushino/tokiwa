@@ -553,6 +553,20 @@ describe('Auth', () => {
 
       expect(isLoading()).toBe(false);
     });
+
+    it('resolves a pending load and clears loading state when destroyed', async () => {
+      const mockApp = {} as FirebaseApp;
+      initializeAuth(mockApp);
+      currentUserValue = null;
+
+      const loadPromise = loadUser();
+      expect(isLoading()).toBe(true);
+
+      destroy();
+
+      await expect(loadPromise).resolves.toBeNull();
+      expect(isLoading()).toBe(false);
+    });
   });
 
   describe('userSnapshot', () => {

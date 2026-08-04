@@ -40,6 +40,30 @@ describe('calculateProjectPermissions', () => {
     ).toEqual(['proj2:m', 'proj1:w']);
   });
 
+  it('preserves a project whose ID only shares the updated project prefix', async () => {
+    const { calculateProjectPermissions } = await import('./project.js');
+
+    expect(
+      calculateProjectPermissions(['foo:o', 'foo:bar:r'], 'foo', {
+        displayName: 'U',
+        email: 'u@example.com',
+        role: 'writer',
+      })
+    ).toEqual(['foo:bar:r', 'foo:w']);
+  });
+
+  it('rejects project IDs containing the role delimiter', async () => {
+    const { calculateProjectPermissions } = await import('./project.js');
+
+    expect(() =>
+      calculateProjectPermissions([], 'foo:bar', {
+        displayName: 'U',
+        email: 'u@example.com',
+        role: 'reader',
+      })
+    ).toThrow('Project IDs cannot contain a colon.');
+  });
+
   it('removes the entry when project user data is null', async () => {
     const { calculateProjectPermissions } = await import('./project.js');
 
@@ -366,6 +390,35 @@ describe('project service E2E', () => {
     expect(userDocument.data.permissions?.projects).toHaveLength(MAX_PROJECTS_PER_USER);
     const membershipResults = await Promise.all([firstMembership.get(), secondMembership.get()]);
     expect(membershipResults.filter((snapshot) => snapshot.exists)).toHaveLength(1);
+  });
+
+  it('removes a membership whose project ID contains the role delimiter', async () => {
+    const { syncCurrentProjectPermission } = await import('./project.js');
+    const { UserDocument } = await import('../../models/user.js');
+    const uid = 'user-invalid-project';
+    const userDocument = new UserDocument(
+      { uid },
+      {
+        ...UserDocument.defaultData,
+        email: 'invalid-project@example.com',
+        displayName: 'Invalid Project User',
+        permissions: { projects: [] },
+      }
+    );
+    await userDocument.save();
+
+    const membershipReference = db.doc(`projects/project:invalid/users/${uid}`);
+    await membershipReference.set({
+      displayName: 'Invalid Project User',
+      email: 'invalid-project@example.com',
+      role: 'reader',
+    } satisfies ProjectUserData);
+
+    await syncCurrentProjectPermission('project:invalid', uid);
+
+    expect((await membershipReference.get()).exists).toBe(false);
+    await userDocument.get();
+    expect(userDocument.data.permissions?.projects).toEqual([]);
   });
 
   it('exports written trigger function', async () => {

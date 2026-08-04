@@ -48,6 +48,38 @@ describe('project storage role rules', () => {
     );
   });
 
+  it('rejects writing an object at the project root', async () => {
+    const storage = testEnvironment
+      .authenticatedContext('manager-1', {
+        p: { projects: ['project-1:m'] },
+      })
+      .storage();
+
+    await assertFails(
+      Promise.resolve(
+        storage.ref('projects/project-1').put(new Uint8Array([1]), {
+          contentType: 'text/plain',
+        })
+      )
+    );
+  });
+
+  it('rejects project IDs containing the role delimiter', async () => {
+    const storage = testEnvironment
+      .authenticatedContext('manager-1', {
+        p: { projects: ['project:invalid:m'] },
+      })
+      .storage();
+
+    await assertFails(
+      Promise.resolve(
+        storage.ref('projects/project:invalid/file.txt').put(new Uint8Array([1]), {
+          contentType: 'text/plain',
+        })
+      )
+    );
+  });
+
   it('allows a user to upload a valid avatar image', async () => {
     const storage = testEnvironment.authenticatedContext('user-1').storage();
 

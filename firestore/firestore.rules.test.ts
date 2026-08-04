@@ -198,6 +198,20 @@ describe('firestore rules', () => {
     await assertFails(managerFirestore.doc('projects/project-1').update({ code: 'x'.repeat(65) }));
   });
 
+  it('rejects project IDs containing the role delimiter', async () => {
+    const invalidProjectId = 'project:invalid';
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().doc(`projects/${invalidProjectId}`).set({
+        name: 'Invalid Project',
+        code: 'invalid-project',
+      });
+    });
+    const managerFirestore = projectFirestore('manager-1', `${invalidProjectId}:m`);
+
+    await assertFails(managerFirestore.doc(`projects/${invalidProjectId}`).update({ name: 'Updated Project' }));
+    await assertFails(managerFirestore.doc(`projects/${invalidProjectId}/users/member-1`).set(readerMembership));
+  });
+
   it('allows a manager to create a non-owner membership', async () => {
     const managerFirestore = projectFirestore('manager-1', 'project-1:m');
 

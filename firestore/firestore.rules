@@ -24,30 +24,35 @@ service cloud.firestore {
       return isSignedIn() && uid == request.auth.uid;
     }
 
+    function isValidProjectId(projectId) {
+      return projectId.matches('^[^:]+$');
+    }
+
     function hasProjectRole(roleClaims) {
       return isSignedIn() &&
         request.auth.token.get(['p', 'projects'], []).hasAny(roleClaims);
     }
 
     function isOwner(projectId) {
-      return hasProjectRole([projectId + ':o']);
+      return isValidProjectId(projectId) && hasProjectRole([projectId + ':o']);
     }
 
     function isManager(projectId) {
-      return hasProjectRole([projectId + ':o', projectId + ':m']);
+      return isValidProjectId(projectId) && hasProjectRole([projectId + ':o', projectId + ':m']);
     }
 
     function isWriter(projectId) {
-      return hasProjectRole([projectId + ':o', projectId + ':m', projectId + ':w']);
+      return isValidProjectId(projectId) && hasProjectRole([projectId + ':o', projectId + ':m', projectId + ':w']);
     }
 
     function isReader(projectId) {
-      return hasProjectRole([
-        projectId + ':o',
-        projectId + ':m',
-        projectId + ':w',
-        projectId + ':r'
-      ]);
+      return isValidProjectId(projectId) &&
+        hasProjectRole([
+          projectId + ':o',
+          projectId + ':m',
+          projectId + ':w',
+          projectId + ':r'
+        ]);
     }
 
     function sampleFieldsValidTypes(data) {
