@@ -1,5 +1,7 @@
 {
   "title": "Admin Panel",
   "description": "Manage your application through the admin panel.",
+  "robots": "noindex,nofollow",
+  "themeColor": "#111827",
   "localizationId": "admin"
 }

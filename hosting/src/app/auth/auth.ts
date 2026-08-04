@@ -4,11 +4,13 @@ import {
   AuthErrorCodes,
   browserLocalPersistence,
   browserPopupRedirectResolver,
+  browserSessionPersistence,
   connectAuthEmulator,
   getRedirectResult,
   indexedDBLocalPersistence,
   initializeAuth as initializeFirebaseAuth,
   sendPasswordResetEmail,
+  setPersistence,
   signInWithCustomToken as firebaseSignInWithCustomToken,
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -170,6 +172,14 @@ export function isSignedIn(): boolean {
   return !!getAuth().currentUser;
 }
 
+export async function setSessionPersistence(rememberMe: boolean): Promise<void> {
+  try {
+    await setPersistence(getAuth(), rememberMe ? browserLocalPersistence : browserSessionPersistence);
+  } catch (error: unknown) {
+    handleAuthError(error);
+  }
+}
+
 export async function signInWithEmail(email: string, password: string): Promise<void> {
   if (!email) {
     throw new AuthError(AuthErrorCode.EmailRequired);
@@ -221,7 +231,11 @@ export async function signInWithProvider(
     try {
       await signInWithPopup(auth, provider, resolver);
     } catch (error: unknown) {
-      handleAuthError(error);
+      handleAuthError(
+        error,
+        ['auth/account-exists-with-different-credential', 'auth/credential-already-in-use'],
+        AuthErrorCode.AccountLinkingRequired
+      );
     }
     return;
   }
@@ -229,7 +243,11 @@ export async function signInWithProvider(
   try {
     await signInWithRedirect(auth, provider, resolver);
   } catch (error: unknown) {
-    handleAuthError(error);
+    handleAuthError(
+      error,
+      ['auth/account-exists-with-different-credential', 'auth/credential-already-in-use'],
+      AuthErrorCode.AccountLinkingRequired
+    );
   }
 }
 

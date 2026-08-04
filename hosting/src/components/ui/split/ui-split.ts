@@ -1,8 +1,11 @@
+import { GripHorizontal, GripVertical } from 'lucide';
 import { LitElement, css, html, type CSSResultGroup, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref, type Ref } from 'lit/directives/ref.js';
 
 import { tailwindCSS } from '@app/styles';
+
+import '../icon/ui-icon';
 
 export type SplitDirection = 'horizontal' | 'vertical';
 
@@ -78,32 +81,8 @@ export class UiSplit extends LitElement {
           @touchstart=${this.onTouchStart}
         >
           ${isVertical
-            ? html`
-                <svg
-                  class="pointer-events-none size-4 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 32 32"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <line x1="0" y1="12" x2="32" y2="12"></line>
-                  <line x1="0" y1="20" x2="32" y2="20"></line>
-                </svg>
-              `
-            : html`
-                <svg
-                  class="pointer-events-none size-4 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 32 32"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <line x1="12" y1="0" x2="12" y2="32"></line>
-                  <line x1="20" y1="0" x2="20" y2="32"></line>
-                </svg>
-              `}
+            ? html`<ui-icon class="pointer-events-none size-4 text-gray-400" .icon=${GripHorizontal}></ui-icon>`
+            : html`<ui-icon class="pointer-events-none size-4 text-gray-400" .icon=${GripVertical}></ui-icon>`}
         </div>
         <div
           class="${isVertical

@@ -1,3 +1,4 @@
+import { CircleAlert, CircleCheck, CircleQuestionMark, Info, type IconNode } from 'lucide';
 import { LitElement, type CSSResultGroup, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
@@ -18,6 +19,7 @@ import type { ButtonVariant } from '../button/ui-button';
 import type { UiInput } from '../input/ui-input';
 
 import '../button/ui-button';
+import '../icon/ui-icon';
 import '../input/ui-input';
 
 export type ModalIcon = 'warning' | 'danger' | 'success' | 'info' | 'question';
@@ -236,44 +238,39 @@ export class UiModal extends LitElement {
   private getIconElement(): TemplateResult {
     const wrapperClasses = 'mx-auto flex size-12 shrink-0 items-center justify-center rounded-full';
 
-    const alertPath =
-      'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z';
-
-    const icons: Record<ModalIcon, { bg: string; text: string; path: string }> = {
+    const icons: Record<ModalIcon, { bg: string; text: string; icon: IconNode }> = {
       danger: {
         bg: 'bg-danger-100 dark:bg-danger-500/20',
         text: 'text-danger-600 dark:text-danger-400',
-        path: alertPath,
+        icon: CircleAlert,
       },
       warning: {
         bg: 'bg-warning-100 dark:bg-warning-500/20',
         text: 'text-warning-600 dark:text-warning-400',
-        path: alertPath,
+        icon: CircleAlert,
       },
       success: {
         bg: 'bg-success-100 dark:bg-success-500/20',
         text: 'text-success-600 dark:text-success-400',
-        path: 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+        icon: CircleCheck,
       },
       info: {
         bg: 'bg-info-100 dark:bg-info-500/20',
         text: 'text-info-600 dark:text-info-400',
-        path: 'm11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z',
+        icon: Info,
       },
       question: {
         bg: 'bg-primary-100 dark:bg-primary-500/20',
         text: 'text-primary-600 dark:text-primary-400',
-        path: 'M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z',
+        icon: CircleQuestionMark,
       },
     };
 
-    const { bg, text, path } = icons[this.icon];
+    const { bg, text, icon } = icons[this.icon];
 
     return html`
       <div class="${wrapperClasses} ${bg}">
-        <svg class="${text} size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="${path}" />
-        </svg>
+        <ui-icon class="${text} size-6" .icon=${icon} .strokeWidth=${1.5}></ui-icon>
       </div>
     `;
   }

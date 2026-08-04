@@ -1,6 +1,7 @@
 import { Routes } from '@lit-labs/router';
 import type { User } from 'firebase/auth';
 import type { Unsubscribe } from 'firebase/firestore';
+import { Gauge, Globe } from 'lucide';
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { track } from 'lit-async';
@@ -15,6 +16,7 @@ import pageMetadata from './page.json';
 import '@components/ui/sidebar/ui-sidebar';
 import '@components/ui/button/ui-button';
 import '@components/ui/language-switcher/ui-language-switcher';
+import '@components/ui/icon/ui-icon';
 import './login';
 import './helloworld';
 
@@ -31,17 +33,20 @@ export class AdminIndex extends PageElement {
 
   private unsubscribeUserDoc: Unsubscribe | null = null;
 
+  private adminCheckGeneration = 0;
+
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.stopUserDocSubscription();
   }
 
   private stopUserDocSubscription(): void {
+    this.adminCheckGeneration += 1;
     if (this.unsubscribeUserDoc) {
       this.unsubscribeUserDoc();
       this.unsubscribeUserDoc = null;
-      this.subscribedUid = null;
     }
+    this.subscribedUid = null;
   }
 
   private startUserDocSubscription(uid: string): void {
@@ -53,11 +58,26 @@ export class AdminIndex extends PageElement {
 
     this.subscribedUid = uid;
     this.unsubscribeUserDoc = subscribeToUserDocument(uid, (userData) => {
-      const newIsAdmin = userData?.admin === true;
-
-      if (this.isAdmin !== newIsAdmin) {
-        this.isAdmin = newIsAdmin;
+      const generation = ++this.adminCheckGeneration;
+      const user = this.currentUser;
+      this.isAdmin = undefined;
+      if (!user || user.uid !== uid || userData?.admin !== true) {
+        this.isAdmin = false;
+        return;
       }
+
+      void user
+        .getIdTokenResult(true)
+        .then((token) => {
+          if (generation === this.adminCheckGeneration) {
+            this.isAdmin = token.claims.a === true;
+          }
+        })
+        .catch(() => {
+          if (generation === this.adminCheckGeneration) {
+            this.isAdmin = false;
+          }
+        });
     });
   }
 
@@ -93,13 +113,13 @@ export class AdminIndex extends PageElement {
       {
         label: this.trans('nav_dashboard'),
         href: '/dashboard/',
-        icon: html`<i class="fa-solid fa-gauge-high py-0.5 text-xl"></i>`,
+        icon: html`<ui-icon class="size-5" .icon=${Gauge}></ui-icon>`,
         badge: 5,
       },
       {
         label: this.trans('nav_helloworld'),
         href: '/helloworld/',
-        icon: html`<i class="fa-solid fa-globe py-0.5 text-xl"></i>`,
+        icon: html`<ui-icon class="size-5" .icon=${Globe}></ui-icon>`,
       },
     ];
   }

@@ -1,3 +1,4 @@
+import { SquareTerminal } from 'lucide';
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
@@ -7,6 +8,7 @@ import { sample } from '@services/sample';
 import pageMetadata from './page.json';
 
 import '@components/ui/button/ui-button';
+import '@components/ui/icon/ui-icon';
 import '@components/ui/input/ui-input';
 
 @customElement('default-functions')
@@ -40,16 +42,7 @@ export class DefaultFunctions extends PageElement {
           title: this.trans('card_title'),
           description: this.trans('card_desc'),
           accent: 'danger',
-          icon: html`
-            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-          `,
+          icon: html`<ui-icon class="size-5" .icon=${SquareTerminal}></ui-icon>`,
         })}
         <div class="space-y-4">
           <ui-input

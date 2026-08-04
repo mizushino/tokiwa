@@ -1,4 +1,4 @@
-export { Navigate, navigate } from './navigate';
+export { Navigate, navigate, setPageAnalytics } from './navigate';
 export { PageElement, type PageMetadata } from './page-element';
 export {
   type PageAccent,

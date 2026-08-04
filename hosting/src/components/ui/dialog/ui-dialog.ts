@@ -1,3 +1,4 @@
+import { X } from 'lucide';
 import { LitElement, type CSSResultGroup, html, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
@@ -13,6 +14,8 @@ import {
   overlayTitleClasses,
   transition,
 } from '@app/transition';
+
+import '../icon/ui-icon';
 
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
@@ -131,9 +134,7 @@ export class UiDialog extends LitElement {
                 class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-2 focus:outline-offset-2 focus:outline-primary-600 dark:bg-gray-800 dark:hover:text-gray-300 dark:focus:outline-white"
               >
                 <span class="sr-only">Close</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6">
-                  <path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <ui-icon class="size-6" .icon=${X} .strokeWidth=${1.5}></ui-icon>
               </button>
             </div>
 

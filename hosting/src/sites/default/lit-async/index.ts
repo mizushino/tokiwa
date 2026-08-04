@@ -1,3 +1,4 @@
+import { Clock, RefreshCw, Zap } from 'lucide';
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { track, loading } from 'lit-async';
@@ -8,6 +9,7 @@ import { spinnerIcon } from '@components/ui/spinner';
 import pageMetadata from './page.json';
 
 import '@components/ui/button/ui-button';
+import '@components/ui/icon/ui-icon';
 
 @customElement('default-lit-async')
 export class DefaultLitAsync extends PageElement {
@@ -104,11 +106,7 @@ export class DefaultLitAsync extends PageElement {
         title: 'track(Promise)',
         description: this.trans('promise_desc'),
         accent: 'info',
-        icon: html`
-          <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        `,
+        icon: html`<ui-icon class="size-5" .icon=${Zap}></ui-icon>`,
       }),
       body: pageResultBox(
         html`${track(loading(this.promise, html`<span class="text-gray-400">${this.trans('loading_promise')}</span>`))}`,
@@ -128,16 +126,7 @@ export class DefaultLitAsync extends PageElement {
         title: 'track(AsyncGenerator)',
         description: this.trans('generator_desc'),
         accent: 'success',
-        icon: html`
-          <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89H18"
-            />
-          </svg>
-        `,
+        icon: html`<ui-icon class="size-5" .icon=${RefreshCw}></ui-icon>`,
       }),
       body: pageResultBox(
         html`
@@ -171,16 +160,7 @@ export class DefaultLitAsync extends PageElement {
           title: 'loading() Helper',
           description: this.trans('loading_helper_desc'),
           accent: 'primary',
-          icon: html`
-            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          `,
+          icon: html`<ui-icon class="size-5" .icon=${Clock}></ui-icon>`,
         }),
         body: pageResultBox(
           html`${track(

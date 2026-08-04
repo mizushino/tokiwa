@@ -9,6 +9,7 @@ export {
   isSignedIn,
   loadUser,
   resetPassword,
+  setSessionPersistence,
   signInWithCustomToken,
   signInWithEmail,
   signInWithProvider,

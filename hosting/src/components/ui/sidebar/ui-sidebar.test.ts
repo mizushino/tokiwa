@@ -33,9 +33,9 @@ describe('UiSidebar', () => {
     expect(element.navItems).toEqual([]);
   });
 
-  it('renders default Font Awesome icon', async () => {
+  it('renders the bundled default icon', async () => {
     await element.updateComplete;
-    const icon = element.querySelector('i.fa-solid.fa-cube');
+    const icon = element.querySelector('svg[aria-label="Tokiwa"]');
     expect(icon).toBeTruthy();
     expect(icon?.className).toContain('text-primary-500');
   });

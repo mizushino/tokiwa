@@ -13,6 +13,7 @@ import {
   isSignedIn,
   loadUser,
   resetPassword,
+  setSessionPersistence,
   signInWithCustomToken,
   signInWithEmail,
   signInWithProvider,
@@ -31,6 +32,7 @@ vi.mock('firebase/auth', async () => {
     signInWithPopup: vi.fn(),
     signInWithRedirect: vi.fn(),
     sendPasswordResetEmail: vi.fn(),
+    setPersistence: vi.fn(),
     getRedirectResult: vi.fn(),
     AuthErrorCodes: {
       USER_DELETED: 'auth/user-not-found',
@@ -360,6 +362,43 @@ describe('Auth', () => {
       await expect(signInWithProvider(mockProvider, undefined, true)).rejects.toMatchObject({
         code: AuthErrorCode.LoginFailed,
       });
+    });
+
+    it('throws AccountLinkingRequired when the email belongs to another provider', async () => {
+      const mockApp = {} as FirebaseApp;
+      initializeAuth(mockApp);
+
+      const mockProvider = {} as AuthProvider;
+      const { signInWithPopup } = await import('firebase/auth');
+      (signInWithPopup as ReturnType<typeof vi.fn>).mockRejectedValue({
+        code: 'auth/account-exists-with-different-credential',
+      });
+
+      await expect(signInWithProvider(mockProvider, undefined, true)).rejects.toMatchObject({
+        code: AuthErrorCode.AccountLinkingRequired,
+      });
+    });
+  });
+
+  describe('setSessionPersistence', () => {
+    it('uses local persistence when the user wants to stay signed in', async () => {
+      const mockApp = {} as FirebaseApp;
+      initializeAuth(mockApp);
+
+      const { browserLocalPersistence, setPersistence } = await import('firebase/auth');
+      await setSessionPersistence(true);
+
+      expect(setPersistence).toHaveBeenCalledWith(mockAuth, browserLocalPersistence);
+    });
+
+    it('uses session persistence when the user does not want to stay signed in', async () => {
+      const mockApp = {} as FirebaseApp;
+      initializeAuth(mockApp);
+
+      const { browserSessionPersistence, setPersistence } = await import('firebase/auth');
+      await setSessionPersistence(false);
+
+      expect(setPersistence).toHaveBeenCalledWith(mockAuth, browserSessionPersistence);
     });
   });
 

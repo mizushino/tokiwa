@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "vp lint .",
     "fmt": "vp fmt -c ../.oxfmtrc.json",
-    "check": "vp check",
+    "check": "vp fmt --check -c ../.oxfmtrc.json && vp check --no-fmt",
     "build": "vp build",
     "build:watch": "vp build --watch",
     "preemulators": "npm run emulators:kill",

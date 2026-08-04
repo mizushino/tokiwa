@@ -1,7 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
 
 import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { beforeUserCreated } from 'firebase-functions/v2/identity';
@@ -80,15 +80,17 @@ export async function handleUserCreated(
       };
     }
 
-    const userDocumentByEmail = new UserDocument({ uid: email });
-    await userDocumentByEmail.get(transaction);
-    if (userDocumentByEmail.exists) {
-      userData = {
-        ...userData,
-        admin: userDocumentByEmail.data.admin ?? userData.admin,
-        permissions: userDocumentByEmail.data.permissions ?? userData.permissions,
-      };
-      await userDocumentByEmail.delete(transaction);
+    if (email) {
+      const userDocumentByEmail = new UserDocument({ uid: email });
+      await userDocumentByEmail.get(transaction);
+      if (userDocumentByEmail.exists) {
+        userData = {
+          ...userData,
+          admin: userDocumentByEmail.data.admin ?? userData.admin,
+          permissions: userDocumentByEmail.data.permissions ?? userData.permissions,
+        };
+        await userDocumentByEmail.delete(transaction);
+      }
     }
 
     const finalDocument = new UserDocument({ uid }, userData);
@@ -103,13 +105,13 @@ export async function handleUserCreated(
  */
 export const created = beforeUserCreated({ region }, async (event) => {
   const userRecord = event.data;
-  if (!userRecord?.email) {
+  if (!userRecord) {
     return;
   }
 
   const customClaims = await handleUserCreated(
     userRecord.uid,
-    userRecord.email,
+    userRecord.email ?? '',
     userRecord.displayName ?? null,
     userRecord.photoURL ?? null
   );
@@ -149,16 +151,17 @@ export async function syncCurrentUser(uid: string): Promise<void> {
 
   for (let attempt = 0; attempt < MAX_USER_SYNC_ATTEMPTS; attempt += 1) {
     const before = await userReference.get();
-    await handleUserWritten(uid, before.exists ? (before.data() as UserData) : undefined);
+    const beforeData = before.exists ? (before.data() as UserData) : undefined;
+    await handleUserWritten(uid, beforeData);
+    if (before.exists) {
+      await userReference.update({ claimsUpdatedAt: FieldValue.serverTimestamp() });
+    }
 
     const after = await userReference.get();
+    const afterData = after.exists ? (after.data() as UserData) : undefined;
     const unchanged =
       (!before.exists && !after.exists) ||
-      (before.exists &&
-        after.exists &&
-        before.updateTime !== undefined &&
-        after.updateTime !== undefined &&
-        before.updateTime.isEqual(after.updateTime));
+      (before.exists && after.exists && !hasAuthRelevantUserChange(beforeData, afterData));
     if (unchanged) {
       return;
     }

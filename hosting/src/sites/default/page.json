@@ -1,5 +1,7 @@
 {
   "title": "Home - Sample Site",
   "description": "Welcome to the sample site. Explore various examples and demos.",
+  "robots": "noindex,nofollow",
+  "themeColor": "#ffffff",
   "localizationId": "default"
 }

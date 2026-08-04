@@ -1,14 +1,16 @@
 import { GoogleAuthProvider, TwitterAuthProvider } from 'firebase/auth';
+import { CircleX } from 'lucide';
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { AuthError, signInWithEmail, signInWithProvider, type AuthErrorCode } from '@app/auth';
+import { AuthError, setSessionPersistence, signInWithEmail, signInWithProvider, type AuthErrorCode } from '@app/auth';
 import { PageElement } from '@app/page';
 
 import pageMetadata from './page.json';
 
 import '@components/ui/button/ui-button';
 import '@components/ui/checkbox/ui-checkbox';
+import '@components/ui/icon/ui-icon';
 import '@components/ui/language-switcher/ui-language-switcher';
 
 import { getSafeLoginRedirect } from './redirect.js';
@@ -22,6 +24,9 @@ export class AdminLogin extends PageElement {
 
   @state()
   private errorMessage = '';
+
+  @state()
+  private rememberMe = true;
 
   private readonly inputClass =
     'focus:outline-primary-600 dark:focus:outline-primary-500 block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500';
@@ -46,6 +51,7 @@ export class AdminLogin extends PageElement {
     this.errorMessage = '';
 
     try {
+      await setSessionPersistence(this.rememberMe);
       await signInWithEmail(email, password);
       this.redirectAfterLogin();
     } catch (error) {
@@ -64,6 +70,7 @@ export class AdminLogin extends PageElement {
     this.errorMessage = '';
 
     try {
+      await setSessionPersistence(this.rememberMe);
       const provider = new GoogleAuthProvider();
       await signInWithProvider(provider, undefined, true);
       this.redirectAfterLogin();
@@ -83,6 +90,7 @@ export class AdminLogin extends PageElement {
     this.errorMessage = '';
 
     try {
+      await setSessionPersistence(this.rememberMe);
       const provider = new TwitterAuthProvider();
       await signInWithProvider(provider, undefined, true);
       this.redirectAfterLogin();
@@ -95,6 +103,10 @@ export class AdminLogin extends PageElement {
     } finally {
       this.isLoading = false;
     }
+  };
+
+  private handleRememberMeChange = (event: CustomEvent<{ checked: boolean }>): void => {
+    this.rememberMe = event.detail.checked;
   };
 
   private getErrorMessage(code: AuthErrorCode): string {
@@ -120,7 +132,17 @@ export class AdminLogin extends PageElement {
     return html`
       <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <div class="text-center">
-          <i class="fa-solid fa-cube text-5xl text-primary-800 dark:text-primary-400"></i>
+          <svg
+            class="mx-auto size-12 text-primary-800 dark:text-primary-400"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-label="Tokiwa"
+            role="img"
+          >
+            <path
+              d="M12 2 3 6.5v11L12 22l9-4.5v-11L12 2Zm0 2.3 6.5 3.25v.02L12 10.8 5.5 7.57v-.02L12 4.3ZM5 9.3l6 3v7.4l-6-3V9.3Zm14 0v7.4l-6 3v-7.4l6-3Z"
+            />
+          </svg>
         </div>
         <h2 class="mt-6 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">
           ${this.trans('sign_in_title')}
@@ -171,18 +193,7 @@ export class AdminLogin extends PageElement {
       <div class="rounded-md bg-danger-50 p-4 dark:bg-danger-900/20">
         <div class="flex">
           <div class="shrink-0">
-            <svg
-              class="size-5 text-danger-400 dark:text-danger-500"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-                clip-rule="evenodd"
-              />
-            </svg>
+            <ui-icon class="size-5 text-danger-400 dark:text-danger-500" .icon=${CircleX}></ui-icon>
           </div>
           <div class="ml-3">
             <p class="text-sm font-medium text-danger-800 dark:text-danger-200">${this.errorMessage}</p>
@@ -196,7 +207,9 @@ export class AdminLogin extends PageElement {
     return html`
       <form @submit=${this.handleSubmit} class="space-y-6">
         ${this.renderErrorMessage()} ${this.renderEmailField()} ${this.renderPasswordField()}
-        <ui-checkbox name="remember-me">${this.trans('remember_me')}</ui-checkbox>
+        <ui-checkbox name="remember-me" .checked=${this.rememberMe} @change=${this.handleRememberMeChange}
+          >${this.trans('remember_me')}</ui-checkbox
+        >
         <!--
           Native submit button: a submit control inside a nested custom element's shadow root
           would not be associated with this form, so we keep it native and reuse the primary

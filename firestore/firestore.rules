@@ -59,18 +59,36 @@ service cloud.firestore {
 
     function userFieldsValidTypes(data) {
       return (data.displayName is string) &&
+        (data.displayName.size() <= 100) &&
         (data.get('email', '') is string) &&
+        (data.get('email', '').size() <= 254) &&
         (data.get('image', '') is string) &&
+        (data.get('image', '').size() <= 2048) &&
         (data.get('lang', 'en') in ['en', 'ja']) &&
         (data.get('permissions', {}) is map) &&
-        (data.get('admin', false) is bool);
+        (data.get('admin', false) is bool) &&
+        (data.get('claimsUpdatedAt', request.time) is timestamp);
+    }
+
+    function projectFieldsValid(data) {
+      return data.keys().hasAll(['name', 'code']) &&
+        data.keys().hasOnly(['name', 'code']) &&
+        (data.name is string) &&
+        (data.name.size() > 0) &&
+        (data.name.size() <= 100) &&
+        (data.code is string) &&
+        (data.code.size() > 0) &&
+        (data.code.size() <= 64);
     }
 
     function projectUserFieldsValid(data) {
       return createVerifyFields(['displayName', 'email', 'role'], ['image']) &&
         (data.displayName is string) &&
+        (data.displayName.size() <= 100) &&
         (data.email is string) &&
+        (data.email.size() <= 254) &&
         (data.get('image', '') is string) &&
+        (data.get('image', '').size() <= 2048) &&
         (data.role in ['owner', 'manager', 'writer', 'reader']);
     }
 
@@ -109,7 +127,7 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow update: if
-        updateVerifyFields(['displayName', 'email', 'image', 'lang', 'updatedAt']) &&
+        updateVerifyFields(['displayName', 'image', 'lang', 'updatedAt']) &&
         userFieldsValidTypes(request.resource.data) &&
         isSignedInUser(uid);
       allow read: if
@@ -118,7 +136,10 @@ service cloud.firestore {
 
     match /projects/{pid} {
       allow read: if isReader(pid);
-      allow update: if isManager(pid);
+      allow update: if
+        isManager(pid) &&
+        updateVerifyFields(['name', 'code']) &&
+        projectFieldsValid(request.resource.data);
       allow delete: if isOwner(pid);
 
       match /users/{uid} {

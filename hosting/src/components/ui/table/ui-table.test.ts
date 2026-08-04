@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test';
 
 import { proxyShadowQueries } from '@app/../test/query-shadow-root';
+import type { UiIcon } from '@components/ui/icon/ui-icon';
 
 import type { TableColumn, UiTable } from './ui-table';
 
@@ -135,9 +136,10 @@ describe('UiTable', () => {
     nameHeader.click();
     await element.updateComplete;
 
-    const icon = nameHeader.querySelector('svg');
+    const icon = nameHeader.querySelector('ui-icon') as UiIcon;
     expect(icon).toBeTruthy();
-    expect(icon?.getAttribute('viewBox')).toBe('0 0 20 20');
+    await icon.updateComplete;
+    expect(icon.shadowRoot?.querySelector('svg')?.getAttribute('viewBox')).toBe('0 0 24 24');
   });
 
   it('filters data based on filter property', async () => {

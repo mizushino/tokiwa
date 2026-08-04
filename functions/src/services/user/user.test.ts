@@ -204,6 +204,9 @@ describe('user service E2E', () => {
           a: false,
         });
       });
+
+      const syncedDocument = await db.doc(`users/${userRecord.uid}`).get();
+      expect(syncedDocument.get('claimsUpdatedAt')).toBeInstanceOf(Timestamp);
     });
 
     it('does not derive an Auth photo URL from a Storage path', async () => {
@@ -484,7 +487,7 @@ describe('user service E2E', () => {
       await expect(wrapped({ data: undefined })).resolves.toBeUndefined();
     });
 
-    it('returns early when created trigger payload has no email', async () => {
+    it('creates a default user document when the Auth provider supplies no email', async () => {
       const { created } = await import('./user.js');
       const wrapped = wrapBlockingFunction(created);
 
@@ -497,10 +500,11 @@ describe('user service E2E', () => {
             photoURL: null,
           },
         })
-      ).resolves.toBeUndefined();
+      ).resolves.toEqual({ customClaims: { p: {}, a: false } });
 
       const doc = await db.doc('users/missing-email').get();
-      expect(doc.exists).toBe(false);
+      expect(doc.exists).toBe(true);
+      expect(doc.get('email')).toBe('');
     });
 
     it('preserves an existing user document when no pre-registration exists', async () => {

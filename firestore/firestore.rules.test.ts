@@ -90,6 +90,15 @@ describe('firestore rules', () => {
     await assertFails(authenticatedFirestore.doc('users/new-user').set(userData));
   });
 
+  it('allows profile updates but rejects changing the Auth-owned email', async () => {
+    const firestore = testEnvironment.authenticatedContext('member-1').firestore();
+
+    await assertSucceeds(
+      firestore.doc('users/member-1').update({ displayName: 'Updated Member', updatedAt: new Date() })
+    );
+    await assertFails(firestore.doc('users/member-1').update({ email: 'spoofed@example.com', updatedAt: new Date() }));
+  });
+
   it('allows a constrained public sample create', async () => {
     const firestore = testEnvironment.unauthenticatedContext().firestore();
 
@@ -154,6 +163,17 @@ describe('firestore rules', () => {
     await assertSucceeds(readerFirestore.doc('projects/project-1').get());
     await assertFails(unrelatedFirestore.doc('projects/project-1').get());
     await assertFails(unauthenticatedFirestore.doc('projects/project-1').get());
+  });
+
+  it('allows valid project updates and rejects invalid fields, types, and lengths', async () => {
+    await seedProject();
+    const managerFirestore = projectFirestore('manager-1', 'project-1:m');
+
+    await assertSucceeds(managerFirestore.doc('projects/project-1').update({ name: 'Updated Project' }));
+    await assertFails(managerFirestore.doc('projects/project-1').update({ admin: true }));
+    await assertFails(managerFirestore.doc('projects/project-1').update({ code: 123 }));
+    await assertFails(managerFirestore.doc('projects/project-1').update({ name: 'x'.repeat(101) }));
+    await assertFails(managerFirestore.doc('projects/project-1').update({ code: 'x'.repeat(65) }));
   });
 
   it('allows a manager to create a non-owner membership', async () => {

@@ -114,7 +114,17 @@ export class UiSidebar extends LitElement {
       >
         <div class="relative flex h-16 shrink-0 items-center justify-center">
           <slot name="logo">
-            <i class="fa-solid fa-cube text-4xl text-primary-500 dark:text-primary-400"></i>
+            <svg
+              class="size-10 text-primary-500 dark:text-primary-400"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-label="Tokiwa"
+              role="img"
+            >
+              <path
+                d="M12 2 3 6.5v11L12 22l9-4.5v-11L12 2Zm0 2.3 6.5 3.25v.02L12 10.8 5.5 7.57v-.02L12 4.3ZM5 9.3l6 3v7.4l-6-3V9.3Zm14 0v7.4l-6 3v-7.4l6-3Z"
+              />
+            </svg>
           </slot>
         </div>
         <nav class="relative flex flex-1 flex-col overflow-y-auto">

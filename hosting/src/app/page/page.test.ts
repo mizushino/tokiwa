@@ -316,7 +316,7 @@ describe('Page', () => {
 
       await Navigate.to('https://example.com');
 
-      expect(windowOpenSpy).toHaveBeenCalledWith('https://example.com', '_blank');
+      expect(windowOpenSpy).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener,noreferrer');
     });
 
     it('handles http URLs by opening in new tab', async () => {
@@ -324,7 +324,7 @@ describe('Page', () => {
 
       await Navigate.to('http://example.com');
 
-      expect(windowOpenSpy).toHaveBeenCalledWith('http://example.com', '_blank');
+      expect(windowOpenSpy).toHaveBeenCalledWith('http://example.com', '_blank', 'noopener,noreferrer');
     });
 
     it('handles hash links by updating location hash', async () => {

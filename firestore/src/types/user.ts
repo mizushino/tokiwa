@@ -16,4 +16,5 @@ export interface UserData extends TimestampedData {
   lang?: UserLanguage;
   permissions?: { [key: string]: string[] };
   admin?: boolean;
+  claimsUpdatedAt?: Date;
 }

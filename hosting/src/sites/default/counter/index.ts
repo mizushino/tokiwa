@@ -1,3 +1,4 @@
+import { List } from 'lucide';
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
@@ -6,6 +7,7 @@ import { cardHeading, PageElement, pageCard, pageContainer, pageHero, pageResult
 import pageMetadata from './page.json';
 
 import '@components/ui/button/ui-button';
+import '@components/ui/icon/ui-icon';
 
 @customElement('default-counter')
 export class DefaultCounter extends PageElement {
@@ -26,16 +28,7 @@ export class DefaultCounter extends PageElement {
           title: this.trans('card_title'),
           description: this.trans('card_desc'),
           accent: 'primary',
-          icon: html`
-            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 10h18M3 6h18M3 14h18M3 18h18"
-              />
-            </svg>
-          `,
+          icon: html`<ui-icon class="size-5" .icon=${List}></ui-icon>`,
         })}
         ${pageResultBox(html`
           <span id="counter-value" class="text-5xl font-extrabold text-primary-600 dark:text-primary-400">

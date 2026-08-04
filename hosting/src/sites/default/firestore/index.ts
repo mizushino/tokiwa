@@ -1,3 +1,4 @@
+import { Database, Zap } from 'lucide';
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { track } from 'lit-async';
@@ -8,6 +9,7 @@ import { SampleDocument } from '@models/sample';
 import pageMetadata from './page.json';
 
 import '@components/ui/button/ui-button';
+import '@components/ui/icon/ui-icon';
 import '@components/ui/input/ui-input';
 
 @customElement('default-firestore')
@@ -34,16 +36,7 @@ export class DefaultFirestore extends PageElement {
           title: this.trans('operations_title'),
           description: this.trans('operations_desc'),
           accent: 'warning',
-          icon: html`
-            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
-              />
-            </svg>
-          `,
+          icon: html`<ui-icon class="size-5" .icon=${Database}></ui-icon>`,
         })}
         <div class="space-y-4">
           <ui-input
@@ -75,11 +68,7 @@ export class DefaultFirestore extends PageElement {
           title: this.trans('snapshot_title'),
           description: this.trans('snapshot_desc'),
           accent: 'success',
-          icon: html`
-            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          `,
+          icon: html`<ui-icon class="size-5" .icon=${Zap}></ui-icon>`,
         })}
         ${pageResultBox(html`
           <span class="font-medium text-success-600 dark:text-success-400">

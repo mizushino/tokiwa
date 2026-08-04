@@ -1,7 +1,13 @@
 import type { Router } from '@lit-labs/router';
-import { getAnalytics, logEvent } from 'firebase/analytics';
+import { logEvent, type Analytics } from 'firebase/analytics';
 import { directive, Directive, PartType, type ElementPart, type PartInfo } from 'lit/directive.js';
 import { LitShare } from 'lit-share';
+
+let pageAnalytics: Analytics | undefined;
+
+export function setPageAnalytics(analytics: Analytics | undefined): void {
+  pageAnalytics = analytics;
+}
 
 /**
  * Navigate directive for handling client-side navigation.
@@ -52,7 +58,7 @@ export class Navigate extends Directive {
 
   public static async to(pathname: string, state?: unknown): Promise<void> {
     if (Navigate.isExternalUrl(pathname)) {
-      window.open(pathname, '_blank');
+      window.open(pathname, '_blank', 'noopener,noreferrer');
       return;
     }
 
@@ -81,15 +87,12 @@ export class Navigate extends Directive {
 
     await Navigate.scrollToHashIfNeeded();
 
-    try {
-      const analytics = getAnalytics();
-      logEvent(analytics, 'page_view', {
+    if (pageAnalytics) {
+      logEvent(pageAnalytics, 'page_view', {
         page_path: pathname,
         page_title: document.title,
         page_location: window.location.href,
       });
-    } catch (error) {
-      console.warn('Failed to track page view:', error);
     }
   }
 

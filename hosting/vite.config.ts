@@ -85,7 +85,7 @@ export default ({ mode }: { mode: string }): UserConfig => {
           return html.replace('</head>', `\n<style id="tw-properties">\n${globalProperties}\n</style>\n</head>`);
         },
       },
-      PostBuildPlugin(),
+      PostBuildPlugin(site),
     ],
     server: {
       port: Number(process.env.PORT) || 3000,

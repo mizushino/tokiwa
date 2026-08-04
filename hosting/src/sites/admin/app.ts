@@ -19,6 +19,7 @@ import { initializeAuth, type FirebaseAuthSettings } from '@app/auth';
 import { allowsDemoFirebaseConfig, getFirebaseConfig } from '@app/firebase-config';
 import { type FunctionsSettings, initializeFunctions } from '@app/functions';
 import { seedPreferredLanguageIfUnset, tGlobal } from '@app/i18n';
+import { setPageAnalytics } from '@app/page';
 import { tailwindCSS } from '@app/styles';
 
 import './index';
@@ -97,8 +98,10 @@ export class AdminApp extends LitElement {
     }
     setupFirestore(firestore);
     initializeFunctions(this.firebaseApp, this.functionsSetting);
-    if (this.firebaseConfig.measurementId) {
-      initializeAnalytics(this.firebaseApp);
+    if (!this.useEmulator && this.firebaseConfig.measurementId) {
+      setPageAnalytics(initializeAnalytics(this.firebaseApp));
+    } else {
+      setPageAnalytics(undefined);
     }
     initializeAuth(this.firebaseApp, this.authSetting);
   }
