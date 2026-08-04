@@ -4,7 +4,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
-import { beforeUserCreated } from 'firebase-functions/v2/identity';
+import { beforeUserCreated, beforeUserSignedIn } from 'firebase-functions/v2/identity';
 
 import { userDocumentPath, type UserData } from '@firestore/types/user.js';
 import { UserDocument } from 'src/models/user.js';
@@ -57,20 +57,22 @@ export async function updateCustomUserClaims(uid: string, user?: UserData): Prom
 }
 
 /**
- * Handle user creation logic: create user document and inherit pre-registered permissions
- * This function is extracted for testability
+ * Create or refresh the user document and return claims appropriate for verification status.
+ * Pre-registered permissions are inherited only after the email has been verified.
  */
 export async function handleUserCreated(
   uid: string,
   email: string,
   displayName: string | null,
-  photoURL: string | null
+  photoURL: string | null,
+  emailVerified = false
 ): Promise<UserCustomClaims> {
   return getFirestore().runTransaction(async (transaction) => {
     const userDocument = new UserDocument({ uid });
     await userDocument.get(transaction);
 
     let userData = userDocument.data;
+    let shouldSave = !userDocument.exists;
     if (!userDocument.exists) {
       userData = {
         ...UserDocument.defaultData,
@@ -80,7 +82,16 @@ export async function handleUserCreated(
       };
     }
 
-    if (email) {
+    if (!emailVerified) {
+      if (userData.admin !== false || !isDeepStrictEqual(userData.permissions ?? {}, {})) {
+        userData = {
+          ...userData,
+          admin: false,
+          permissions: {},
+        };
+        shouldSave = true;
+      }
+    } else if (email) {
       const userDocumentByEmail = new UserDocument({ uid: email });
       await userDocumentByEmail.get(transaction);
       if (userDocumentByEmail.exists) {
@@ -90,18 +101,21 @@ export async function handleUserCreated(
           permissions: userDocumentByEmail.data.permissions ?? userData.permissions,
         };
         await userDocumentByEmail.delete(transaction);
+        shouldSave = true;
       }
     }
 
-    const finalDocument = new UserDocument({ uid }, userData);
-    await finalDocument.save(false, transaction);
+    if (shouldSave) {
+      const finalDocument = new UserDocument({ uid }, userData);
+      await finalDocument.save(false, transaction);
+    }
     return getCustomUserClaims(userData);
   });
 }
 
 /**
- * Trigger before user creation (blocking function)
- * Creates user document in Firestore and inherits pre-registered permissions if available by email
+ * Create the Firestore user document before the Authentication user is committed.
+ * Unverified users receive no privileges and leave any pre-registration pending.
  */
 export const created = beforeUserCreated({ region }, async (event) => {
   const userRecord = event.data;
@@ -113,7 +127,28 @@ export const created = beforeUserCreated({ region }, async (event) => {
     userRecord.uid,
     userRecord.email ?? '',
     userRecord.displayName ?? null,
-    userRecord.photoURL ?? null
+    userRecord.photoURL ?? null,
+    userRecord.emailVerified
+  );
+  return { customClaims };
+});
+
+/**
+ * Apply pre-registered permissions only after Firebase has verified the email.
+ * This also clears privileges persisted by older versions for unverified users.
+ */
+export const signedIn = beforeUserSignedIn({ region }, async (event) => {
+  const userRecord = event.data;
+  if (!userRecord) {
+    return;
+  }
+
+  const customClaims = await handleUserCreated(
+    userRecord.uid,
+    userRecord.email ?? '',
+    userRecord.displayName ?? null,
+    userRecord.photoURL ?? null,
+    userRecord.emailVerified
   );
   return { customClaims };
 });

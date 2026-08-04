@@ -457,6 +457,7 @@ describe('user service E2E', () => {
         data: {
           uid: newUid,
           email,
+          emailVerified: true,
           displayName: 'Actual User',
           photoURL: null,
         },
@@ -478,6 +479,117 @@ describe('user service E2E', () => {
       const deletedDoc = new UserDocument({ uid: email });
       await deletedDoc.get();
       expect(deletedDoc.exists).toBe(false);
+    });
+
+    it('does not inherit pre-registered permissions before email verification', async () => {
+      const { UserDocument } = await import('../../models/user.js');
+      const { created } = await import('./user.js');
+
+      const email = 'unverified-preregistered@example.com';
+      await new UserDocument(
+        { uid: email },
+        {
+          ...UserDocument.defaultData,
+          email,
+          displayName: 'Pre-registered',
+          permissions: { projects: ['proj1:o'] },
+          admin: true,
+        }
+      ).save();
+
+      const wrapped = wrapBlockingFunction(created);
+      const result = await wrapped({
+        data: {
+          uid: 'unverified-preregistered-user',
+          email,
+          emailVerified: false,
+          displayName: 'Unverified User',
+          photoURL: null,
+        },
+      });
+
+      expect(result).toEqual({ customClaims: { p: {}, a: false } });
+
+      const userDoc = new UserDocument({ uid: 'unverified-preregistered-user' });
+      await userDoc.get();
+      expect(userDoc.data.admin).toBe(false);
+      expect(userDoc.data.permissions).toEqual({});
+
+      const preRegisteredDoc = new UserDocument({ uid: email });
+      await preRegisteredDoc.get();
+      expect(preRegisteredDoc.exists).toBe(true);
+    });
+
+    it('inherits pending permissions after the email is verified', async () => {
+      const { UserDocument } = await import('../../models/user.js');
+      const { created, signedIn } = await import('./user.js');
+
+      const uid = 'verified-after-signup-user';
+      const email = 'verified-after-signup@example.com';
+      await new UserDocument(
+        { uid: email },
+        {
+          ...UserDocument.defaultData,
+          email,
+          displayName: 'Pre-registered',
+          permissions: { projects: ['proj1:o'] },
+          admin: true,
+        }
+      ).save();
+
+      await wrapBlockingFunction(created)({
+        data: { uid, email, emailVerified: false, displayName: 'User', photoURL: null },
+      });
+      const result = await wrapBlockingFunction(signedIn)({
+        data: { uid, email, emailVerified: true, displayName: 'User', photoURL: null },
+      });
+
+      expect(result).toEqual({
+        customClaims: { p: { projects: ['proj1:o'] }, a: true },
+      });
+
+      const userDoc = new UserDocument({ uid });
+      await userDoc.get();
+      expect(userDoc.data.admin).toBe(true);
+      expect(userDoc.data.permissions).toEqual({ projects: ['proj1:o'] });
+
+      const preRegisteredDoc = new UserDocument({ uid: email });
+      await preRegisteredDoc.get();
+      expect(preRegisteredDoc.exists).toBe(false);
+    });
+
+    it('clears privileges persisted for an unverified user by an older deployment', async () => {
+      const { UserDocument } = await import('../../models/user.js');
+      const { signedIn } = await import('./user.js');
+
+      const uid = 'legacy-unverified-user';
+      await new UserDocument(
+        { uid },
+        {
+          ...UserDocument.defaultData,
+          email: 'legacy-unverified@example.com',
+          displayName: 'Legacy User',
+          permissions: { projects: ['proj1:o'] },
+          admin: true,
+        }
+      ).save();
+
+      const result = await wrapBlockingFunction(signedIn)({
+        data: {
+          uid,
+          email: 'legacy-unverified@example.com',
+          emailVerified: false,
+          displayName: 'Legacy User',
+          photoURL: null,
+        },
+      });
+
+      expect(result).toEqual({ customClaims: { p: {}, a: false } });
+
+      const userDoc = new UserDocument({ uid });
+      await userDoc.get();
+      expect(userDoc.data.admin).toBe(false);
+      expect(userDoc.data.permissions).toEqual({});
     });
 
     it('returns early when created trigger has no user payload', async () => {
@@ -525,7 +637,7 @@ describe('user service E2E', () => {
       );
       await existingUser.save();
 
-      await handleUserCreated(existingUid, 'existing@example.com', 'Ignored Name', 'new-photo');
+      await handleUserCreated(existingUid, 'existing@example.com', 'Ignored Name', 'new-photo', true);
 
       const resultDoc = new UserDocument({ uid: existingUid });
       await resultDoc.get();
