@@ -13,6 +13,8 @@ import { afterAll, afterEach, beforeAll, describe, it } from 'vitest';
 const projectId = process.env.GCLOUD_PROJECT ?? 'tokiwa-template';
 const rules = readFileSync(new URL('./storage.rules', import.meta.url), 'utf8');
 const mebibyte = 1024 * 1024;
+const projectFilePath = 'projects/project-1/file.txt';
+const inactiveMetadata: Record<string, string>[] = [{}, { active: 'false' }];
 
 describe('project storage role rules', () => {
   let testEnvironment: RulesTestEnvironment;
@@ -32,6 +34,26 @@ describe('project storage role rules', () => {
     await testEnvironment.cleanup();
   });
 
+  async function seedProjectFile(metadata: Record<string, string>): Promise<void> {
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await context
+        .storage()
+        .ref(projectFilePath)
+        .put(new Uint8Array([1]), {
+          contentType: 'text/plain',
+          customMetadata: metadata,
+        });
+    });
+  }
+
+  function projectReaderStorage(): ReturnType<ReturnType<typeof testEnvironment.authenticatedContext>['storage']> {
+    return testEnvironment
+      .authenticatedContext('reader-1', {
+        p: { projects: ['project-1:r'] },
+      })
+      .storage();
+  }
+
   it('allows a manager role claim to write project storage', async () => {
     const storage = testEnvironment
       .authenticatedContext('manager-1', {
@@ -46,6 +68,49 @@ describe('project storage role rules', () => {
         })
       )
     );
+  });
+
+  it('allows a reader to read an active project file without an optional date range', async () => {
+    await seedProjectFile({ active: 'true' });
+
+    await assertSucceeds(projectReaderStorage().ref(projectFilePath).getDownloadURL());
+  });
+
+  it.each(inactiveMetadata)('rejects a project file that is not active: %j', async (metadata) => {
+    await seedProjectFile(metadata);
+
+    await assertFails(projectReaderStorage().ref(projectFilePath).getDownloadURL());
+  });
+
+  it('enforces the project file begin date', async () => {
+    const now = Math.floor(Date.now() / 1000);
+
+    await seedProjectFile({ active: 'true', beginDate: String(now + 3600) });
+    await assertFails(projectReaderStorage().ref(projectFilePath).getDownloadURL());
+
+    await seedProjectFile({ active: 'true', beginDate: String(now - 3600) });
+    await assertSucceeds(projectReaderStorage().ref(projectFilePath).getDownloadURL());
+  });
+
+  it('enforces the project file end date', async () => {
+    const now = Math.floor(Date.now() / 1000);
+
+    await seedProjectFile({ active: 'true', endDate: String(now - 3600) });
+    await assertFails(projectReaderStorage().ref(projectFilePath).getDownloadURL());
+
+    await seedProjectFile({ active: 'true', endDate: String(now + 3600) });
+    await assertSucceeds(projectReaderStorage().ref(projectFilePath).getDownloadURL());
+  });
+
+  it('allows a reader to read an active project file within its date range', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    await seedProjectFile({
+      active: 'true',
+      beginDate: String(now - 3600),
+      endDate: String(now + 3600),
+    });
+
+    await assertSucceeds(projectReaderStorage().ref(projectFilePath).getDownloadURL());
   });
 
   it('rejects writing an object at the project root', async () => {

@@ -45,7 +45,7 @@ service firebase.storage {
     }
 
     function isActive(meta) {
-      return meta.active == 'true';
+      return 'active' in meta && meta.active == 'true';
     }
 
     function isWithinDateRange(meta) {
