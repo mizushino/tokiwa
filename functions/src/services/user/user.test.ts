@@ -8,6 +8,7 @@ import firebaseFunctionsTest from 'firebase-functions-test';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { UserData } from '@firestore/types/user.js';
+import { getPreRegisteredUserKey, PreRegisteredUserDocument } from 'src/models/pre-registered-user.js';
 import { getFirebaseTestConfig } from 'src/test/firebase-test-config.js';
 import { makeDocumentSnapshot } from 'src/test/make-document-snapshot.js';
 import { waitForCondition } from 'src/test/wait-for-condition.js';
@@ -19,6 +20,19 @@ describe('user service E2E', () => {
   let db: Firestore;
   let auth: Auth;
   let createdUserIds: string[] = [];
+
+  async function seedPreRegisteredUser(
+    email: string,
+    permissions: NonNullable<UserData['permissions']>,
+    admin = false
+  ): Promise<void> {
+    await new PreRegisteredUserDocument(getPreRegisteredUserKey(email), {
+      ...PreRegisteredUserDocument.defaultData,
+      email: email.trim().toLowerCase(),
+      permissions,
+      admin,
+    }).save();
+  }
 
   beforeAll(() => {
     if (!getApps().length) {
@@ -445,17 +459,7 @@ describe('user service E2E', () => {
       const { created } = await import('./user.js');
 
       const email = 'preregistered@example.com';
-      const preRegDoc = new UserDocument(
-        { uid: email },
-        {
-          ...UserDocument.defaultData,
-          email: email,
-          displayName: 'Pre-registered',
-          permissions: { projects: ['proj1:o', 'proj2:m'] },
-          admin: true,
-        }
-      );
-      await preRegDoc.save();
+      await seedPreRegisteredUser(email, { projects: ['proj1:o', 'proj2:m'] }, true);
 
       const setClaimsSpy = vi.spyOn(auth, 'setCustomUserClaims');
       const wrapped = wrapBlockingFunction(created);
@@ -483,7 +487,7 @@ describe('user service E2E', () => {
       });
       expect(setClaimsSpy).not.toHaveBeenCalled();
 
-      const deletedDoc = new UserDocument({ uid: email });
+      const deletedDoc = new PreRegisteredUserDocument(getPreRegisteredUserKey(email));
       await deletedDoc.get();
       expect(deletedDoc.exists).toBe(false);
     });
@@ -518,21 +522,13 @@ describe('user service E2E', () => {
 
       const email = 'too-many-projects@example.com';
       const projects = Array.from({ length: MAX_PROJECTS_PER_USER + 1 }, (_, index) => `project-${index}:r`);
-      await new UserDocument(
-        { uid: email },
-        {
-          ...UserDocument.defaultData,
-          email,
-          displayName: 'Pre-registered',
-          permissions: { projects },
-        }
-      ).save();
+      await seedPreRegisteredUser(email, { projects });
 
       await expect(handleUserCreated('too-many-projects-user', email, 'Actual User', null, true)).rejects.toThrow(
         ProjectLimitExceededError
       );
 
-      const preRegisteredDoc = new UserDocument({ uid: email });
+      const preRegisteredDoc = new PreRegisteredUserDocument(getPreRegisteredUserKey(email));
       await preRegisteredDoc.get();
       expect(preRegisteredDoc.exists).toBe(true);
 
@@ -546,16 +542,7 @@ describe('user service E2E', () => {
       const { created } = await import('./user.js');
 
       const email = 'unverified-preregistered@example.com';
-      await new UserDocument(
-        { uid: email },
-        {
-          ...UserDocument.defaultData,
-          email,
-          displayName: 'Pre-registered',
-          permissions: { projects: ['proj1:o'] },
-          admin: true,
-        }
-      ).save();
+      await seedPreRegisteredUser(email, { projects: ['proj1:o'] }, true);
 
       const wrapped = wrapBlockingFunction(created);
       const result = await wrapped({
@@ -575,7 +562,7 @@ describe('user service E2E', () => {
       expect(userDoc.data.admin).toBe(false);
       expect(userDoc.data.permissions).toEqual({});
 
-      const preRegisteredDoc = new UserDocument({ uid: email });
+      const preRegisteredDoc = new PreRegisteredUserDocument(getPreRegisteredUserKey(email));
       await preRegisteredDoc.get();
       expect(preRegisteredDoc.exists).toBe(true);
     });
@@ -586,16 +573,7 @@ describe('user service E2E', () => {
 
       const uid = 'verified-after-signup-user';
       const email = 'verified-after-signup@example.com';
-      await new UserDocument(
-        { uid: email },
-        {
-          ...UserDocument.defaultData,
-          email,
-          displayName: 'Pre-registered',
-          permissions: { projects: ['proj1:o'] },
-          admin: true,
-        }
-      ).save();
+      await seedPreRegisteredUser(email, { projects: ['proj1:o'] }, true);
 
       await wrapBlockingFunction(created)({
         data: { uid, email, emailVerified: false, displayName: 'User', photoURL: null },
@@ -613,22 +591,22 @@ describe('user service E2E', () => {
       expect(userDoc.data.admin).toBe(true);
       expect(userDoc.data.permissions).toEqual({ projects: ['proj1:o'] });
 
-      const preRegisteredDoc = new UserDocument({ uid: email });
+      const preRegisteredDoc = new PreRegisteredUserDocument(getPreRegisteredUserKey(email));
       await preRegisteredDoc.get();
       expect(preRegisteredDoc.exists).toBe(false);
     });
 
-    it('clears privileges persisted for an unverified user by an older deployment', async () => {
+    it('clears privileges for an existing unverified user', async () => {
       const { UserDocument } = await import('../../models/user.js');
       const { signedIn } = await import('./user.js');
 
-      const uid = 'legacy-unverified-user';
+      const uid = 'existing-unverified-user';
       await new UserDocument(
         { uid },
         {
           ...UserDocument.defaultData,
-          email: 'legacy-unverified@example.com',
-          displayName: 'Legacy User',
+          email: 'existing-unverified@example.com',
+          displayName: 'Existing User',
           permissions: { projects: ['proj1:o'] },
           admin: true,
         }
@@ -637,9 +615,9 @@ describe('user service E2E', () => {
       const result = await wrapBlockingFunction(signedIn)({
         data: {
           uid,
-          email: 'legacy-unverified@example.com',
+          email: 'existing-unverified@example.com',
           emailVerified: false,
-          displayName: 'Legacy User',
+          displayName: 'Existing User',
           photoURL: null,
         },
       });

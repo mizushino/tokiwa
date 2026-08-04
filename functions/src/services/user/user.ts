@@ -25,10 +25,6 @@ const nonRetryableAuthErrorCodes = new Set([
 ]);
 const MAX_USER_SYNC_ATTEMPTS = 3;
 
-function isSafeLegacyUserDocumentId(value: string): boolean {
-  return value !== '' && value !== '.' && value !== '..' && !value.includes('/') && Buffer.byteLength(value) <= 1_500;
-}
-
 export function isNonRetryableAuthError(error: unknown): boolean {
   return (
     !!error &&
@@ -115,32 +111,16 @@ export async function handleUserCreated(
     } else if (normalizedEmail) {
       const preRegisteredUserDocument = new PreRegisteredUserDocument(getPreRegisteredUserKey(normalizedEmail));
       await preRegisteredUserDocument.get(transaction);
-      let matchingPreRegistration: PreRegisteredUserDocument | UserDocument | undefined;
       if (
         preRegisteredUserDocument.exists &&
         normalizeEmail(preRegisteredUserDocument.data.email) === normalizedEmail
       ) {
-        matchingPreRegistration = preRegisteredUserDocument;
-      } else {
-        // Read path-safe legacy records during migration from users/{email}.
-        const legacyDocumentIds = [...new Set([email.trim(), normalizedEmail])].filter(isSafeLegacyUserDocumentId);
-        for (const legacyDocumentId of legacyDocumentIds) {
-          const legacyDocument = new UserDocument({ uid: legacyDocumentId });
-          await legacyDocument.get(transaction);
-          if (legacyDocument.exists && normalizeEmail(legacyDocument.data.email) === normalizedEmail) {
-            matchingPreRegistration = legacyDocument;
-            break;
-          }
-        }
-      }
-
-      if (matchingPreRegistration) {
         userData = {
           ...userData,
-          admin: matchingPreRegistration.data.admin ?? userData.admin,
-          permissions: matchingPreRegistration.data.permissions ?? userData.permissions,
+          admin: preRegisteredUserDocument.data.admin ?? userData.admin,
+          permissions: preRegisteredUserDocument.data.permissions ?? userData.permissions,
         };
-        await matchingPreRegistration.delete(transaction);
+        await preRegisteredUserDocument.delete(transaction);
         shouldSave = true;
       }
     }
@@ -175,7 +155,7 @@ export const created = beforeUserCreated({ region }, async (event) => {
 
 /**
  * Apply pre-registered permissions only after Firebase has verified the email.
- * This also clears privileges persisted by older versions for unverified users.
+ * Unverified users always receive empty privilege claims.
  */
 export const signedIn = beforeUserSignedIn({ region }, async (event) => {
   const userRecord = event.data;
