@@ -15,8 +15,7 @@ import '@components/ui/input/ui-input';
 export class DefaultFunctions extends PageElement {
   protected pageMetadata = pageMetadata;
 
-  @state()
-  private sampleId = 'sample';
+  private readonly sampleId = 'sample';
 
   @state()
   private name = 'Name';
@@ -45,13 +44,7 @@ export class DefaultFunctions extends PageElement {
           icon: html`<ui-icon class="size-5" .icon=${SquareTerminal}></ui-icon>`,
         })}
         <div class="space-y-4">
-          <ui-input
-            label=${this.trans('id')}
-            .value=${this.sampleId}
-            @input=${(event: CustomEvent<{ value: string }>) => {
-              this.sampleId = event.detail.value;
-            }}
-          ></ui-input>
+          <ui-input label=${this.trans('id')} .value=${this.sampleId} disabled></ui-input>
 
           <ui-input
             label=${this.trans('name')}

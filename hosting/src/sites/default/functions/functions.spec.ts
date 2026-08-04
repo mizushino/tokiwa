@@ -20,12 +20,12 @@ test.describe('Default Site - Functions', () => {
     await expect(page.locator('text=Result will appear here…')).toBeVisible();
   });
 
-  test('can input text in the text fields', async ({ page }) => {
+  test('uses the fixed sample id and accepts a name', async ({ page }) => {
     await page.goto('/functions/', { waitUntil: 'domcontentloaded' });
 
     const idInput = page.locator('ui-input[label="ID"] input');
-    await idInput.fill('test-id');
-    await expect(idInput).toHaveValue('test-id');
+    await expect(idInput).toHaveValue('sample');
+    await expect(idInput).toBeDisabled();
 
     const nameInput = page.locator('ui-input[label="Name"] input');
     await nameInput.fill('Test Name');

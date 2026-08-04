@@ -10,6 +10,9 @@ interface SampleRunHandlerRequest {
   data: SampleRunRequest;
 }
 
+const SAMPLE_ID = 'sample';
+const MAX_SAMPLE_NAME_LENGTH = 100;
+
 /**
  * Upserts a sample document and increments its counter
  * Exported for testing purposes
@@ -17,15 +20,21 @@ interface SampleRunHandlerRequest {
  * @returns The saved sample's id, name, and updated count
  */
 export async function runHandler(request: SampleRunHandlerRequest): Promise<SampleRunResponse> {
-  const id = request.data.id.trim();
-  const name = request.data.name.trim();
-
-  if (!id) {
-    throw new HttpsError('invalid-argument', 'id is required');
+  if (typeof request.data?.id !== 'string' || request.data.id.trim() !== SAMPLE_ID) {
+    throw new HttpsError('invalid-argument', `id must be ${SAMPLE_ID}`);
   }
 
+  if (typeof request.data?.name !== 'string') {
+    throw new HttpsError('invalid-argument', 'name is required');
+  }
+
+  const id = SAMPLE_ID;
+  const name = request.data.name.trim();
   if (!name) {
     throw new HttpsError('invalid-argument', 'name is required');
+  }
+  if (name.length > MAX_SAMPLE_NAME_LENGTH) {
+    throw new HttpsError('invalid-argument', `name must be at most ${MAX_SAMPLE_NAME_LENGTH} characters`);
   }
 
   return getFirestore().runTransaction(async (transaction) => {

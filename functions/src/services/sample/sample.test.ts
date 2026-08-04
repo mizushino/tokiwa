@@ -21,21 +21,29 @@ describe('sample service E2E', () => {
     await batch.commit();
   });
 
-  it('rejects blank id', async () => {
+  it('rejects an id other than the fixed public sample id', async () => {
     const { runHandler } = await import('./sample.js');
 
-    await expect(runHandler({ data: { id: '   ', name: 'Alice' } })).rejects.toBeInstanceOf(HttpsError);
-    await expect(runHandler({ data: { id: '   ', name: 'Alice' } })).rejects.toMatchObject({
-      message: 'id is required',
+    await expect(runHandler({ data: { id: 'sample-1', name: 'Alice' } })).rejects.toBeInstanceOf(HttpsError);
+    await expect(runHandler({ data: { id: 'sample-1', name: 'Alice' } })).rejects.toMatchObject({
+      message: 'id must be sample',
     });
   });
 
   it('rejects blank name', async () => {
     const { runHandler } = await import('./sample.js');
 
-    await expect(runHandler({ data: { id: 'sample-1', name: '   ' } })).rejects.toBeInstanceOf(HttpsError);
-    await expect(runHandler({ data: { id: 'sample-1', name: '   ' } })).rejects.toMatchObject({
+    await expect(runHandler({ data: { id: 'sample', name: '   ' } })).rejects.toBeInstanceOf(HttpsError);
+    await expect(runHandler({ data: { id: 'sample', name: '   ' } })).rejects.toMatchObject({
       message: 'name is required',
+    });
+  });
+
+  it('rejects names longer than the Firestore Rules limit', async () => {
+    const { runHandler } = await import('./sample.js');
+
+    await expect(runHandler({ data: { id: 'sample', name: 'a'.repeat(101) } })).rejects.toMatchObject({
+      message: 'name must be at most 100 characters',
     });
   });
 
@@ -44,16 +52,16 @@ describe('sample service E2E', () => {
     const { SampleDocument } = await import('../../models/sample.js');
 
     const result = await runHandler({
-      data: { id: ' sample-1 ', name: ' Alice ' },
+      data: { id: ' sample ', name: ' Alice ' },
     });
 
     expect(result).toEqual({
-      id: 'sample-1',
+      id: 'sample',
       name: 'Alice',
       count: 1,
     });
 
-    const savedDocument = new SampleDocument({ id: 'sample-1' });
+    const savedDocument = new SampleDocument({ id: 'sample' });
     await savedDocument.get();
 
     expect(savedDocument.exists).toBe(true);
@@ -66,7 +74,7 @@ describe('sample service E2E', () => {
     const { SampleDocument } = await import('../../models/sample.js');
 
     const existingDocument = new SampleDocument(
-      { id: 'sample-2' },
+      { id: 'sample' },
       {
         ...SampleDocument.defaultData,
         name: 'Before',
@@ -76,16 +84,16 @@ describe('sample service E2E', () => {
     await existingDocument.save();
 
     const result = await runHandler({
-      data: { id: 'sample-2', name: ' After ' },
+      data: { id: 'sample', name: ' After ' },
     });
 
     expect(result).toEqual({
-      id: 'sample-2',
+      id: 'sample',
       name: 'After',
       count: 4,
     });
 
-    const savedDocument = new SampleDocument({ id: 'sample-2' });
+    const savedDocument = new SampleDocument({ id: 'sample' });
     await savedDocument.get();
 
     expect(savedDocument.exists).toBe(true);
@@ -101,12 +109,12 @@ describe('sample service E2E', () => {
     const results = await Promise.all(
       Array.from({ length: requestCount }, () =>
         runHandler({
-          data: { id: 'sample-concurrent', name: 'Concurrent' },
+          data: { id: 'sample', name: 'Concurrent' },
         })
       )
     );
 
-    const savedDocument = new SampleDocument({ id: 'sample-concurrent' });
+    const savedDocument = new SampleDocument({ id: 'sample' });
     await savedDocument.get();
 
     expect(savedDocument.data.count).toBe(requestCount);
