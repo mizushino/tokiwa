@@ -4,6 +4,7 @@ export {
   currentUser,
   destroy,
   getFirebaseAuth,
+  getRedirectAuthError,
   initializeAuth,
   isLoading,
   isSignedIn,

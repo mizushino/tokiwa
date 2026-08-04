@@ -3,7 +3,14 @@ import { CircleX } from 'lucide';
 import { html, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { AuthError, setSessionPersistence, signInWithEmail, signInWithProvider, type AuthErrorCode } from '@app/auth';
+import {
+  AuthError,
+  getRedirectAuthError,
+  setSessionPersistence,
+  signInWithEmail,
+  signInWithProvider,
+  type AuthErrorCode,
+} from '@app/auth';
 import { PageElement } from '@app/page';
 
 import pageMetadata from './page.json';
@@ -30,6 +37,18 @@ export class AdminLogin extends PageElement {
 
   private readonly inputClass =
     'focus:outline-primary-600 dark:focus:outline-primary-500 block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500';
+
+  public override connectedCallback(): void {
+    super.connectedCallback();
+    void this.showRedirectAuthError();
+  }
+
+  private async showRedirectAuthError(): Promise<void> {
+    const error = await getRedirectAuthError();
+    if (error && this.isConnected) {
+      this.errorMessage = this.getErrorMessage(error.code);
+    }
+  }
 
   private getRedirectUrl(): string {
     return getSafeLoginRedirect(window.location.search, window.location.origin);

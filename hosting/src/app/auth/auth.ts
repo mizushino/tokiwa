@@ -56,6 +56,7 @@ export interface FirebaseAuthSettings {
 interface AuthState {
   auth?: Auth;
   resolver?: PopupRedirectResolver;
+  redirectAuthError?: Promise<AuthError | null>;
   isLoadingState: boolean;
   unsubscribeAuthStateChanged?: Unsubscribe;
   unsubscribeLoadUser?: Unsubscribe;
@@ -121,14 +122,20 @@ function getResolver(): PopupRedirectResolver {
   return state.resolver;
 }
 
-function handleAuthError(error: unknown, specificErrorCodes?: string[], specificAuthError?: AuthErrorCode): never {
+const accountLinkingErrorCodes = ['auth/account-exists-with-different-credential', 'auth/credential-already-in-use'];
+
+function toAuthError(error: unknown, specificErrorCodes?: string[], specificAuthError?: AuthErrorCode): AuthError {
   if (error && typeof error === 'object' && 'code' in error) {
     const firebaseError = error as { code: string };
     if (specificErrorCodes?.includes(firebaseError.code)) {
-      throw new AuthError(specificAuthError || AuthErrorCode.InvalidCredentials);
+      return new AuthError(specificAuthError || AuthErrorCode.InvalidCredentials);
     }
   }
-  throw new AuthError(AuthErrorCode.LoginFailed);
+  return new AuthError(AuthErrorCode.LoginFailed);
+}
+
+function handleAuthError(error: unknown, specificErrorCodes?: string[], specificAuthError?: AuthErrorCode): never {
+  throw toAuthError(error, specificErrorCodes, specificAuthError);
 }
 
 export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuthSettings): void {
@@ -153,11 +160,19 @@ export function initializeAuth(firebaseApp: FirebaseApp, settings?: FirebaseAuth
     notifyUserChange(user);
   });
 
-  getRedirectResult(state.auth, resolver).catch(console.error);
+  state.redirectAuthError = getRedirectResult(state.auth, resolver).then(
+    () => null,
+    (error: unknown) => toAuthError(error, accountLinkingErrorCodes, AuthErrorCode.AccountLinkingRequired)
+  );
 }
 
 export function getFirebaseAuth(): Auth {
   return getAuth();
+}
+
+/** Return an Auth error produced when Firebase completes a redirect sign-in. */
+export async function getRedirectAuthError(): Promise<AuthError | null> {
+  return state.redirectAuthError ?? null;
 }
 
 export function isLoading(): boolean {
@@ -231,11 +246,7 @@ export async function signInWithProvider(
     try {
       await signInWithPopup(auth, provider, resolver);
     } catch (error: unknown) {
-      handleAuthError(
-        error,
-        ['auth/account-exists-with-different-credential', 'auth/credential-already-in-use'],
-        AuthErrorCode.AccountLinkingRequired
-      );
+      handleAuthError(error, accountLinkingErrorCodes, AuthErrorCode.AccountLinkingRequired);
     }
     return;
   }
@@ -243,11 +254,7 @@ export async function signInWithProvider(
   try {
     await signInWithRedirect(auth, provider, resolver);
   } catch (error: unknown) {
-    handleAuthError(
-      error,
-      ['auth/account-exists-with-different-credential', 'auth/credential-already-in-use'],
-      AuthErrorCode.AccountLinkingRequired
-    );
+    handleAuthError(error, accountLinkingErrorCodes, AuthErrorCode.AccountLinkingRequired);
   }
 }
 
@@ -305,5 +312,6 @@ export function destroy(): void {
   state.unsubscribeLoadUser = undefined;
   state.auth = undefined;
   state.resolver = undefined;
+  state.redirectAuthError = undefined;
   state.currentUserValue = undefined;
 }

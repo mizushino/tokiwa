@@ -8,6 +8,7 @@ import {
   currentUser,
   destroy,
   getFirebaseAuth,
+  getRedirectAuthError,
   initializeAuth,
   isLoading,
   isSignedIn,
@@ -153,6 +154,39 @@ describe('Auth', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(getRedirectResult).toHaveBeenCalled();
+    });
+
+    it('exposes an account-linking error returned after redirect', async () => {
+      const mockApp = {} as FirebaseApp;
+      const { getRedirectResult } = await import('firebase/auth');
+      (getRedirectResult as ReturnType<typeof vi.fn>).mockRejectedValue({
+        code: 'auth/account-exists-with-different-credential',
+      });
+
+      initializeAuth(mockApp);
+
+      await expect(getRedirectAuthError()).resolves.toMatchObject({
+        code: AuthErrorCode.AccountLinkingRequired,
+      });
+    });
+
+    it('exposes a generic login error returned after redirect', async () => {
+      const mockApp = {} as FirebaseApp;
+      const { getRedirectResult } = await import('firebase/auth');
+      (getRedirectResult as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Redirect failed'));
+
+      initializeAuth(mockApp);
+
+      await expect(getRedirectAuthError()).resolves.toMatchObject({
+        code: AuthErrorCode.LoginFailed,
+      });
+    });
+
+    it('returns null when redirect sign-in succeeds', async () => {
+      const mockApp = {} as FirebaseApp;
+      initializeAuth(mockApp);
+
+      await expect(getRedirectAuthError()).resolves.toBeNull();
     });
   });
 
