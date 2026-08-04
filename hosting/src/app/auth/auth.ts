@@ -70,7 +70,13 @@ const state: AuthState = {
   currentUserValue: undefined,
 };
 
-const userListeners = new Set<(user: User | null) => void>();
+export type AuthUserState = User | null | undefined;
+
+export interface UserSnapshot extends AsyncIterableIterator<AuthUserState> {
+  return(): Promise<IteratorResult<AuthUserState, void>>;
+}
+
+const userListeners = new Set<(user: AuthUserState) => void>();
 
 function resolvePendingLoadUser(user: User | null): void {
   const resolve = state.resolveLoadUser;
@@ -87,8 +93,62 @@ function notifyUserChange(user: User | null): void {
   userListeners.forEach((listener) => listener(user));
 }
 
+/** Subscribe to Auth user state and receive the current value immediately. */
+export function subscribeUserState(listener: (user: AuthUserState) => void): Unsubscribe {
+  userListeners.add(listener);
+  listener(state.currentUserValue);
+  return () => userListeners.delete(listener);
+}
+
+class UserSnapshotIterator implements UserSnapshot {
+  private readonly values: AuthUserState[] = [];
+  private readonly pendingResolves: ((result: IteratorResult<AuthUserState, void>) => void)[] = [];
+  private unsubscribe?: Unsubscribe;
+  private closed = false;
+
+  public next(): Promise<IteratorResult<AuthUserState, void>> {
+    if (this.closed) {
+      return Promise.resolve({ done: true, value: undefined });
+    }
+
+    if (!this.unsubscribe) {
+      this.unsubscribe = subscribeUserState((user) => this.enqueue(user));
+    }
+
+    if (this.values.length > 0) {
+      return Promise.resolve({ done: false, value: this.values.shift() });
+    }
+
+    return new Promise((resolve) => {
+      this.pendingResolves.push(resolve);
+    });
+  }
+
+  public return(): Promise<IteratorResult<AuthUserState, void>> {
+    this.closed = true;
+    this.unsubscribe?.();
+    this.unsubscribe = undefined;
+    this.values.length = 0;
+    this.pendingResolves.splice(0).forEach((resolve) => resolve({ done: true, value: undefined }));
+    return Promise.resolve({ done: true, value: undefined });
+  }
+
+  public [Symbol.asyncIterator](): AsyncIterableIterator<AuthUserState> {
+    return this;
+  }
+
+  private enqueue(user: AuthUserState): void {
+    const resolve = this.pendingResolves.shift();
+    if (resolve) {
+      resolve({ done: false, value: user });
+      return;
+    }
+    this.values.push(user);
+  }
+}
+
 /**
- * Creates an async generator that yields user state changes.
+ * Creates a cancellable async iterator that yields user state changes.
  *
  * First yields the current user value immediately, then yields each time
  * the user state changes (sign in and sign out).
@@ -105,19 +165,8 @@ function notifyUserChange(user: User | null): void {
  * }
  * ```
  */
-export async function* userSnapshot(): AsyncGenerator<User | null | undefined, void, unknown> {
-  yield state.currentUserValue;
-
-  while (true) {
-    const user = await new Promise<User | null>((resolve) => {
-      const listener = (u: User | null): void => {
-        userListeners.delete(listener);
-        resolve(u);
-      };
-      userListeners.add(listener);
-    });
-    yield user;
-  }
+export function userSnapshot(): UserSnapshot {
+  return new UserSnapshotIterator();
 }
 
 function getAuth(): Auth {

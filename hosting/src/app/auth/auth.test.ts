@@ -19,6 +19,7 @@ import {
   signInWithEmail,
   signInWithProvider,
   signOut,
+  subscribeUserState,
   userSnapshot,
 } from './auth';
 
@@ -632,16 +633,37 @@ describe('Auth', () => {
       await snapshot.return();
     });
 
-    it('cleans up listener when generator is closed', async () => {
+    it('settles a pending read immediately when the iterator is closed', async () => {
       const mockApp = {} as FirebaseApp;
       initializeAuth(mockApp);
 
       const snapshot = userSnapshot();
       await snapshot.next();
+      const pendingNext = snapshot.next();
 
       const result = await snapshot.return();
 
       expect(result.done).toBe(true);
+      await expect(pendingNext).resolves.toEqual({ done: true, value: undefined });
+      await expect(snapshot.next()).resolves.toEqual({ done: true, value: undefined });
+    });
+  });
+
+  describe('subscribeUserState', () => {
+    it('emits the current state and stops emitting after unsubscribe', () => {
+      const mockApp = {} as FirebaseApp;
+      initializeAuth(mockApp);
+      const listener = vi.fn();
+
+      const unsubscribe = subscribeUserState(listener);
+      expect(listener).toHaveBeenLastCalledWith(undefined);
+
+      authStateListeners.forEach((authListener) => authListener(mockUser));
+      expect(listener).toHaveBeenLastCalledWith(mockUser);
+
+      unsubscribe();
+      authStateListeners.forEach((authListener) => authListener(null));
+      expect(listener).toHaveBeenCalledTimes(2);
     });
   });
 
