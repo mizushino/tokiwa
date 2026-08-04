@@ -1,6 +1,5 @@
 import { Router } from '@lit-labs/router';
 import { setupFirestore } from '@mzsn/firestore/web';
-import { initializeAnalytics } from 'firebase/analytics';
 import { type FirebaseApp, type FirebaseOptions, initializeApp } from 'firebase/app';
 import { browserLocalPersistence, browserPopupRedirectResolver, indexedDBLocalPersistence } from 'firebase/auth';
 import {
@@ -15,6 +14,7 @@ import { customElement } from 'lit/decorators.js';
 import { share } from 'lit-share';
 import { URLPattern } from 'urlpattern-polyfill';
 
+import { initializeAnalyticsIfSupported } from '@app/analytics';
 import { initializeAuth, type FirebaseAuthSettings } from '@app/auth';
 import { allowsDemoFirebaseConfig, getFirebaseConfig } from '@app/firebase-config';
 import { type FunctionsSettings, initializeFunctions } from '@app/functions';
@@ -91,19 +91,19 @@ export class AdminApp extends LitElement {
 
     seedPreferredLanguageIfUnset('ja');
 
-    this.firebaseApp = initializeApp(this.firebaseConfig);
-    const firestore = initializeFirestore(this.firebaseApp, this.firestoreSetting);
+    const firebaseApp = initializeApp(this.firebaseConfig);
+    this.firebaseApp = firebaseApp;
+    const firestore = initializeFirestore(firebaseApp, this.firestoreSetting);
     if (this.useEmulator) {
       connectFirestoreEmulator(firestore, 'localhost', 8080);
     }
     setupFirestore(firestore);
-    initializeFunctions(this.firebaseApp, this.functionsSetting);
+    initializeFunctions(firebaseApp, this.functionsSetting);
+    setPageAnalytics(undefined);
     if (!this.useEmulator && this.firebaseConfig.measurementId) {
-      setPageAnalytics(initializeAnalytics(this.firebaseApp));
-    } else {
-      setPageAnalytics(undefined);
+      void initializeAnalyticsIfSupported(firebaseApp).then(setPageAnalytics);
     }
-    initializeAuth(this.firebaseApp, this.authSetting);
+    initializeAuth(firebaseApp, this.authSetting);
   }
 
   protected override render(): TemplateResult {

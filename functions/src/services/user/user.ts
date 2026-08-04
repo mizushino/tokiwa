@@ -42,8 +42,17 @@ function handleAuthSyncError(message: string, error: unknown): void {
   throw error;
 }
 
-function getAuthPhotoURL(image?: string): string | undefined {
-  return image?.startsWith('https://') ? image : undefined;
+function getAuthPhotoURL(image?: string): string | null {
+  if (!image) {
+    return null;
+  }
+
+  try {
+    const url = new URL(image);
+    return url.protocol === 'https:' ? url.href : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -160,10 +169,9 @@ export const signedIn = beforeUserSignedIn({ region }, async (event) => {
 export async function handleUserWritten(uid: string, user?: UserData): Promise<void> {
   if (user) {
     try {
-      const photoURL = user.image ? getAuthPhotoURL(user.image) : null;
       await getAuth().updateUser(uid, {
         displayName: user.displayName,
-        ...(photoURL !== undefined ? { photoURL } : {}),
+        photoURL: getAuthPhotoURL(user.image),
       });
     } catch (error) {
       handleAuthSyncError(`Failed to update Auth user ${uid}:`, error);

@@ -66,7 +66,7 @@ export class Navigate extends Directive {
       if (location.hash !== pathname) {
         location.hash = pathname;
       } else {
-        const target = document.querySelector(pathname) as HTMLElement;
+        const target = Navigate.findHashTarget(pathname);
         if (target) {
           window.scrollTo(0, target.offsetTop);
         }
@@ -156,9 +156,22 @@ export class Navigate extends Directive {
     }
 
     await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
-    const target = document.querySelector(location.hash) as HTMLElement;
+    const target = Navigate.findHashTarget(location.hash);
     if (target) {
       window.scrollTo(0, target.offsetTop);
+    }
+  }
+
+  private static findHashTarget(hash: string): HTMLElement | null {
+    const encodedId = hash.startsWith('#') ? hash.slice(1) : hash;
+    if (!encodedId) {
+      return null;
+    }
+
+    try {
+      return document.getElementById(decodeURIComponent(encodedId));
+    } catch {
+      return null;
     }
   }
 }

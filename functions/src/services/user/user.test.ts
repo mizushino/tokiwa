@@ -209,13 +209,14 @@ describe('user service E2E', () => {
       expect(syncedDocument.get('claimsUpdatedAt')).toBeInstanceOf(Timestamp);
     });
 
-    it('does not derive an Auth photo URL from a Storage path', async () => {
+    it('clears an existing Auth photo URL when Firestore contains a Storage path', async () => {
       const { written } = await import('./user.js');
       const wrapped = testEnv.wrap(written);
 
       const userRecord = await auth.createUser({
         email: 'test-storage@example.com',
         password: 'password123',
+        photoURL: 'https://example.com/old-image.jpg',
       });
       createdUserIds.push(userRecord.uid);
 

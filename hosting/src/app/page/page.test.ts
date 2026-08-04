@@ -358,6 +358,49 @@ describe('Page', () => {
       location.hash = originalHash;
     });
 
+    it('scrolls to an anchor whose id is not a valid CSS selector', async () => {
+      const originalHash = location.hash;
+      location.hash = '#[';
+
+      const target = document.createElement('div');
+      target.id = '[';
+      document.body.appendChild(target);
+
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+
+      await expect(Navigate.to('#[')).resolves.toBeUndefined();
+      expect(scrollToSpy).toHaveBeenCalledWith(0, target.offsetTop);
+
+      target.remove();
+      location.hash = originalHash;
+    });
+
+    it('decodes an encoded hash before finding its target by id', async () => {
+      const originalHash = location.hash;
+      location.hash = '#encoded%20anchor';
+
+      const target = document.createElement('div');
+      target.id = 'encoded anchor';
+      document.body.appendChild(target);
+
+      const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+
+      await Navigate.to('#encoded%20anchor');
+      expect(scrollToSpy).toHaveBeenCalledWith(0, target.offsetTop);
+
+      target.remove();
+      location.hash = originalHash;
+    });
+
+    it('ignores malformed hash encoding without throwing', async () => {
+      const originalHash = location.hash;
+      location.hash = '#malformed%';
+
+      await expect(Navigate.to('#malformed%')).resolves.toBeUndefined();
+
+      location.hash = originalHash;
+    });
+
     it('handles internal navigation with history API', async () => {
       const originalPathname = window.location.pathname;
       const pushStateSpy = vi.spyOn(history, 'pushState');
