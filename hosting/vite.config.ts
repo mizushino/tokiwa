@@ -9,12 +9,22 @@ import { allowsDemoFirebaseConfig, getFirebaseConfig } from './src/app/firebase-
 import { PostBuildPlugin } from './vite-plugin-post-build';
 
 const lint = JSON.parse(readFileSync(resolve(__dirname, 'oxlint-rules.json'), 'utf8'));
+const appSitePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 let globalProperties = '';
 
+export function getAppSite(value = process.env.APP_SITE): string {
+  const site = value || 'default';
+  if (!appSitePattern.test(site)) {
+    throw new Error(`Invalid APP_SITE: ${site}`);
+  }
+  return site;
+}
+
 export function loadSiteEnvironment(mode: string, site: string, hostingDirectory = __dirname): NodeJS.ProcessEnv {
+  const validatedSite = getAppSite(site);
   const sharedEnvironment = loadEnv(mode, hostingDirectory);
-  const siteEnvironment = loadEnv(mode, resolve(hostingDirectory, 'src', 'sites', site));
+  const siteEnvironment = loadEnv(mode, resolve(hostingDirectory, 'src', 'sites', validatedSite));
 
   return {
     ...sharedEnvironment,
@@ -24,7 +34,7 @@ export function loadSiteEnvironment(mode: string, site: string, hostingDirectory
 }
 
 export default ({ mode }: { mode: string }): UserConfig => {
-  const site = process.env.APP_SITE || 'default';
+  const site = getAppSite();
   const environment = loadSiteEnvironment(mode, site);
   process.env = { ...process.env, ...environment };
   getFirebaseConfig(environment, { allowDemoFallback: allowsDemoFirebaseConfig(mode) });

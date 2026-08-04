@@ -4,7 +4,37 @@ import { join } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vite-plus/test';
 
-import { loadSiteEnvironment } from '../../vite.config';
+import { getAppSite, loadSiteEnvironment } from '../../vite.config';
+
+describe('getAppSite', () => {
+  it.each([['default'], ['admin'], ['customer-2'], ['site123'], ['123-site']])(
+    'accepts a kebab-case site name: %s',
+    (site) => {
+      expect(getAppSite(site)).toBe(site);
+    }
+  );
+
+  it('uses default when APP_SITE is absent or empty', () => {
+    expect(getAppSite()).toBe('default');
+    expect(getAppSite('')).toBe('default');
+  });
+
+  it.each([
+    '..',
+    '../admin',
+    'admin/default',
+    'admin\\default',
+    '/tmp/site',
+    'Admin',
+    'admin_site',
+    'admin--site',
+    '-admin',
+    'admin-',
+    ' admin',
+  ])('rejects an invalid site name: %s', (site) => {
+    expect(() => getAppSite(site)).toThrow(`Invalid APP_SITE: ${site}`);
+  });
+});
 
 describe('loadSiteEnvironment', () => {
   const temporaryDirectories: string[] = [];
