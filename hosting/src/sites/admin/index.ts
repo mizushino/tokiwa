@@ -142,10 +142,7 @@ export class AdminIndex extends PageElement {
   }
 
   private handleUserClick = async (): Promise<void> => {
-    this.stopUserDocSubscription();
     await signOut();
-    this.isAdmin = undefined;
-    this.requestUpdate();
   };
 
   /** Full-screen centered wrapper shared by the loading, permission-check, and access-denied states. */

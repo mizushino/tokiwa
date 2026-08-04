@@ -15,6 +15,12 @@ const rules = readFileSync(new URL('./storage.rules', import.meta.url), 'utf8');
 const mebibyte = 1024 * 1024;
 const projectFilePath = 'projects/project-1/file.txt';
 const inactiveMetadata: Record<string, string>[] = [{}, { active: 'false' }];
+const invalidAccessMetadata: Record<string, string>[] = [
+  { active: 'yes' },
+  { beginDate: 'tomorrow' },
+  { endDate: 'never' },
+  { beginDate: '2000000000', endDate: '1000000000' },
+];
 
 describe('project storage role rules', () => {
   let testEnvironment: RulesTestEnvironment;
@@ -54,18 +60,54 @@ describe('project storage role rules', () => {
       .storage();
   }
 
-  it('allows a manager role claim to write project storage', async () => {
-    const storage = testEnvironment
+  function projectManagerStorage(): ReturnType<ReturnType<typeof testEnvironment.authenticatedContext>['storage']> {
+    return testEnvironment
       .authenticatedContext('manager-1', {
         p: { projects: ['project-1:m'] },
       })
       .storage();
+  }
+
+  it('allows a manager role claim to write project storage', async () => {
+    await assertSucceeds(
+      Promise.resolve(
+        projectManagerStorage()
+          .ref('projects/project-1/file.txt')
+          .put(new Uint8Array([1]), {
+            contentType: 'text/plain',
+          })
+      )
+    );
+  });
+
+  it('allows valid project access metadata', async () => {
+    const now = Math.floor(Date.now() / 1000);
 
     await assertSucceeds(
       Promise.resolve(
-        storage.ref('projects/project-1/file.txt').put(new Uint8Array([1]), {
-          contentType: 'text/plain',
-        })
+        projectManagerStorage()
+          .ref(projectFilePath)
+          .put(new Uint8Array([1]), {
+            contentType: 'text/plain',
+            customMetadata: {
+              active: 'true',
+              beginDate: String(now - 3600),
+              endDate: String(now + 3600),
+            },
+          })
+      )
+    );
+  });
+
+  it.each(invalidAccessMetadata)('rejects invalid project access metadata: %j', async (customMetadata) => {
+    await assertFails(
+      Promise.resolve(
+        projectManagerStorage()
+          .ref(projectFilePath)
+          .put(new Uint8Array([1]), {
+            contentType: 'text/plain',
+            customMetadata,
+          })
       )
     );
   });
@@ -111,6 +153,12 @@ describe('project storage role rules', () => {
     });
 
     await assertSucceeds(projectReaderStorage().ref(projectFilePath).getDownloadURL());
+  });
+
+  it('rejects reading a legacy project file with malformed access metadata', async () => {
+    await seedProjectFile({ active: 'true', beginDate: 'tomorrow' });
+
+    await assertFails(projectReaderStorage().ref(projectFilePath).getDownloadURL());
   });
 
   it('rejects writing an object at the project root', async () => {

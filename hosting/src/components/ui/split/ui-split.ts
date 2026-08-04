@@ -60,6 +60,8 @@ export class UiSplit extends LitElement {
 
   private readonly handleRef: Ref<HTMLDivElement> = createRef();
 
+  private activeHandle: HTMLDivElement | null = null;
+
   protected override render(): TemplateResult {
     const isVertical = this.direction === 'vertical';
 
@@ -118,6 +120,7 @@ export class UiSplit extends LitElement {
     this.parentRect = this.parentElement?.getBoundingClientRect();
     this.isDragging = true;
     this.pendingSize = null;
+    this.activeHandle = handleElement;
 
     const prevRect = prevElement.getBoundingClientRect();
     this.startPrevSize = this.direction === 'vertical' ? prevRect.height : prevRect.width;
@@ -158,10 +161,8 @@ export class UiSplit extends LitElement {
     }
   };
 
-  private finalizeDrag(): void {
-    const handleElement = this.handleRef.value;
-    const prevElement = this.previousElementSibling as HTMLElement;
-
+  private resetDragPresentation(): void {
+    const handleElement = this.activeHandle ?? this.handleRef.value;
     this.isDragging = false;
     this.hideDragOverlay();
 
@@ -169,6 +170,13 @@ export class UiSplit extends LitElement {
       handleElement.style.transform = '';
       handleElement.style.opacity = '';
     }
+    this.activeHandle = null;
+  }
+
+  private finalizeDrag(): void {
+    const prevElement = this.previousElementSibling as HTMLElement;
+
+    this.resetDragPresentation();
 
     if (this.pendingSize !== null && prevElement) {
       if (this.direction === 'vertical') {
@@ -182,8 +190,9 @@ export class UiSplit extends LitElement {
           new CustomEvent('change', { detail: { width: this.pendingSize }, bubbles: true, composed: true })
         );
       }
-      this.pendingSize = null;
     }
+    this.pendingSize = null;
+    this.parentRect = undefined;
   }
 
   private onDrag = (e: MouseEvent | TouchEvent): void => {
@@ -220,8 +229,7 @@ export class UiSplit extends LitElement {
 
       const nextElement = this.nextElementSibling as HTMLElement;
       if (nextElement) {
-        const minNextHeight = this.startMin !== undefined ? this.startMin : DEFAULT_MIN_NEXT_HEIGHT;
-        const maxAllowedHeight = this.parentRect.height - minNextHeight - (handleElement.clientHeight || 0);
+        const maxAllowedHeight = this.parentRect.height - DEFAULT_MIN_NEXT_HEIGHT - (handleElement.clientHeight || 0);
         if (height > maxAllowedHeight) height = maxAllowedHeight;
       }
 
@@ -285,8 +293,9 @@ export class UiSplit extends LitElement {
     document.removeEventListener('mouseup', this.onPointerUp);
     document.removeEventListener('touchend', this.onPointerUp);
     document.removeEventListener('touchcancel', this.onPointerUp);
-    this.isDragging = false;
-    this.hideDragOverlay();
+    this.resetDragPresentation();
+    this.pendingSize = null;
+    this.parentRect = undefined;
   }
 }
 

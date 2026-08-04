@@ -176,8 +176,9 @@ export const signedIn = beforeUserSignedIn({ region }, async (event) => {
 /**
  * Handle user document changes: sync Firebase Authentication user info and custom claims
  * This function is extracted for testability
+ * @returns Whether custom claims were synchronized successfully
  */
-export async function handleUserWritten(uid: string, user?: UserData): Promise<void> {
+export async function handleUserWritten(uid: string, user?: UserData): Promise<boolean> {
   if (user) {
     try {
       await getAuth().updateUser(uid, {
@@ -191,8 +192,10 @@ export async function handleUserWritten(uid: string, user?: UserData): Promise<v
 
   try {
     await updateCustomUserClaims(uid, user);
+    return true;
   } catch (error) {
     handleAuthSyncError(`Failed to update custom claims for user ${uid}:`, error);
+    return false;
   }
 }
 
@@ -206,8 +209,8 @@ export async function syncCurrentUser(uid: string): Promise<void> {
   for (let attempt = 0; attempt < MAX_USER_SYNC_ATTEMPTS; attempt += 1) {
     const before = await userReference.get();
     const beforeData = before.exists ? (before.data() as UserData) : undefined;
-    await handleUserWritten(uid, beforeData);
-    if (before.exists) {
+    const claimsSynchronized = await handleUserWritten(uid, beforeData);
+    if (before.exists && claimsSynchronized) {
       await userReference.update({ claimsUpdatedAt: FieldValue.serverTimestamp() });
     }
 

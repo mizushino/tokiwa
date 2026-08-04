@@ -96,16 +96,40 @@ describe('UiSplit', () => {
     expect(changes).toEqual([{ width: 360 }]);
   });
 
-  it('removes the fixed drag overlay if disconnected mid-drag', async () => {
+  it('clears drag presentation if disconnected mid-drag', async () => {
     await element.updateComplete;
 
     const split = element as unknown as { startDrag: (x: number, y: number) => void };
     const overlayCount = (): number => document.body.querySelectorAll('div[style*="9999"]').length;
+    const handle = element.querySelector('.z-10') as HTMLElement;
 
     split.startDrag(10, 10);
+    handle.style.transform = 'translateX(20px)';
     expect(overlayCount()).toBe(1);
+    expect(handle.style.opacity).toBe('0.75');
 
     element.remove();
     expect(overlayCount()).toBe(0);
+    expect(handle.style.transform).toBe('');
+    expect(handle.style.opacity).toBe('');
+  });
+
+  it('keeps the default minimum height for the next panel', async () => {
+    element.direction = 'vertical';
+    element.min = 300;
+    await element.updateComplete;
+
+    parent.getBoundingClientRect = () => ({ height: 1000 }) as DOMRect;
+    previousPanel.getBoundingClientRect = () => ({ height: 300 }) as DOMRect;
+    const split = element as unknown as {
+      startDrag: (x: number, y: number) => void;
+      onDrag: (event: MouseEvent) => void;
+      pendingSize: number | null;
+    };
+
+    split.startDrag(0, 0);
+    split.onDrag(new MouseEvent('mousemove', { buttons: 1, clientY: 600 }));
+
+    expect(split.pendingSize).toBe(800);
   });
 });

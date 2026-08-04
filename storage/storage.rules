@@ -48,6 +48,19 @@ service firebase.storage {
       return 'active' in meta && meta.active == 'true';
     }
 
+    function isValidTimestamp(value) {
+      return value is string && value.matches('^[0-9]{1,10}$');
+    }
+
+    function hasValidAccessMetadata(meta) {
+      let hasBeginDate = 'beginDate' in meta;
+      let hasEndDate = 'endDate' in meta;
+      return (!('active' in meta) || meta.active in ['true', 'false']) &&
+        (!hasBeginDate || isValidTimestamp(meta.beginDate)) &&
+        (!hasEndDate || isValidTimestamp(meta.endDate)) &&
+        (!hasBeginDate || !hasEndDate || int(meta.beginDate) <= int(meta.endDate));
+    }
+
     function isWithinDateRange(meta) {
       let now = request.time.toMillis() / 1000;
       let hasBeginDate = 'beginDate' in meta;
@@ -58,7 +71,7 @@ service firebase.storage {
     }
 
     function hasAccess(meta) {
-      return isActive(meta) && isWithinDateRange(meta);
+      return hasValidAccessMetadata(meta) && isActive(meta) && isWithinDateRange(meta);
     }
 
     function isRasterImageUpload() {
@@ -74,6 +87,7 @@ service firebase.storage {
     function isValidProjectUpload() {
       return request.resource.size <= 10 * 1024 * 1024 &&
         request.resource.contentType != null &&
+        hasValidAccessMetadata(request.resource.metadata) &&
         (
           isRasterImageUpload() ||
           request.resource.contentType.matches('(application/(pdf|json)|text/(plain|csv))(;.*)?')

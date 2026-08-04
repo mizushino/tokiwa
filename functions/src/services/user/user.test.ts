@@ -370,6 +370,38 @@ describe('user service E2E', () => {
       ).resolves.toBeUndefined();
 
       expect(errorSpy).toHaveBeenCalled();
+
+      const syncedDocument = await db.doc('users/missing-user').get();
+      expect(syncedDocument.get('claimsUpdatedAt')).toBeUndefined();
+    });
+
+    it('does not mark claims as updated when a non-retryable claims error occurs', async () => {
+      const { syncCurrentUser } = await import('./user.js');
+      const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
+      const userRecord = await auth.createUser({
+        email: `claims-too-large-${Date.now()}@example.com`,
+        password: 'password123',
+      });
+      createdUserIds.push(userRecord.uid);
+
+      const userData: UserData = {
+        email: userRecord.email ?? '',
+        displayName: 'Claims Error User',
+        permissions: { projects: ['project-1:r'] },
+        admin: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      await db.doc(`users/${userRecord.uid}`).set(userData);
+
+      const claimsError = Object.assign(new Error('claims too large'), { code: 'auth/claims-too-large' });
+      vi.spyOn(auth, 'setCustomUserClaims').mockRejectedValueOnce(claimsError);
+
+      await expect(syncCurrentUser(userRecord.uid)).resolves.toBeUndefined();
+
+      expect(errorSpy).toHaveBeenCalledWith(`Failed to update custom claims for user ${userRecord.uid}:`, claimsError);
+      const syncedDocument = await db.doc(`users/${userRecord.uid}`).get();
+      expect(syncedDocument.get('claimsUpdatedAt')).toBeUndefined();
     });
 
     it('enables retries for transient failures', async () => {
