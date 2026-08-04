@@ -3,7 +3,30 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vite-plus/test';
 
-import { renderPageHtml } from '../../../vite-plugin-post-build';
+import { getBaseUrl, renderPageHtml } from '../../../vite-plugin-post-build';
+
+describe('getBaseUrl', () => {
+  it.each([
+    ['https://example.com', 'https://example.com'],
+    ['https://example.com/', 'https://example.com'],
+    ['http://localhost:5173', 'http://localhost:5173'],
+  ])('normalizes the public origin %s', (value, expected) => {
+    expect(getBaseUrl(value)).toBe(expected);
+  });
+
+  it.each([
+    [undefined, 'Missing VITE_BASE_URL'],
+    ['', 'Missing VITE_BASE_URL'],
+    ['/relative', 'absolute HTTP(S) URL'],
+    ['ftp://example.com', 'http: or https:'],
+    ['https://user@example.com', 'only an origin'],
+    ['https://example.com/app', 'only an origin'],
+    ['https://example.com?lang=ja', 'only an origin'],
+    ['https://example.com#top', 'only an origin'],
+  ])('rejects invalid public URL %s', (value, message) => {
+    expect(() => getBaseUrl(value)).toThrow(message);
+  });
+});
 
 describe('renderPageHtml', () => {
   const siteConfig = {

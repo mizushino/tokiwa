@@ -33,6 +33,28 @@ function normalizePath(basePath: string): string {
   return pagePath === '' ? '/' : '/' + pagePath;
 }
 
+export function getBaseUrl(value: string | undefined): string {
+  if (!value) {
+    throw new Error('Missing VITE_BASE_URL. Set it to the public site origin, for example https://example.com.');
+  }
+
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error('VITE_BASE_URL must be an absolute HTTP(S) URL.');
+  }
+
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    throw new Error('VITE_BASE_URL must use the http: or https: protocol.');
+  }
+  if (url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
+    throw new Error('VITE_BASE_URL must contain only an origin without credentials, a path, query, or hash.');
+  }
+
+  return url.origin;
+}
+
 function readPageConfig(filePath: string): PageConfig {
   const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Partial<PageConfig>;
   if (typeof parsed.title !== 'string' || typeof parsed.description !== 'string') {
@@ -177,7 +199,7 @@ export function PostBuildPlugin(site: string): { name: string; writeBundle(): vo
         themeColor: rootPage.themeColor ?? '#ffffff',
       };
 
-      const baseUrl = process.env.VITE_BASE_URL?.replace(/\/$/, '') ?? '';
+      const baseUrl = getBaseUrl(process.env.VITE_BASE_URL);
       const breadcrumbs = createBreadcrumbJSONLD(baseUrl, pages);
       const outDir = path.resolve(process.cwd(), 'public', site);
       const builtTemplatePath = path.join(outDir, 'index.html');
