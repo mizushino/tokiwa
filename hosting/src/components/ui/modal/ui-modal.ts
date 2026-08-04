@@ -171,7 +171,7 @@ export class UiModal extends LitElement {
   };
 
   private handleInputKeyDown = (e: KeyboardEvent): void => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.isComposing) {
       this.dispatchEvent(
         new CustomEvent('confirm', {
           bubbles: true,

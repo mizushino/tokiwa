@@ -276,6 +276,27 @@ describe('UiModal', () => {
     expect(confirmHandler).toHaveBeenCalled();
   });
 
+  it('does not confirm when Enter is used to complete IME composition', async () => {
+    const confirmHandler = vi.fn();
+
+    element.showInput = true;
+    element.open = true;
+    element.addEventListener('confirm', confirmHandler);
+    await element.updateComplete;
+
+    const input = element.querySelector('ui-input')?.shadowRoot?.querySelector('input');
+    input?.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'Enter',
+        isComposing: true,
+        bubbles: true,
+        composed: true,
+      })
+    );
+
+    expect(confirmHandler).not.toHaveBeenCalled();
+  });
+
   it('prevents native dialog cancel and routes it through cancel event', async () => {
     const cancelHandler = vi.fn();
 
