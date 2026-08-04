@@ -65,6 +65,10 @@ node_modules/
 /functions/.env.local
 /hosting/.env
 /hosting/.env.local
+/hosting/.env.*.local
+/hosting/src/sites/*/.env
+/hosting/src/sites/*/.env.local
+/hosting/src/sites/*/.env.*.local
 
 # build
 /functions/lib

@@ -51,6 +51,23 @@ Client-side Firestore models and subscriptions, for example `subscribeToUserDocu
 #### `src/services/`
 Typed clients for callable Functions. The current pattern is a thin wrapper around `callFirebaseFunction()`.
 
+## Environment Configuration
+
+Hosting builds combine environment files from two locations:
+
+- `hosting/.env*` contains values shared by every site, such as the Firebase project configuration
+- `hosting/src/sites/{site}/.env*` contains site-specific overrides, such as `VITE_BASE_URL`
+
+Copy `hosting/.env.example` to `hosting/.env` for shared local values and copy each site's `.env.example` to `.env` in that site directory. Mode-specific files follow Vite's normal naming, for example `.env.production` and `.env.production.local`.
+
+Values are resolved in this order, from highest to lowest priority:
+
+1. Shell or CI environment variables
+2. Site-specific environment files
+3. Shared Hosting environment files
+
+`VITE_BASE_URL` must be the public origin for the selected Hosting target. Because variables prefixed with `VITE_` are included in the client bundle, never store secrets in these files.
+
 ## Creating a New Page
 
 Pages are added under a site's folder and registered manually in that site's router.

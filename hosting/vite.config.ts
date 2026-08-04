@@ -12,10 +12,22 @@ const lint = JSON.parse(readFileSync(resolve(__dirname, 'oxlint-rules.json'), 'u
 
 let globalProperties = '';
 
+export function loadSiteEnvironment(mode: string, site: string, hostingDirectory = __dirname): NodeJS.ProcessEnv {
+  const sharedEnvironment = loadEnv(mode, hostingDirectory);
+  const siteEnvironment = loadEnv(mode, resolve(hostingDirectory, 'src', 'sites', site));
+
+  return {
+    ...sharedEnvironment,
+    ...siteEnvironment,
+    ...process.env,
+  };
+}
+
 export default ({ mode }: { mode: string }): UserConfig => {
   const site = process.env.APP_SITE || 'default';
-  process.env = { ...process.env, ...loadEnv(mode, `${process.cwd()}/src/sites/${site}`) };
-  getFirebaseConfig(process.env, { allowDemoFallback: allowsDemoFirebaseConfig(mode) });
+  const environment = loadSiteEnvironment(mode, site);
+  process.env = { ...process.env, ...environment };
+  getFirebaseConfig(environment, { allowDemoFallback: allowsDemoFirebaseConfig(mode) });
 
   const outDir = `../../../public/${site}`;
 
