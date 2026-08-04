@@ -20,7 +20,6 @@ import {
   signInWithProvider,
   signOut,
   subscribeUserState,
-  userSnapshot,
 } from './auth';
 
 vi.mock('firebase/auth', async () => {
@@ -570,85 +569,6 @@ describe('Auth', () => {
     });
   });
 
-  describe('userSnapshot', () => {
-    it('yields current user value initially', async () => {
-      const mockApp = {} as FirebaseApp;
-      initializeAuth(mockApp);
-
-      const snapshot = userSnapshot();
-      const { value } = await snapshot.next();
-
-      expect(value === null || value === undefined || typeof value === 'object').toBe(true);
-
-      await snapshot.return();
-    });
-
-    it('yields current user after sign in', async () => {
-      const mockApp = {} as FirebaseApp;
-      initializeAuth(mockApp);
-
-      const snapshot = userSnapshot();
-
-      await snapshot.next();
-
-      const nextPromise = Promise.race([
-        snapshot.next(),
-        new Promise<IteratorResult<User | null | undefined>>((resolve) =>
-          setTimeout(() => resolve({ value: undefined, done: true }), 100)
-        ),
-      ]);
-
-      authStateListeners.forEach((listener) => listener(mockUser));
-
-      const result = await nextPromise;
-      if (!result.done && result.value !== undefined) {
-        expect(result.value).toBe(mockUser);
-      }
-
-      await snapshot.return();
-    });
-
-    it('yields null after sign out', async () => {
-      const mockApp = {} as FirebaseApp;
-      initializeAuth(mockApp);
-
-      const snapshot = userSnapshot();
-
-      await snapshot.next();
-
-      const nextPromise = Promise.race([
-        snapshot.next(),
-        new Promise<IteratorResult<User | null | undefined>>((resolve) =>
-          setTimeout(() => resolve({ value: undefined, done: true }), 100)
-        ),
-      ]);
-
-      authStateListeners.forEach((listener) => listener(null));
-
-      const result = await nextPromise;
-      if (!result.done && result.value !== undefined) {
-        expect(result.value).toBeNull();
-      }
-
-      await snapshot.return();
-    });
-
-    it('settles a pending read immediately when the iterator is closed', async () => {
-      const mockApp = {} as FirebaseApp;
-      initializeAuth(mockApp);
-
-      const snapshot = userSnapshot();
-      await snapshot.next();
-      const pendingNext = snapshot.next();
-
-      const result = await snapshot.return();
-
-      expect(result.done).toBe(true);
-      await expect(pendingNext).resolves.toEqual({ done: true, value: undefined });
-      await expect(snapshot.next()).resolves.toEqual({ done: true, value: undefined });
-    });
-  });
-
   describe('subscribeUserState', () => {
     it('emits the current state and stops emitting after unsubscribe', () => {
       const mockApp = {} as FirebaseApp;
@@ -664,6 +584,21 @@ describe('Auth', () => {
       unsubscribe();
       authStateListeners.forEach((authListener) => authListener(null));
       expect(listener).toHaveBeenCalledTimes(2);
+    });
+
+    it('emits an uninitialized state when Auth is destroyed', () => {
+      const mockApp = {} as FirebaseApp;
+      initializeAuth(mockApp);
+      authStateListeners.forEach((authListener) => authListener(mockUser));
+      const listener = vi.fn();
+
+      const unsubscribe = subscribeUserState(listener);
+      expect(listener).toHaveBeenLastCalledWith(mockUser);
+
+      destroy();
+
+      expect(listener).toHaveBeenLastCalledWith(undefined);
+      unsubscribe();
     });
   });
 

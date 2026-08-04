@@ -72,10 +72,6 @@ const state: AuthState = {
 
 export type AuthUserState = User | null | undefined;
 
-export interface UserSnapshot extends AsyncIterableIterator<AuthUserState> {
-  return(): Promise<IteratorResult<AuthUserState, void>>;
-}
-
 const userListeners = new Set<(user: AuthUserState) => void>();
 
 function resolvePendingLoadUser(user: User | null): void {
@@ -88,7 +84,7 @@ function resolvePendingLoadUser(user: User | null): void {
   resolve?.(user);
 }
 
-function notifyUserChange(user: User | null): void {
+function notifyUserChange(user: AuthUserState): void {
   state.currentUserValue = user;
   userListeners.forEach((listener) => listener(user));
 }
@@ -98,75 +94,6 @@ export function subscribeUserState(listener: (user: AuthUserState) => void): Uns
   userListeners.add(listener);
   listener(state.currentUserValue);
   return () => userListeners.delete(listener);
-}
-
-class UserSnapshotIterator implements UserSnapshot {
-  private readonly values: AuthUserState[] = [];
-  private readonly pendingResolves: ((result: IteratorResult<AuthUserState, void>) => void)[] = [];
-  private unsubscribe?: Unsubscribe;
-  private closed = false;
-
-  public next(): Promise<IteratorResult<AuthUserState, void>> {
-    if (this.closed) {
-      return Promise.resolve({ done: true, value: undefined });
-    }
-
-    if (!this.unsubscribe) {
-      this.unsubscribe = subscribeUserState((user) => this.enqueue(user));
-    }
-
-    if (this.values.length > 0) {
-      return Promise.resolve({ done: false, value: this.values.shift() });
-    }
-
-    return new Promise((resolve) => {
-      this.pendingResolves.push(resolve);
-    });
-  }
-
-  public return(): Promise<IteratorResult<AuthUserState, void>> {
-    this.closed = true;
-    this.unsubscribe?.();
-    this.unsubscribe = undefined;
-    this.values.length = 0;
-    this.pendingResolves.splice(0).forEach((resolve) => resolve({ done: true, value: undefined }));
-    return Promise.resolve({ done: true, value: undefined });
-  }
-
-  public [Symbol.asyncIterator](): AsyncIterableIterator<AuthUserState> {
-    return this;
-  }
-
-  private enqueue(user: AuthUserState): void {
-    const resolve = this.pendingResolves.shift();
-    if (resolve) {
-      resolve({ done: false, value: user });
-      return;
-    }
-    this.values.push(user);
-  }
-}
-
-/**
- * Creates a cancellable async iterator that yields user state changes.
- *
- * First yields the current user value immediately, then yields each time
- * the user state changes (sign in and sign out).
- *
- * This is designed to work with lit-async's track() directive:
- * @example
- * ```ts
- * protected user = userSnapshot();
- *
- * render() {
- *   return html`${track(this.user, (user) => {
- *     return user ? html`Welcome!` : html`Please sign in`;
- *   })}`;
- * }
- * ```
- */
-export function userSnapshot(): UserSnapshot {
-  return new UserSnapshotIterator();
 }
 
 function getAuth(): Auth {
@@ -373,5 +300,5 @@ export function destroy(): void {
   state.auth = undefined;
   state.resolver = undefined;
   state.redirectAuthError = undefined;
-  state.currentUserValue = undefined;
+  notifyUserChange(undefined);
 }
