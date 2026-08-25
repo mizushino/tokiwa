@@ -28,7 +28,7 @@ hosting/
 
 #### `src/app/`
 Contains reusable application primitives:
-- `auth/`: Firebase Authentication helpers and `userSnapshot()`
+- `auth/`: Firebase Authentication helpers and `subscribeUserState()`
 - `styles/`: `tailwindCSS`, a constructable CSSStyleSheet for injecting Tailwind into Shadow DOM
 - `functions/`: Firebase Functions initialization and callable wrappers
 - `i18n/`: language detection and shared translations
@@ -262,19 +262,33 @@ npm -w hosting run localize:build
 
 ### Authentication Pattern
 
-Use `userSnapshot()` with `track()` for auth-aware rendering.
+Use `subscribeUserState()` for auth-aware rendering. The listener receives `undefined` while auth state is loading, `null` when signed out, and a `User` when signed in. Store the value in a reactive `@state()` property and unsubscribe in `disconnectedCallback()`.
 
 ```ts
-protected user = userSnapshot();
+@state()
+protected currentUser: User | null | undefined = undefined;
+
+private unsubscribeAuthState?: Unsubscribe;
+
+public override connectedCallback(): void {
+  super.connectedCallback();
+  this.unsubscribeAuthState = subscribeUserState((user) => {
+    this.currentUser = user;
+  });
+}
+
+public override disconnectedCallback(): void {
+  super.disconnectedCallback();
+  this.unsubscribeAuthState?.();
+  this.unsubscribeAuthState = undefined;
+}
 
 protected override render(): TemplateResult {
-  return html`${track(this.user, (user) => {
-    return user ? html`Welcome!` : html`Please sign in`;
-  })}`;
+  return html`${this.currentUser ? html`Welcome!` : html`Please sign in`}`;
 }
 ```
 
-The admin site additionally subscribes to the user document in Firestore to keep `admin` permission state current.
+The admin site additionally subscribes to the user document in Firestore to keep `admin` permission state current. When the auth user changes, it resets the permission state, re-subscribes to the new user's document, and re-verifies the `admin` flag against a force-refreshed ID token's custom claims (see `src/sites/admin/index.ts`).
 
 ### Navigation
 

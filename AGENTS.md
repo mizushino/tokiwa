@@ -119,15 +119,29 @@ export class UserDocument extends FirestoreDocument<UserKey, UserData> {
 
 ### 4. Reactive Auth and Realtime Reads
 
-Use `userSnapshot()` with `track()` for auth state, and use Firestore subscriptions from hosting models for permission-sensitive UI.
+Use `subscribeUserState()` for auth state (`undefined` = loading, `null` = signed out), and use Firestore subscriptions from hosting models for permission-sensitive UI. Unsubscribe in `disconnectedCallback()`.
 
 ```typescript
-protected user = userSnapshot();
+@state()
+protected currentUser: User | null | undefined = undefined;
+
+private unsubscribeAuthState?: Unsubscribe;
+
+public override connectedCallback(): void {
+  super.connectedCallback();
+  this.unsubscribeAuthState = subscribeUserState((user) => {
+    this.currentUser = user;
+  });
+}
+
+public override disconnectedCallback(): void {
+  super.disconnectedCallback();
+  this.unsubscribeAuthState?.();
+  this.unsubscribeAuthState = undefined;
+}
 
 protected override render(): TemplateResult {
-  return html`${track(this.user, (user) => {
-    return user ? html`Welcome!` : html`Please sign in`;
-  })}`;
+  return html`${this.currentUser ? html`Welcome!` : html`Please sign in`}`;
 }
 ```
 
