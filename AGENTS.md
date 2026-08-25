@@ -21,7 +21,7 @@ Firebase-based multi-site web application framework using Lit, Tailwind CSS v4, 
 ├── hosting/               # Frontend (Lit + Tailwind + Vite)
 │   ├── public/            # Site entry HTML and built assets
 │   └── src/
-│       ├── app/           # Core: auth, element base classes, functions, i18n, page, transition
+│       ├── app/           # Core: auth, styles, functions, i18n, page, transition
 │       ├── components/    # Reusable UI components
 │       ├── models/        # Client-side Firestore models
 │       ├── services/      # Callable Functions clients
@@ -92,7 +92,7 @@ export class DefaultHelloWorld extends PageElement {
 
 ### 3. Firestore Model Pattern
 
-Shared document types live in `firestore/src/types/*.ts`. Matching models may exist in both `hosting/src/models/*.ts` and `functions/src/models/*.ts` when the same collection is accessed from both client and server.
+Shared document types live in `firestore/src/types/*.ts` and extend `TimestampedData` (`createdAt`/`updatedAt`). Matching models may exist in both `hosting/src/models/*.ts` and `functions/src/models/*.ts` when the same collection is accessed from both client and server; both packages provide a `TimestampedDocument` base class that stamps timestamps in `beforeSave()`.
 
 ```typescript
 // firestore/src/types/user.ts
@@ -100,19 +100,21 @@ export interface UserKey {
   uid: string;
 }
 
-export interface UserData {
+export interface UserData extends TimestampedData {
   displayName: string;
   email: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 // functions/src/models/user.ts
-export class UserDocument extends FirestoreDocument<UserKey, UserData> {
+export class UserDocument extends TimestampedDocument<UserKey, UserData> {
   static pathTemplate = userDocumentPath;
 
   public static get defaultKey(): UserKey {
     return { uid: '' };
+  }
+
+  public static get defaultData(): UserData {
+    return { displayName: '', email: '', ...timestampDefaults() };
   }
 }
 ```

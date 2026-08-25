@@ -34,6 +34,7 @@ Contains reusable application primitives:
 - `i18n/`: language detection and shared translations
 - `page/`: `PageElement`, metadata handling, and navigation helpers
 - `transition/`: transition directive utilities
+- top-level modules: `analytics.ts`, `firebase-config.ts`, and `site-environment` helpers
 
 #### `src/sites/`
 Contains site-specific routers and pages:
@@ -43,7 +44,7 @@ Contains site-specific routers and pages:
 - nested folders such as `helloworld/`, `buttons/`, or `firestore/` map to route segments and usually contain `index.ts`, `page.json`, and optional `*.spec.ts`
 
 #### `src/components/ui/`
-Reusable components shared across sites. Current UI components include button, checkbox, dialog, dropdown, input, language-switcher, modal, sidebar, split, and table.
+Reusable components shared across sites. Current UI components include button, checkbox, dialog, dropdown, icon, input, language-switcher, modal, sidebar, spinner, split, and table.
 
 #### `src/models/`
 Client-side Firestore models and subscriptions, for example `subscribeToUserDocument()` and Firestore document classes built on `@mzsn/firestore/web`.
@@ -121,7 +122,7 @@ declare global {
 
 ### Key Points
 
-- Follow the custom element naming pattern `{site}-{page-name}` such as `default-helloworld` or `admin-buttons`
+- Follow the custom element naming pattern `{site}-{page-name}` such as `default-helloworld` or `admin-helloworld`
 - Import `PageElement` from `@app/page`
 - Import `page.json` and assign it to `pageMetadata`
 - Add the element to `HTMLElementTagNameMap`

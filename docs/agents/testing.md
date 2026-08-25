@@ -127,7 +127,7 @@ Examples in the current tree:
 hosting/src/sites/default/index.spec.ts
 hosting/src/sites/default/helloworld/helloworld.spec.ts
 hosting/src/sites/admin/admin.spec.ts
-hosting/src/sites/admin/buttons/buttons.spec.ts
+hosting/src/sites/admin/login/login.spec.ts
 ```
 
 ### Good Playwright Practices

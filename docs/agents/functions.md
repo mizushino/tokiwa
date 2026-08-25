@@ -34,6 +34,8 @@ Firestore-backed features usually span three layers:
 
 ```ts
 // firestore/src/types/user.ts
+import type { TimestampedData } from './timestamped.js';
+
 export const userCollectionPath = 'users';
 export const userDocumentPath = `${userCollectionPath}/{uid}`;
 
@@ -41,26 +43,27 @@ export interface UserKey {
   uid: string;
 }
 
-export interface UserData {
+export interface UserData extends TimestampedData {
   displayName: string;
   email: string;
   image?: string;
   permissions?: { [key: string]: string[] };
   admin?: boolean;
-  createdAt: Date;
-  updatedAt: Date;
 }
 ```
+
+`TimestampedData` in `firestore/src/types/timestamped.ts` provides the shared `createdAt`/`updatedAt` fields and the `timestampDefaults()` helper used by `defaultData`.
 
 ### Step 2: Add the Server Model
 
 ```ts
 // functions/src/models/user.ts
-import { FirestoreCollection, FirestoreDocument } from '@mzsn/firestore';
+import { FirestoreCollection } from '@mzsn/firestore';
 
 import { userCollectionPath, userDocumentPath, type UserData, type UserKey } from '@firestore/types/user.js';
+import { TimestampedDocument, timestampDefaults } from 'src/models/timestamped-document.js';
 
-export class UserDocument extends FirestoreDocument<UserKey, UserData> {
+export class UserDocument extends TimestampedDocument<UserKey, UserData> {
   static pathTemplate = userDocumentPath;
 
   public static get defaultKey(): UserKey {
@@ -70,22 +73,14 @@ export class UserDocument extends FirestoreDocument<UserKey, UserData> {
   }
 
   public static get defaultData(): UserData {
-    const now = new Date();
     return {
       email: '',
       displayName: '',
       image: '',
       permissions: {},
       admin: false,
-      createdAt: now,
-      updatedAt: now,
+      ...timestampDefaults(),
     };
-  }
-
-  protected override beforeSave(): void {
-    const now = new Date();
-    this.data.createdAt ??= now;
-    this.data.updatedAt = now;
   }
 }
 
@@ -95,12 +90,14 @@ export class UserCollection extends FirestoreCollection<never, UserKey, UserData
 }
 ```
 
+`TimestampedDocument` (`functions/src/models/timestamped-document.ts`, with a matching class in `hosting/src/models/`) stamps `createdAt` on the first save and refreshes `updatedAt` on every save via `beforeSave()`, so concrete models only define their key and data defaults.
+
 ### Important Conventions
 
 - Use flat file paths such as `firestore/src/types/user.ts` and `functions/src/models/user.ts`
 - Keep `defaultKey` aligned with the actual ID source; for auth-backed documents, the UID usually comes from Auth rather than `newId()`
 - Keep `defaultData` complete enough to build a valid first write
-- Use `beforeSave()` for timestamps and other consistently derived fields
+- Extend `TimestampedDocument` for documents with `createdAt`/`updatedAt`; override `beforeSave()` only for additional consistently derived fields
 
 ## Data Update Pattern
 
@@ -228,7 +225,12 @@ export const run = onCall<SampleRunRequest, Promise<SampleRunResponse>>({ region
 
 ### Blocking Auth Triggers
 
-Use `beforeUserCreated()` when user creation needs to seed Firestore or inherit pre-registered permissions before the account becomes active.
+The user service uses both blocking identity triggers, sharing one handler (`handleUserCreated`):
+
+- `beforeUserCreated()` seeds the Firestore user document before the Authentication user is committed
+- `beforeUserSignedIn()` re-runs the same handler on every sign-in
+
+Pre-registered permissions (`preRegisteredUsers/{emailHash}`) are inherited only after Firebase has verified the email; unverified users always receive empty privilege claims. Follow this pattern when user creation needs to seed Firestore or apply verification-gated permissions.
 
 ## Export Structure
 

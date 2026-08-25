@@ -47,7 +47,7 @@ Every UI should account for the following states when relevant:
 - Add or adjust shared tokens in the site stylesheet when a new color, spacing rule, or typography scale is needed across multiple screens
 - Prefer semantic color families such as primary, secondary, success, warning, danger, and info when they map to the intended meaning
 
-Example from the current admin site theme:
+Example from the shared stylesheet (`hosting/src/app/styles/tailwind.css`):
 
 ```css
 @theme {

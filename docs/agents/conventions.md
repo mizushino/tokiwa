@@ -16,7 +16,7 @@ This document defines coding standards and conventions for the project.
 
 Both packages use the **vite-plus (`vp`) toolchain**; the root `npm run lint` runs both:
 
-- lint via `vp lint .` — oxlint, with rules in `{package}/oxlint-rules.json` (referenced from each `vite.config.ts` `lint` field). Type-aware checks are enabled.
+- lint via `vp lint .` — oxlint, with rules in `{package}/oxlint-rules.json` (referenced from each `vite.config.ts` `lint` field). Type-aware checks are enabled. The root `npm run lint` additionally runs `lint:rules` over the Firestore/Storage rules tests (`firestore/firestore.rules.test.ts`, `storage/storage.rules.test.ts`).
 - format via `vp fmt -c ../.oxfmtrc.json` — oxfmt, configured in the root `.oxfmtrc.json` (single quotes, print width 120, Tailwind class sorting). The `-c` flag is required because `vp fmt` does not discover the config file on its own.
 - The root `npm run fmt` formats everything: both packages plus the shared `firestore/` and `storage/` sources.
 - `vp check` runs format, lint, and type checks together.
