@@ -122,11 +122,13 @@ export class UiInput extends LitElement {
     const inputId = this.resolvedInputId;
     const errorId = `${inputId}-error`;
     return html`
-      ${this.label
-        ? html`<label for="${inputId}" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >${this.label}</label
-          >`
-        : ''}
+      ${
+        this.label
+          ? html`<label for="${inputId}" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >${this.label}</label
+            >`
+          : ''
+      }
       <input
         id="${inputId}"
         class="${this.getInputClasses()}"
@@ -142,9 +144,11 @@ export class UiInput extends LitElement {
         @input=${this.handleInput}
         @change=${this.handleChange}
       />
-      ${this.error
-        ? html`<p id="${errorId}" class="mt-2 text-sm text-danger-600 dark:text-danger-400">${this.error}</p>`
-        : ''}
+      ${
+        this.error
+          ? html`<p id="${errorId}" class="mt-2 text-sm text-danger-600 dark:text-danger-400">${this.error}</p>`
+          : ''
+      }
     `;
   }
 }

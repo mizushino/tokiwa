@@ -54,13 +54,15 @@ export class DefaultFirestore extends PageElement {
             <ui-button variant="secondary" @click=${this.load}>${this.trans('load')}</ui-button>
           </div>
 
-          ${this.loadResult
-            ? pageResultBox(html`
-                <span class="text-sm text-gray-600 dark:text-gray-300"
-                  >${this.trans('load_result')}: ${this.loadResult}</span
-                >
-              `)
-            : ''}
+          ${
+            this.loadResult
+              ? pageResultBox(html`
+                  <span class="text-sm text-gray-600 dark:text-gray-300"
+                    >${this.trans('load_result')}: ${this.loadResult}</span
+                  >
+                `)
+              : ''
+          }
         </div>
       `)}
       ${pageCard(html`

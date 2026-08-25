@@ -159,15 +159,17 @@ export class UiDialog extends LitElement {
               </button>
             </div>
 
-            ${this.title
-              ? html`
-                  <div class="sm:flex sm:items-start">
-                    <div class="mt-3 w-full text-center sm:mt-0 sm:text-left">
-                      <h3 class="${overlayTitleClasses}">${this.title}</h3>
+            ${
+              this.title
+                ? html`
+                    <div class="sm:flex sm:items-start">
+                      <div class="mt-3 w-full text-center sm:mt-0 sm:text-left">
+                        <h3 class="${overlayTitleClasses}">${this.title}</h3>
+                      </div>
                     </div>
-                  </div>
-                `
-              : ''}
+                  `
+                : ''
+            }
 
             <div class="mt-3 sm:mt-4">
               <slot name="content"></slot>

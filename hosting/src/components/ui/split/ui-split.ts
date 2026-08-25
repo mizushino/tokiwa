@@ -68,28 +68,32 @@ export class UiSplit extends LitElement {
     return html`
       <div class="${isVertical ? 'h-4 w-full' : 'h-full w-4'} relative">
         <div
-          class="${isVertical
-            ? '-top-2 left-0 h-2 w-full cursor-ns-resize'
-            : '-left-2 top-0 h-full w-2 cursor-ew-resize'} absolute"
+          class="${
+            isVertical ? '-top-2 left-0 h-2 w-full cursor-ns-resize' : '-left-2 top-0 h-full w-2 cursor-ew-resize'
+          } absolute"
           @mousedown=${this.onMouseDown}
           @touchstart=${this.onTouchStart}
         ></div>
         <div
           ${ref(this.handleRef)}
-          class="${isVertical
-            ? 'z-10 flex h-full w-full cursor-ns-resize items-center justify-center border-t border-b'
-            : 'z-10 flex h-full w-full cursor-ew-resize items-center justify-center border-l border-r'} border-gray-800 bg-gray-900 hover:bg-gray-800"
+          class="${
+            isVertical
+              ? 'z-10 flex h-full w-full cursor-ns-resize items-center justify-center border-t border-b'
+              : 'z-10 flex h-full w-full cursor-ew-resize items-center justify-center border-l border-r'
+          } border-gray-800 bg-gray-900 hover:bg-gray-800"
           @mousedown=${this.onMouseDown}
           @touchstart=${this.onTouchStart}
         >
-          ${isVertical
-            ? html`<ui-icon class="pointer-events-none size-4 text-gray-400" .icon=${GripHorizontal}></ui-icon>`
-            : html`<ui-icon class="pointer-events-none size-4 text-gray-400" .icon=${GripVertical}></ui-icon>`}
+          ${
+            isVertical
+              ? html`<ui-icon class="pointer-events-none size-4 text-gray-400" .icon=${GripHorizontal}></ui-icon>`
+              : html`<ui-icon class="pointer-events-none size-4 text-gray-400" .icon=${GripVertical}></ui-icon>`
+          }
         </div>
         <div
-          class="${isVertical
-            ? '-bottom-2 left-0 h-2 w-full cursor-ns-resize'
-            : '-right-2 top-0 h-full w-2 cursor-ew-resize'} absolute"
+          class="${
+            isVertical ? '-bottom-2 left-0 h-2 w-full cursor-ns-resize' : '-right-2 top-0 h-full w-2 cursor-ew-resize'
+          } absolute"
           @mousedown=${this.onMouseDown}
           @touchstart=${this.onTouchStart}
         ></div>

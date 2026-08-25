@@ -59,13 +59,15 @@ export class DefaultFunctions extends PageElement {
           </ui-button>
 
           ${pageResultBox(html`
-            ${this.result
-              ? html`<span class="font-medium text-success-600 dark:text-success-400">${this.result}</span>`
-              : this.error
-                ? html`<span class="font-medium text-danger-600 dark:text-danger-400"
-                    >${this.trans('error')}: ${this.error}</span
-                  >`
-                : html`<span class="text-sm text-gray-400">${this.trans('result_placeholder')}</span>`}
+            ${
+              this.result
+                ? html`<span class="font-medium text-success-600 dark:text-success-400">${this.result}</span>`
+                : this.error
+                  ? html`<span class="font-medium text-danger-600 dark:text-danger-400"
+                      >${this.trans('error')}: ${this.error}</span
+                    >`
+                  : html`<span class="text-sm text-gray-400">${this.trans('result_placeholder')}</span>`
+            }
           `)}
         </div>
       `)}

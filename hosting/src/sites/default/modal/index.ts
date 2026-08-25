@@ -60,15 +60,17 @@ export class DefaultModal extends PageElement {
         },
         this.renderSingleArgAPI()
       )}
-      ${this.lastAction
-        ? pageResultBox(
-            html`
-              <h3 class="font-semibold text-gray-900 dark:text-white">${this.trans('last_action')}</h3>
-              <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">${this.lastAction}</p>
-            `,
-            'flex-col items-start'
-          )
-        : ''}
+      ${
+        this.lastAction
+          ? pageResultBox(
+              html`
+                <h3 class="font-semibold text-gray-900 dark:text-white">${this.trans('last_action')}</h3>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">${this.lastAction}</p>
+              `,
+              'flex-col items-start'
+            )
+          : ''
+      }
     `);
   }
 

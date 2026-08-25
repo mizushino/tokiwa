@@ -130,25 +130,29 @@ export class DefaultLitAsync extends PageElement {
       }),
       body: pageResultBox(
         html`
-          ${this.counterGenerator
-            ? html`
-                <span id="generator-counter" class="text-3xl font-extrabold text-success-600 dark:text-success-400">
-                  ${track(this.counterGenerator)}
-                </span>
-                <span class="mt-1 text-xs text-gray-400">${this.trans('seconds_elapsed')}</span>
-              `
-            : html`<span id="generator-stopped" class="text-gray-400">${this.trans('generator_stopped')}</span>`}
+          ${
+            this.counterGenerator
+              ? html`
+                  <span id="generator-counter" class="text-3xl font-extrabold text-success-600 dark:text-success-400">
+                    ${track(this.counterGenerator)}
+                  </span>
+                  <span class="mt-1 text-xs text-gray-400">${this.trans('seconds_elapsed')}</span>
+                `
+              : html`<span id="generator-stopped" class="text-gray-400">${this.trans('generator_stopped')}</span>`
+          }
         `,
         'flex-col'
       ),
       footer: html`
-        ${this.isGeneratorRunning
-          ? html`<ui-button id="btn-pause-generator" variant="danger" @click=${this.stopGenerator}
-              >${this.trans('pause')}</ui-button
-            >`
-          : html`<ui-button id="btn-resume-generator" variant="success" @click=${this.startGenerator}>
-              ${this.trans('resume')}
-            </ui-button>`}
+        ${
+          this.isGeneratorRunning
+            ? html`<ui-button id="btn-pause-generator" variant="danger" @click=${this.stopGenerator}
+                >${this.trans('pause')}</ui-button
+              >`
+            : html`<ui-button id="btn-resume-generator" variant="success" @click=${this.startGenerator}>
+                ${this.trans('resume')}
+              </ui-button>`
+        }
       `,
     });
   }

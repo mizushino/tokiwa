@@ -341,19 +341,21 @@ export class UiModal extends LitElement {
                     <span class=${messageClass}>${this.message}</span>
                   </p>
                 </div>
-                ${this.showInput
-                  ? html`
-                      <div class="mt-4">
-                        <ui-input
-                          ${ref(this.inputRef)}
-                          .value=${this.inputValue}
-                          error=${this.inputError}
-                          @input=${this.handleInputChange}
-                          @keydown=${this.handleInputKeyDown}
-                        ></ui-input>
-                      </div>
-                    `
-                  : ''}
+                ${
+                  this.showInput
+                    ? html`
+                        <div class="mt-4">
+                          <ui-input
+                            ${ref(this.inputRef)}
+                            .value=${this.inputValue}
+                            error=${this.inputError}
+                            @input=${this.handleInputChange}
+                            @keydown=${this.handleInputKeyDown}
+                          ></ui-input>
+                        </div>
+                      `
+                    : ''
+                }
                 <slot name="content"></slot>
               </div>
             </div>

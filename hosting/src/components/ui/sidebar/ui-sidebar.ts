@@ -73,13 +73,15 @@ export class UiSidebar extends LitElement {
       <li>
         <a href="${ifDefined(item.href)}" class="${classes}" @click=${(e: Event) => this.handleNavClick(e, item)}>
           ${item.icon} ${item.label}
-          ${item.badge
-            ? html`<span
-                aria-hidden="true"
-                class="ml-auto w-9 min-w-max rounded-full bg-gray-900 px-2.5 py-0.5 text-center text-xs/5 font-medium whitespace-nowrap text-white outline-1 -outline-offset-1 outline-white/15"
-                >${item.badge}</span
-              >`
-            : ''}
+          ${
+            item.badge
+              ? html`<span
+                  aria-hidden="true"
+                  class="ml-auto w-9 min-w-max rounded-full bg-gray-900 px-2.5 py-0.5 text-center text-xs/5 font-medium whitespace-nowrap text-white outline-1 -outline-offset-1 outline-white/15"
+                  >${item.badge}</span
+                >`
+              : ''
+          }
         </a>
       </li>
     `;
